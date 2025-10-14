@@ -64,14 +64,11 @@ crontab -r  # This deletes your entire crontab!
 ### Manual Sync
 
 ```bash
-# Default: 5 minute wait after initialization
+# Use default vault path
 ./scripts/obsidian_manual_sync.sh
 
-# Custom wait time (2 minutes)
-./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish" 120
-
-# No additional wait (just 30s initialization)
-./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish" 0
+# Custom vault path
+./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish"
 ```
 
 ## ⚙️ Configuration
@@ -80,9 +77,7 @@ crontab -r  # This deletes your entire crontab!
 Default: `$HOME/Obsidian Vault/jujin.dev-publish`
 
 ### Wait Times
-- **INIT_WAIT_SECONDS**: 30s - Wait after starting Obsidian
-- **EXISTING_WAIT_SECONDS**: 30s - Grace period if Obsidian already running
-- **DEFAULT_WAIT_SECONDS**: 300s - Additional wait for vault sync (manual script only)
+- **INIT_WAIT_SECONDS**: 30s - Wait after starting Obsidian (only if not already running)
 
 ### Lock File
 `scripts/obsidian_publish.lock` - Prevents concurrent script execution

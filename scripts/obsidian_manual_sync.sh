@@ -3,32 +3,26 @@
 # obsidian_manual_sync.sh - Manual Obsidian → Git publish workflow
 #
 # USAGE:
-#   ./scripts/obsidian_manual_sync.sh [vault_dir] [wait_seconds]
+#   ./scripts/obsidian_manual_sync.sh [vault_dir]
 #
 # ARGUMENTS:
 #   vault_dir     - Path to Obsidian vault publish directory
 #                   Default: "$HOME/Obsidian Vault/jujin.dev-publish"
-#   wait_seconds  - Additional wait time after initialization (0 = skip)
-#                   Default: 300 (5 minutes)
 #
 # EXAMPLES:
-#   # Use defaults (vault path and 300s wait)
+#   # Use default vault path
 #   ./scripts/obsidian_manual_sync.sh
 #
-#   # Custom vault and 2 minute wait
-#   ./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish" 120
-#
-#   # Custom vault with no additional wait (just initialization wait)
-#   ./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish" 0
+#   # Custom vault path
+#   ./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish"
 #
 # BEHAVIOR:
 #   1. Acquires exclusive lock to prevent concurrent runs
 #   2. Checks if Obsidian is running; starts headlessly if not
 #   3. Waits INIT_WAIT_SECONDS (30s) for initialization if started
-#   4. Waits additional wait_seconds if specified (to allow vault sync)
-#   5. Syncs vault content to project using rsync --delete
-#   6. Commits and pushes changes to git if any exist
-#   7. Shuts down Obsidian if script started it
+#   4. Syncs vault content to project using rsync --delete
+#   5. Commits and pushes changes to git if any exist
+#   6. Shuts down Obsidian if script started it
 #
 # REQUIREMENTS:
 #   - xvfb-run, git, rsync, obsidian
@@ -43,7 +37,6 @@ set -euo pipefail
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 SOURCE_VAULT="${1:-$HOME/Obsidian Vault/jujin.dev-publish}"
-DEFAULT_WAIT_SECONDS="${2:-300}"
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 
@@ -72,7 +65,6 @@ LOCK_FD=200
 
 log "=== Starting Obsidian manual sync ==="
 log "Source vault: $SOURCE_VAULT"
-log "Additional wait: ${DEFAULT_WAIT_SECONDS}s"
 
 # Validate required commands
 for cmd in xvfb-run git rsync; do
@@ -106,7 +98,7 @@ STARTED_BY_SCRIPT=0
 OBS_PID=""
 TOTAL_WAIT=0
 
-if pgrep -f "[o]bsidian" >/dev/null 2>&1; then
+if pgrep -x "obsidian" >/dev/null 2>&1 || pidof obsidian >/dev/null 2>&1; then
     log "Obsidian is already running. Proceeding with sync..."
     STARTED_BY_SCRIPT=0
 else
@@ -119,7 +111,6 @@ else
 
     log "Started Obsidian with PID $OBS_PID. Waiting ${INIT_WAIT_SECONDS}s for initialization..."
     sleep "$INIT_WAIT_SECONDS"
-    TOTAL_WAIT=$INIT_WAIT_SECONDS
 
     # Verify process is still alive
     if ! kill -0 "$OBS_PID" 2>/dev/null; then
@@ -127,16 +118,7 @@ else
         exit 1
     fi
     log "Obsidian initialized successfully"
-
-    # Additional wait for vault sync if requested
-    if [[ "$DEFAULT_WAIT_SECONDS" -gt 0 ]]; then
-        log "Waiting additional ${DEFAULT_WAIT_SECONDS}s for vault synchronization..."
-        sleep "$DEFAULT_WAIT_SECONDS"
-        TOTAL_WAIT=$((TOTAL_WAIT + DEFAULT_WAIT_SECONDS))
-    fi
 fi
-
-log "Total wait time: ${TOTAL_WAIT}s"
 
 # Sync vault content to target directory
 log "Syncing content from vault to project..."

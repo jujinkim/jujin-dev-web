@@ -90,7 +90,7 @@ fi
 STARTED_BY_SCRIPT=0
 OBS_PID=""
 
-if pgrep -f "[o]bsidian" >/dev/null 2>&1; then
+if pgrep -x "obsidian" >/dev/null 2>&1 || pidof obsidian >/dev/null 2>&1; then
     log "Obsidian is already running. Proceeding with sync..."
     STARTED_BY_SCRIPT=0
 else
