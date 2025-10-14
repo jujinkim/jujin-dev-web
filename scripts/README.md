@@ -34,6 +34,31 @@ Add this line:
 */5 * * * * /home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_auto_sync.sh >> /home/jujin/workspace/projects/jujin-dev-web/.obsidian_publish.log 2>&1
 ```
 
+### 4. Cancel/disable cron automation
+
+**Option 1: Remove the cron job**
+```bash
+crontab -e
+# Delete the line and save
+```
+
+**Option 2: Temporarily disable (comment out)**
+```bash
+crontab -e
+# Add # at the beginning of the line:
+# */5 * * * * /home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_auto_sync.sh >> /home/jujin/workspace/projects/jujin-dev-web/.obsidian_publish.log 2>&1
+```
+
+**Option 3: View current cron jobs**
+```bash
+crontab -l  # List all cron jobs
+```
+
+**Option 4: Remove ALL cron jobs (⚠️ CAUTION!)**
+```bash
+crontab -r  # This deletes your entire crontab!
+```
+
 ## 📖 Usage
 
 ### Manual Sync
