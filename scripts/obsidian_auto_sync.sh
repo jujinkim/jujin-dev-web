@@ -11,7 +11,7 @@
 # BEHAVIOR:
 #   1. Acquires exclusive lock to prevent concurrent runs
 #   2. Checks if Obsidian is running; starts headlessly if not
-#   3. Waits for initialization (30s) if started, or brief grace (30s) if existing
+#   3. Waits for initialization (30s) only if starting Obsidian
 #   4. Syncs vault content to project using rsync --delete
 #   5. Commits and pushes changes to git if any exist
 #   6. Shuts down Obsidian if script started it
@@ -31,7 +31,6 @@ set -euo pipefail
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 SOURCE_VAULT="${1:-$HOME/Obsidian Vault/jujin.dev-publish}"
-EXISTING_WAIT_SECONDS=30
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 
@@ -92,9 +91,8 @@ STARTED_BY_SCRIPT=0
 OBS_PID=""
 
 if pgrep -f "[o]bsidian" >/dev/null 2>&1; then
-    log "Obsidian is already running. Waiting ${EXISTING_WAIT_SECONDS}s grace period..."
+    log "Obsidian is already running. Proceeding with sync..."
     STARTED_BY_SCRIPT=0
-    sleep "$EXISTING_WAIT_SECONDS"
 else
     log "Obsidian not running. Starting headlessly..."
     STARTED_BY_SCRIPT=1

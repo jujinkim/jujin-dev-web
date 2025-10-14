@@ -44,7 +44,6 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 SOURCE_VAULT="${1:-$HOME/Obsidian Vault/jujin.dev-publish}"
 DEFAULT_WAIT_SECONDS="${2:-300}"
-EXISTING_WAIT_SECONDS=30
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 
@@ -108,10 +107,8 @@ OBS_PID=""
 TOTAL_WAIT=0
 
 if pgrep -f "[o]bsidian" >/dev/null 2>&1; then
-    log "Obsidian is already running. Waiting ${EXISTING_WAIT_SECONDS}s grace period..."
+    log "Obsidian is already running. Proceeding with sync..."
     STARTED_BY_SCRIPT=0
-    sleep "$EXISTING_WAIT_SECONDS"
-    TOTAL_WAIT=$EXISTING_WAIT_SECONDS
 else
     log "Obsidian not running. Starting headlessly..."
     STARTED_BY_SCRIPT=1
