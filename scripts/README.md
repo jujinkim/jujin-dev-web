@@ -31,7 +31,7 @@ chmod +x scripts/*.sh
 
 Options:
 1. **Check status** - View cron, Obsidian, and log status
-2. **Enable cron** - Auto-sync every 5 minutes
+2. **Enable cron** - Auto-sync every minute
 3. **Disable cron** - Stop auto-sync
 4. **Run manual sync** - Sync once now
 5. **View live logs** - Monitor sync activity
@@ -68,11 +68,11 @@ DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/jujin.dev-publish"
 ```
 
 ### Cron Schedule
-Default: Every 5 minutes (`*/5 * * * *`)
+Default: Every minute (`* * * * *`)
 
-Change in `obsidian_manage.sh:21`:
+Change in `obsidian_manage.sh:23`:
 ```bash
-CRON_SCHEDULE="*/5 * * * *"
+CRON_SCHEDULE="* * * * *"
 ```
 
 ### Wait Time
@@ -177,11 +177,11 @@ ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_cron.sh
 `~/.config/systemd/user/obsidian-publish.timer`:
 ```ini
 [Unit]
-Description=Run Obsidian Publish Sync every 5 minutes
+Description=Run Obsidian Publish Sync every minute
 
 [Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
+OnBootSec=1min
+OnUnitActiveSec=1min
 
 [Install]
 WantedBy=timers.target

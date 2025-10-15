@@ -20,7 +20,7 @@ source "$SCRIPTS_DIR/obsidian_sync_common.sh"
 
 # Cron configuration
 CRON_JOB_PATTERN="obsidian_cron.sh"
-CRON_SCHEDULE="*/5 * * * *"
+CRON_SCHEDULE="* * * * *"
 CRON_COMMAND="$SCRIPTS_DIR/obsidian_cron.sh >> $PROJECT_DIR/.obsidian_publish.log 2>&1"
 LOG_FILE="$PROJECT_DIR/.obsidian_publish.log"
 
@@ -57,7 +57,7 @@ show_status() {
     echo -n "Cron Scheduler: "
     if check_cron_status; then
         echo -e "${GREEN}ENABLED${NC}"
-        echo "Schedule: Every 5 minutes"
+        echo "Schedule: Every minute"
         echo ""
         echo "Active cron job:"
         crontab -l | grep "$CRON_JOB_PATTERN" | sed 's/^/  /'
@@ -106,7 +106,7 @@ enable_cron() {
 
     if check_cron_status; then
         echo -e "${GREEN}✓ Cron job enabled successfully${NC}"
-        echo "Schedule: Every 5 minutes"
+        echo "Schedule: Every minute"
         echo "Logs: $LOG_FILE"
     else
         echo -e "${RED}✗ Failed to enable cron job${NC}"
@@ -160,7 +160,7 @@ show_menu() {
     echo -e "${BLUE}=== Obsidian Sync Manager ===${NC}"
     echo ""
     echo "1) Check status"
-    echo "2) Enable cron automation (every 5 minutes)"
+    echo "2) Enable cron automation (every minute)"
     echo "3) Disable cron automation"
     echo "4) Run manual sync now"
     echo "5) View live logs"
