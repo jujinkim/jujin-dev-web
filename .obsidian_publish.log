@@ -2508,3 +2508,34 @@ sent 157 bytes  received 19 bytes  352.00 bytes/sec
 total size is 124  speedup is 0.70
 [2025-10-15T18:00:01+09:00] Sync complete
 [2025-10-15T18:00:01+09:00] Changes detected. Committing and pushing...
+[main 2dd1d05] Publish update from Obsidian vault
+ 1 file changed, 24 insertions(+)
+[2025-10-15T18:00:01+09:00] Pushing to branch: main
+To github.com:jujinkim/jujin-dev-web.git
+   23800d2..2dd1d05  main -> main
+[2025-10-15T18:00:04+09:00] Successfully pushed changes
+[2025-10-15T18:00:04+09:00] === Auto-sync completed successfully ===
+[2025-10-16T00:00:01+09:00] === Starting Obsidian auto-sync ===
+[2025-10-16T00:00:01+09:00] Obsidian is already running. Proceeding with sync...
+[2025-10-16T00:00:01+09:00] Syncing content from vault to project...
+[2025-10-16T00:00:01+09:00]   Source: /home/jujin/Obsidian Vault/jujin.dev-publish
+[2025-10-16T00:00:01+09:00]   Target: /home/jujin/workspace/projects/jujin-dev-web/content
+
+Number of files: 5 (reg: 4, dir: 1)
+Number of created files: 0
+Number of deleted files: 0
+Number of regular files transferred: 0
+Total file size: 124 bytes
+Total transferred file size: 0 bytes
+Literal data: 0 bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 157
+Total bytes received: 19
+
+sent 157 bytes  received 19 bytes  352.00 bytes/sec
+total size is 124  speedup is 0.70
+[2025-10-16T00:00:01+09:00] Sync complete
+[2025-10-16T00:00:01+09:00] Changes detected. Committing and pushing...
