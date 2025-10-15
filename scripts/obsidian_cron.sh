@@ -3,10 +3,10 @@
 # obsidian_cron.sh - Automated Obsidian → Git publish workflow (for cron)
 #
 # USAGE:
-#   Run from cron every minute.
+#   Run from cron every 6 hours.
 #
 #   Crontab example:
-#   * * * * * /path/to/scripts/obsidian_cron.sh >> /path/to/.obsidian_publish.log 2>&1
+#   0 */6 * * * /path/to/scripts/obsidian_cron.sh >> /path/to/.obsidian_publish.log 2>&1
 #
 # BEHAVIOR:
 #   1. Acquires exclusive lock to prevent concurrent runs

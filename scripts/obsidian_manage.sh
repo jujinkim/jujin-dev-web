@@ -20,7 +20,7 @@ source "$SCRIPTS_DIR/obsidian_sync_common.sh"
 
 # Cron configuration
 CRON_JOB_PATTERN="obsidian_cron.sh"
-CRON_SCHEDULE="0 * * * *"
+CRON_SCHEDULE="0 */6 * * *"
 CRON_COMMAND="$SCRIPTS_DIR/obsidian_cron.sh >> $PROJECT_DIR/.obsidian_publish.log 2>&1"
 LOG_FILE="$PROJECT_DIR/.obsidian_publish.log"
 WATCH_LOG="$PROJECT_DIR/.obsidian_watch.log"
@@ -58,7 +58,7 @@ show_status() {
     echo -n "Cron Scheduler: "
     if check_cron_status; then
         echo -e "${GREEN}ENABLED${NC}"
-        echo "Schedule: Every hour (backup)"
+        echo "Schedule: Every 6 hours (backup)"
         echo ""
         echo "Active cron job:"
         crontab -l | grep "$CRON_JOB_PATTERN" | sed 's/^/  /'
@@ -118,7 +118,7 @@ enable_cron() {
 
     if check_cron_status; then
         echo -e "${GREEN}✓ Cron job enabled successfully${NC}"
-        echo "Schedule: Every hour (backup sync)"
+        echo "Schedule: Every 6 hours (backup sync)"
         echo "Logs: $LOG_FILE"
     else
         echo -e "${RED}✗ Failed to enable cron job${NC}"
@@ -172,7 +172,7 @@ show_menu() {
     echo -e "${BLUE}=== Obsidian Sync Manager ===${NC}"
     echo ""
     echo "1) Check status"
-    echo "2) Enable cron automation (hourly backup)"
+    echo "2) Enable cron automation (6-hourly backup)"
     echo "3) Disable cron automation"
     echo "4) Start file watcher (auto-sync on changes)"
     echo "5) Stop file watcher"

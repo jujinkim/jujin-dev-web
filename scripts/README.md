@@ -17,14 +17,14 @@ sudo apt install inotify-tools
 
 ## Recommended Setup
 
-**Best practice: File watcher (instant) + hourly backup**
+**Best practice: File watcher (instant) + 6-hourly backup**
 
 1. Start file watcher: `./scripts/obsidian_manage.sh` → option 4
-2. Enable hourly cron: `./scripts/obsidian_manage.sh` → option 2
+2. Enable 6-hourly cron: `./scripts/obsidian_manage.sh` → option 2
 
 This gives you:
 - ⚡ Instant sync on file changes (60s debounce)
-- 🛡️ Hourly backup sync (safety net)
+- 🛡️ 6-hourly backup sync (safety net)
 
 ## Scripts
 
@@ -33,7 +33,7 @@ This gives you:
 | **obsidian_manage.sh** | Interactive management tool (⭐ start here) |
 | **obsidian_watch.sh** | File watcher with 60s debouncing (auto-sync on changes) |
 | **obsidian_manual_sync.sh** | One-time manual sync |
-| **obsidian_cron.sh** | Hourly backup sync (managed by obsidian_manage.sh) |
+| **obsidian_cron.sh** | 6-hourly backup sync (managed by obsidian_manage.sh) |
 | **obsidian_sync_common.sh** | Shared functions (don't run directly) |
 
 ## Using the Manager
@@ -46,8 +46,8 @@ This gives you:
 
 Options:
 1. **Check status** - View watcher, cron, Obsidian status
-2. **Enable cron** - Hourly backup sync
-3. **Disable cron** - Stop hourly backup
+2. **Enable cron** - 6-hourly backup sync
+3. **Disable cron** - Stop 6-hourly backup
 4. **Start watcher** - Auto-sync on file changes (60s debounce)
 5. **Stop watcher** - Stop file watcher
 6. **Run manual sync** - Sync once now
@@ -86,11 +86,11 @@ DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/jujin.dev-publish"
 ```
 
 ### Cron Schedule
-Default: Every hour (`0 * * * *`) - backup only
+Default: Every 6 hours (`0 */6 * * *`) - backup only
 
 Change in `obsidian_manage.sh:23`:
 ```bash
-CRON_SCHEDULE="0 * * * *"
+CRON_SCHEDULE="0 */6 * * *"
 ```
 
 ### File Watcher Debounce
@@ -212,11 +212,11 @@ ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_cron.sh
 `~/.config/systemd/user/obsidian-publish.timer`:
 ```ini
 [Unit]
-Description=Run Obsidian Publish Sync every hour
+Description=Run Obsidian Publish Sync every 6 hours
 
 [Timer]
 OnBootSec=5min
-OnUnitActiveSec=1h
+OnUnitActiveSec=6h
 
 [Install]
 WantedBy=timers.target
@@ -243,7 +243,7 @@ WantedBy=default.target
 
 Enable:
 ```bash
-# For timer (hourly backup)
+# For timer (6-hourly backup)
 systemctl --user daemon-reload
 systemctl --user enable --now obsidian-publish.timer
 systemctl --user status obsidian-publish.timer
