@@ -243,7 +243,13 @@ WantedBy=default.target
 
 Enable:
 ```bash
+# For timer (hourly backup)
 systemctl --user daemon-reload
 systemctl --user enable --now obsidian-publish.timer
 systemctl --user status obsidian-publish.timer
+
+# For watcher (auto-sync on changes)
+systemctl --user daemon-reload
+systemctl --user enable --now obsidian-watcher.service
+systemctl --user status obsidian-watcher.service
 ```
