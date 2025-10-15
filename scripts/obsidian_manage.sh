@@ -20,9 +20,10 @@ source "$SCRIPTS_DIR/obsidian_sync_common.sh"
 
 # Cron configuration
 CRON_JOB_PATTERN="obsidian_cron.sh"
-CRON_SCHEDULE="* * * * *"
+CRON_SCHEDULE="0 * * * *"
 CRON_COMMAND="$SCRIPTS_DIR/obsidian_cron.sh >> $PROJECT_DIR/.obsidian_publish.log 2>&1"
 LOG_FILE="$PROJECT_DIR/.obsidian_publish.log"
+WATCH_LOG="$PROJECT_DIR/.obsidian_watch.log"
 
 # Colors for output
 if [[ -t 1 ]]; then
@@ -57,12 +58,23 @@ show_status() {
     echo -n "Cron Scheduler: "
     if check_cron_status; then
         echo -e "${GREEN}ENABLED${NC}"
-        echo "Schedule: Every minute"
+        echo "Schedule: Every hour (backup)"
         echo ""
         echo "Active cron job:"
         crontab -l | grep "$CRON_JOB_PATTERN" | sed 's/^/  /'
     else
         echo -e "${YELLOW}DISABLED${NC}"
+    fi
+    echo ""
+
+    # File watcher status
+    echo -n "File Watcher: "
+    if is_watcher_running; then
+        echo -e "${GREEN}Running${NC}"
+        echo "Debounce: 60 seconds"
+        echo "Logs: $WATCH_LOG"
+    else
+        echo -e "${YELLOW}Not running${NC}"
     fi
     echo ""
 
@@ -106,7 +118,7 @@ enable_cron() {
 
     if check_cron_status; then
         echo -e "${GREEN}✓ Cron job enabled successfully${NC}"
-        echo "Schedule: Every minute"
+        echo "Schedule: Every hour (backup sync)"
         echo "Logs: $LOG_FILE"
     else
         echo -e "${RED}✗ Failed to enable cron job${NC}"
@@ -160,14 +172,77 @@ show_menu() {
     echo -e "${BLUE}=== Obsidian Sync Manager ===${NC}"
     echo ""
     echo "1) Check status"
-    echo "2) Enable cron automation (every minute)"
+    echo "2) Enable cron automation (hourly backup)"
     echo "3) Disable cron automation"
-    echo "4) Run manual sync now"
-    echo "5) View live logs"
-    echo "6) Clear lock file"
+    echo "4) Start file watcher (auto-sync on changes)"
+    echo "5) Stop file watcher"
+    echo "6) Run manual sync now"
+    echo "7) View sync logs"
+    echo "8) View watcher logs"
+    echo "9) Clear lock file"
     echo "0) Exit"
     echo ""
     echo -n "Select option: "
+}
+
+# Check if watcher is running
+is_watcher_running() {
+    pgrep -f "obsidian_watch.sh" >/dev/null 2>&1
+}
+
+# Start file watcher
+start_watcher() {
+    if is_watcher_running; then
+        echo -e "${YELLOW}File watcher is already running${NC}"
+        return
+    fi
+
+    echo "Starting file watcher..."
+    nohup "$SCRIPTS_DIR/obsidian_watch.sh" >/dev/null 2>&1 &
+    sleep 1
+
+    if is_watcher_running; then
+        echo -e "${GREEN}✓ File watcher started successfully${NC}"
+        echo "Debounce: 60 seconds"
+        echo "Logs: $WATCH_LOG"
+    else
+        echo -e "${RED}✗ Failed to start file watcher${NC}"
+        exit 1
+    fi
+}
+
+# Stop file watcher
+stop_watcher() {
+    if ! is_watcher_running; then
+        echo -e "${YELLOW}File watcher is not running${NC}"
+        return
+    fi
+
+    echo "Stopping file watcher..."
+    pkill -f "obsidian_watch.sh"
+    sleep 1
+
+    if ! is_watcher_running; then
+        echo -e "${GREEN}✓ File watcher stopped${NC}"
+    else
+        echo -e "${RED}✗ Failed to stop file watcher${NC}"
+        exit 1
+    fi
+}
+
+# View watcher logs
+view_watcher_logs() {
+    if [[ ! -f "$WATCH_LOG" ]]; then
+        echo -e "${YELLOW}No watcher log file found${NC}"
+        return
+    fi
+
+    echo -e "${BLUE}=== Viewing Watcher Logs ===${NC}"
+    echo "Press Ctrl+C to exit"
+    echo ""
+    sleep 1
+
+    tail -f "$WATCH_LOG"
 }
 
 # Clear lock file
@@ -245,15 +320,30 @@ main() {
                 ;;
             4)
                 echo ""
-                run_manual_sync
+                start_watcher
                 echo ""
                 ;;
             5)
                 echo ""
-                view_logs
+                stop_watcher
                 echo ""
                 ;;
             6)
+                echo ""
+                run_manual_sync
+                echo ""
+                ;;
+            7)
+                echo ""
+                view_logs
+                echo ""
+                ;;
+            8)
+                echo ""
+                view_watcher_logs
+                echo ""
+                ;;
+            9)
                 echo ""
                 clear_lock
                 echo ""
