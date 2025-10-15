@@ -1,6 +1,6 @@
 # Obsidian Sync Automation
 
-Automatically sync Obsidian vault to GitHub Pages.
+Automatically sync Obsidian vault to GitHub Pages with smart file watching.
 
 ## Quick Start
 
@@ -8,17 +8,32 @@ Automatically sync Obsidian vault to GitHub Pages.
 # Make scripts executable
 chmod +x scripts/*.sh
 
+# Install dependencies
+sudo apt install inotify-tools
+
 # Run management tool
 ./scripts/obsidian_manage.sh
 ```
+
+## Recommended Setup
+
+**Best practice: File watcher (instant) + hourly backup**
+
+1. Start file watcher: `./scripts/obsidian_manage.sh` → option 4
+2. Enable hourly cron: `./scripts/obsidian_manage.sh` → option 2
+
+This gives you:
+- ⚡ Instant sync on file changes (60s debounce)
+- 🛡️ Hourly backup sync (safety net)
 
 ## Scripts
 
 | Script | Purpose |
 |--------|---------|
 | **obsidian_manage.sh** | Interactive management tool (⭐ start here) |
+| **obsidian_watch.sh** | File watcher with 60s debouncing (auto-sync on changes) |
 | **obsidian_manual_sync.sh** | One-time manual sync |
-| **obsidian_cron.sh** | Background automation (managed by obsidian_manage.sh) |
+| **obsidian_cron.sh** | Hourly backup sync (managed by obsidian_manage.sh) |
 | **obsidian_sync_common.sh** | Shared functions (don't run directly) |
 
 ## Using the Manager
@@ -30,12 +45,15 @@ chmod +x scripts/*.sh
 ```
 
 Options:
-1. **Check status** - View cron, Obsidian, and log status
-2. **Enable cron** - Auto-sync every minute
-3. **Disable cron** - Stop auto-sync
-4. **Run manual sync** - Sync once now
-5. **View live logs** - Monitor sync activity
-6. **Clear lock file** - Fix stuck processes
+1. **Check status** - View watcher, cron, Obsidian status
+2. **Enable cron** - Hourly backup sync
+3. **Disable cron** - Stop hourly backup
+4. **Start watcher** - Auto-sync on file changes (60s debounce)
+5. **Stop watcher** - Stop file watcher
+6. **Run manual sync** - Sync once now
+7. **View sync logs** - Monitor sync activity
+8. **View watcher logs** - Monitor file change detection
+9. **Clear lock file** - Fix stuck processes
 
 ### Command Line
 
@@ -68,14 +86,22 @@ DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/jujin.dev-publish"
 ```
 
 ### Cron Schedule
-Default: Every minute (`* * * * *`)
+Default: Every hour (`0 * * * *`) - backup only
 
 Change in `obsidian_manage.sh:23`:
 ```bash
-CRON_SCHEDULE="* * * * *"
+CRON_SCHEDULE="0 * * * *"
 ```
 
-### Wait Time
+### File Watcher Debounce
+Default: 60 seconds (wait after last change)
+
+Change in `obsidian_watch.sh:27`:
+```bash
+DEBOUNCE_SECONDS=60
+```
+
+### Obsidian Startup Wait
 Default: 30 seconds (when starting Obsidian)
 
 Change in `obsidian_sync_common.sh:13`:
@@ -85,6 +111,13 @@ INIT_WAIT_SECONDS=30
 
 ## How It Works
 
+### File Watcher Mode (Recommended)
+1. **Monitor** - inotifywait watches vault for file changes
+2. **Debounce** - Wait 60s after last change (resets on new changes)
+3. **Trigger** - Calls manual sync script
+4. **Sync** - Same process as manual sync below
+
+### Manual/Cron Sync Process
 1. **Lock check** - Prevents concurrent runs
 2. **Start Obsidian** - Launches headlessly if needed (Xvfb)
 3. **Wait** - 30s initialization (only if script started Obsidian)
@@ -96,16 +129,17 @@ INIT_WAIT_SECONDS=30
 
 ```bash
 # Check dependencies
-command -v xvfb-run  # Virtual display for headless Obsidian
-command -v git       # Version control
-command -v rsync     # File sync
-command -v obsidian  # Obsidian app
+command -v inotifywait  # File system monitoring (for watcher)
+command -v xvfb-run     # Virtual display for headless Obsidian
+command -v git          # Version control
+command -v rsync        # File sync
+command -v obsidian     # Obsidian app
 ```
 
 Install missing:
 ```bash
 # Ubuntu/Debian
-sudo apt install xvfb rsync git
+sudo apt install inotify-tools xvfb rsync git
 ```
 
 ## Troubleshooting
@@ -156,7 +190,8 @@ The Obsidian vault is the source of truth. Don't edit content files directly in 
 ## Files
 
 - **Lock**: `scripts/obsidian_publish.lock`
-- **Log**: `.obsidian_publish.log` (project root)
+- **Sync log**: `.obsidian_publish.log` (project root)
+- **Watcher log**: `.obsidian_watch.log` (project root)
 - **Cron**: Managed by `crontab -e`
 
 ## Advanced: systemd Timer
@@ -177,14 +212,33 @@ ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_cron.sh
 `~/.config/systemd/user/obsidian-publish.timer`:
 ```ini
 [Unit]
-Description=Run Obsidian Publish Sync every minute
+Description=Run Obsidian Publish Sync every hour
 
 [Timer]
-OnBootSec=1min
-OnUnitActiveSec=1min
+OnBootSec=5min
+OnUnitActiveSec=1h
 
 [Install]
 WantedBy=timers.target
+```
+
+For file watcher as systemd service:
+
+`~/.config/systemd/user/obsidian-watcher.service`:
+```ini
+[Unit]
+Description=Obsidian File Watcher
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/jujin/workspace/projects/jujin-dev-web
+ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_watch.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
 ```
 
 Enable:
