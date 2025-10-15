@@ -738,3 +738,10 @@ sent 138 bytes  received 19 bytes  314.00 bytes/sec
 total size is 84  speedup is 0.54
 [2025-10-15T12:44:01+09:00] Sync complete
 [2025-10-15T12:44:01+09:00] Changes detected. Committing and pushing...
+[main 9f0d1c8] Publish update from Obsidian vault
+ 2 files changed, 32 insertions(+), 1 deletion(-)
+[2025-10-15T12:44:01+09:00] Pushing to branch: main
+To github.com:jujinkim/jujin-dev-web.git
+   ff3e09f..9f0d1c8  main -> main
+[2025-10-15T12:44:03+09:00] Successfully pushed changes
+[2025-10-15T12:44:03+09:00] === Auto-sync completed successfully ===
