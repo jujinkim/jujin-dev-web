@@ -1,94 +1,169 @@
-# Obsidian → Git Publish Automation Scripts
+# Obsidian Sync Automation
 
-Automated workflow for syncing Obsidian vault content to this repository and publishing to GitHub Pages.
+Automatically sync Obsidian vault to GitHub Pages.
 
-## 📁 Scripts
-
-- **`obsidian_auto_sync.sh`** - Automated sync (for cron/systemd timer)
-- **`obsidian_manual_sync.sh`** - Manual sync with customizable wait time
-
-## 🚀 Quick Start
-
-### 1. Make scripts executable
+## Quick Start
 
 ```bash
-chmod +x scripts/obsidian_auto_sync.sh
-chmod +x scripts/obsidian_manual_sync.sh
+# Make scripts executable
+chmod +x scripts/*.sh
+
+# Run management tool
+./scripts/obsidian_manage.sh
 ```
 
-### 2. Test manually
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| **obsidian_manage.sh** | Interactive management tool (⭐ start here) |
+| **obsidian_manual_sync.sh** | One-time manual sync |
+| **obsidian_cron.sh** | Background automation (managed by obsidian_manage.sh) |
+| **obsidian_sync_common.sh** | Shared functions (don't run directly) |
+
+## Using the Manager
+
+### Interactive Menu
 
 ```bash
-# From project root
-./scripts/obsidian_manual_sync.sh
+./scripts/obsidian_manage.sh
 ```
 
-### 3. Set up automation (cron)
+Options:
+1. **Check status** - View cron, Obsidian, and log status
+2. **Enable cron** - Auto-sync every 5 minutes
+3. **Disable cron** - Stop auto-sync
+4. **Run manual sync** - Sync once now
+5. **View live logs** - Monitor sync activity
+6. **Clear lock file** - Fix stuck processes
+
+### Command Line
 
 ```bash
-crontab -e
+./scripts/obsidian_manage.sh status    # Check status
+./scripts/obsidian_manage.sh enable    # Enable automation
+./scripts/obsidian_manage.sh disable   # Disable automation
+./scripts/obsidian_manage.sh sync      # Run manual sync
+./scripts/obsidian_manage.sh logs      # View logs
 ```
 
-Add this line:
-```cron
-*/5 * * * * /home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_auto_sync.sh >> /home/jujin/workspace/projects/jujin-dev-web/.obsidian_publish.log 2>&1
-```
-
-### 4. Cancel/disable cron automation
-
-**Option 1: Remove the cron job**
-```bash
-crontab -e
-# Delete the line and save
-```
-
-**Option 2: Temporarily disable (comment out)**
-```bash
-crontab -e
-# Add # at the beginning of the line:
-# */5 * * * * /home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_auto_sync.sh >> /home/jujin/workspace/projects/jujin-dev-web/.obsidian_publish.log 2>&1
-```
-
-**Option 3: View current cron jobs**
-```bash
-crontab -l  # List all cron jobs
-```
-
-**Option 4: Remove ALL cron jobs (⚠️ CAUTION!)**
-```bash
-crontab -r  # This deletes your entire crontab!
-```
-
-## 📖 Usage
-
-### Manual Sync
+## Manual Sync Only
 
 ```bash
 # Use default vault path
 ./scripts/obsidian_manual_sync.sh
 
 # Custom vault path
-./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/jujin.dev-publish"
+./scripts/obsidian_manual_sync.sh "$HOME/My Vault/publish"
 ```
 
-## ⚙️ Configuration
+## Configuration
 
-### Source Vault
-Default: `$HOME/Obsidian Vault/jujin.dev-publish`
+### Default Vault Path
+`$HOME/Obsidian Vault/jujin.dev-publish`
 
-### Wait Times
-- **INIT_WAIT_SECONDS**: 30s - Wait after starting Obsidian (only if not already running)
+Change in `obsidian_sync_common.sh:12`:
+```bash
+DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/jujin.dev-publish"
+```
 
-### Lock File
-`scripts/obsidian_publish.lock` - Prevents concurrent script execution
+### Cron Schedule
+Default: Every 5 minutes (`*/5 * * * *`)
 
-### Log File
-`.obsidian_publish.log` - Located in project root
+Change in `obsidian_manage.sh:21`:
+```bash
+CRON_SCHEDULE="*/5 * * * *"
+```
 
-## 🔧 Systemd Timer (Alternative to Cron)
+### Wait Time
+Default: 30 seconds (when starting Obsidian)
 
-Create `~/.config/systemd/user/obsidian-publish.service`:
+Change in `obsidian_sync_common.sh:13`:
+```bash
+INIT_WAIT_SECONDS=30
+```
 
+## How It Works
+
+1. **Lock check** - Prevents concurrent runs
+2. **Start Obsidian** - Launches headlessly if needed (Xvfb)
+3. **Wait** - 30s initialization (only if script started Obsidian)
+4. **Sync** - `rsync --delete` from vault → `content/`
+5. **Git push** - Commit and push if changes exist
+6. **Cleanup** - Shutdown Obsidian if script started it
+
+## Requirements
+
+```bash
+# Check dependencies
+command -v xvfb-run  # Virtual display for headless Obsidian
+command -v git       # Version control
+command -v rsync     # File sync
+command -v obsidian  # Obsidian app
+```
+
+Install missing:
+```bash
+# Ubuntu/Debian
+sudo apt install xvfb rsync git
+```
+
+## Troubleshooting
+
+### Script won't run
+```bash
+chmod +x scripts/*.sh
+```
+
+### Lock file stuck
+```bash
+rm scripts/obsidian_publish.lock
+# Or use: ./scripts/obsidian_manage.sh → option 6
+```
+
+### View logs
+```bash
+tail -f .obsidian_publish.log
+```
+
+### Obsidian won't start
+```bash
+# Test Xvfb
+xvfb-run --auto-servernum echo "test"
+
+# Check Obsidian path
+which obsidian
+```
+
+### Git push fails
+```bash
+git remote -v              # Check remote
+ssh -T git@github.com      # Test SSH
+```
+
+### Check cron jobs
+```bash
+crontab -l                 # List all jobs
+crontab -e                 # Edit jobs
+```
+
+## Warning
+
+**Uses `rsync --delete`** - Files in `content/` not in vault will be deleted!
+
+The Obsidian vault is the source of truth. Don't edit content files directly in this repository.
+
+## Files
+
+- **Lock**: `scripts/obsidian_publish.lock`
+- **Log**: `.obsidian_publish.log` (project root)
+- **Cron**: Managed by `crontab -e`
+
+## Advanced: systemd Timer
+
+Alternative to cron (optional):
+
+`~/.config/systemd/user/obsidian-publish.service`:
 ```ini
 [Unit]
 Description=Obsidian Publish Sync
@@ -96,11 +171,10 @@ Description=Obsidian Publish Sync
 [Service]
 Type=oneshot
 WorkingDirectory=/home/jujin/workspace/projects/jujin-dev-web
-ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_auto_sync.sh
+ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_cron.sh
 ```
 
-Create `~/.config/systemd/user/obsidian-publish.timer`:
-
+`~/.config/systemd/user/obsidian-publish.timer`:
 ```ini
 [Unit]
 Description=Run Obsidian Publish Sync every 5 minutes
@@ -113,103 +187,9 @@ OnUnitActiveSec=5min
 WantedBy=timers.target
 ```
 
-Enable and start:
+Enable:
 ```bash
 systemctl --user daemon-reload
 systemctl --user enable --now obsidian-publish.timer
 systemctl --user status obsidian-publish.timer
 ```
-
-## ⚠️ Important Warnings
-
-### rsync --delete
-Scripts use `rsync --delete` which **removes files in target that don't exist in source**. The Obsidian vault is the source of truth.
-
-### Git Conflicts
-Don't edit content files directly in this repository. All changes should be made in the Obsidian vault.
-
-### File Locking
-Only one script instance can run at a time. If stuck, remove: `scripts/obsidian_publish.lock`
-
-### Paths with Spaces
-Scripts handle spaces in vault paths. Don't modify quoting logic!
-
-## 🔍 How It Works
-
-1. **Lock Acquisition**: Prevents concurrent runs
-2. **Obsidian Detection**: Checks if Obsidian is running
-3. **Start if Needed**: Launches Obsidian headlessly with Xvfb
-4. **Wait for Init**: 30s initialization wait
-5. **Sync Content**: rsync vault → `content/` directory
-6. **Git Operations**: Commit and push if changes detected
-7. **Cleanup**: Shutdown Obsidian if script started it
-
-## 🐛 Troubleshooting
-
-### Script won't run
-- Check executable permissions: `chmod +x scripts/*.sh`
-- Verify Obsidian installed: `which obsidian`
-- Check dependencies: `xvfb-run`, `git`, `rsync`
-
-### Lock file issues
-```bash
-rm scripts/obsidian_publish.lock
-```
-
-### Obsidian won't start
-```bash
-# Test Xvfb
-xvfb-run --auto-servernum echo "test"
-
-# Try starting Obsidian manually
-obsidian
-```
-
-### Git push fails
-```bash
-# Check remote
-git remote -v
-
-# Test SSH
-ssh -T git@github.com
-
-# Verify GitHub Pages configured
-```
-
-### No changes detected
-- Verify vault path is correct
-- Check vault contains files
-- Review rsync output in logs
-
-### View logs
-```bash
-tail -f .obsidian_publish.log
-```
-
-## 📊 Log Management
-
-### Keep last 1000 lines
-```bash
-tail -n 1000 .obsidian_publish.log > .obsidian_publish.log.tmp
-mv .obsidian_publish.log.tmp .obsidian_publish.log
-```
-
-### Logrotate (optional)
-Create `/etc/logrotate.d/obsidian-publish`:
-
-```
-/home/jujin/workspace/projects/jujin-dev-web/.obsidian_publish.log {
-    size 10M
-    rotate 5
-    compress
-    missingok
-    notifempty
-}
-```
-
-## 📝 Notes
-
-- Scripts auto-detect project directory from their location
-- All timestamps are ISO-8601 format
-- Graceful shutdown with 5s timeout before force kill
-- Only PIDs started by script are killed
