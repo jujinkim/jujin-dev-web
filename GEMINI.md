@@ -8,7 +8,8 @@ This document provides context for the Gemini AI assistant to understand and eff
 
 - **DO NOT EDIT CODE**: Gemini should not modify any project files, including configurations, scripts, or themes.
 - **WRITE ARTICLES**: Gemini's main task is to generate high-quality articles in Markdown format.
-- **OUTPUT DIRECTORY**: All articles should be written to the Obsidian vault located at `~/Obsidian Vault/jujin.dev-publish`.
+- **OBSIDIAN VAULT PATH**: `/home/jujin/Obsidian Vault/jujin.dev-publish`
+- **VAULT I/O SCRIPT**: Use the `scripts/vault_io.sh` script to read from and write to the Obsidian vault.
 - **DOCUMENT PROPERTIES**: When creating a new article, you must include the following frontmatter property:
   ```yaml
   publish: "true"
