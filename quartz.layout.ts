@@ -2,6 +2,7 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import ExplorerWithCounts from "./components/custom/ExplorerWithCounts"
 import CustomFooter from "./components/custom/CustomFooter"
+import LanguageSwitcher from "./components/custom/LanguageSwitcher"
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -34,6 +35,7 @@ export const defaultContentPageLayout: PageLayout = {
       condition: (page) => page.fileData.slug !== "index",
     }),
     Component.ArticleTitle(),
+    LanguageSwitcher(),
     Component.ContentMeta(),
     Component.TagList(),
   ],
