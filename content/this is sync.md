@@ -1,5 +1,5 @@
 ---
-publish:
+publish: true
 ---
 test다다
 qooppo
