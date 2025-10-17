@@ -1,7 +1,6 @@
 ---
 publish: "true"
 ---
-
 # Jujin's Development Hub
 
 Welcome to my corner of the internet where I share my thoughts, learnings, and explorations in the world of software engineering.
