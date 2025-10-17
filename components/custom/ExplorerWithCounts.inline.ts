@@ -90,26 +90,51 @@ const buildListItems = (
 ): HTMLLIElement[] => {
   const normalized = formatFolderSlug(folderSlug)
 
-  const items = Object.values(data)
+  // 직접 자식 파일만 필터링 (하위 폴더의 파일 제외)
+  const directChildren = Object.values(data)
     .filter((item) => {
       const itemSlug = item.slug
       if (!itemSlug) return false
       if (itemSlug.endsWith("/index")) return false
+
       if (normalized === "") {
+        // 루트: 슬래시가 없는 것만
         return !itemSlug.includes("/")
       }
-      return itemSlug.startsWith(normalized)
+
+      // 폴더 내부: prefix 확인 후 추가 슬래시가 없는지 확인
+      if (!itemSlug.startsWith(normalized + "/")) return false
+      const remainder = itemSlug.substring(normalized.length + 1)
+      return !remainder.includes("/")
     })
     .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }))
 
-  if (items.length === 0) {
-    const emptyState = document.createElement("li")
-    emptyState.className = "custom-explorer__panel-empty"
-    emptyState.textContent = "글이 없습니다."
-    return [emptyState]
-  }
+  // 하위 폴더 정보 수집
+  const subfolderInfo = new Map<string, number>()
+  Object.values(data).forEach((item) => {
+    const itemSlug = item.slug
+    if (!itemSlug || itemSlug.endsWith("/index")) return
 
-  return items.map((item) => {
+    let prefix: string
+    if (normalized === "") {
+      // 루트의 경우
+      if (!itemSlug.includes("/")) return
+      prefix = itemSlug.split("/")[0]
+    } else {
+      // 특정 폴더의 경우
+      if (!itemSlug.startsWith(normalized + "/")) return
+      const remainder = itemSlug.substring(normalized.length + 1)
+      if (!remainder.includes("/")) return // 직접 자식은 제외
+      prefix = normalized + "/" + remainder.split("/")[0]
+    }
+
+    subfolderInfo.set(prefix, (subfolderInfo.get(prefix) || 0) + 1)
+  })
+
+  const result: HTMLLIElement[] = []
+
+  // 직접 자식 파일들
+  directChildren.forEach((item) => {
     const li = document.createElement("li")
     li.className = "custom-explorer__panel-item"
 
@@ -119,8 +144,31 @@ const buildListItems = (
     link.className = "custom-explorer__panel-link"
 
     li.appendChild(link)
-    return li
+    result.push(li)
   })
+
+  // 하위 폴더 정보
+  if (subfolderInfo.size > 0) {
+    const sortedSubfolders = Array.from(subfolderInfo.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+
+    sortedSubfolders.forEach(([folderPath, count]) => {
+      const folderName = folderPath.split("/").pop() || folderPath
+      const li = document.createElement("li")
+      li.className = "custom-explorer__subfolder-info"
+      li.textContent = `${folderName}에 ${count}개의 글`
+      result.push(li)
+    })
+  }
+
+  if (result.length === 0) {
+    const emptyState = document.createElement("li")
+    emptyState.className = "custom-explorer__panel-empty"
+    emptyState.textContent = "글이 없습니다."
+    return [emptyState]
+  }
+
+  return result
 }
 
 const openPanel = async (button: FolderButton) => {
