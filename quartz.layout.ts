@@ -1,6 +1,7 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import ExplorerWithCounts from "./components/custom/ExplorerWithCounts"
+import CustomFooter from "./components/custom/CustomFooter"
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -22,11 +23,7 @@ export const sharedPageComponents: SharedLayout = {
       },
     }),
   ],
-  footer: Component.Footer({
-    links: {
-      GitHub: "https://github.com/jujinkim",
-    },
-  }),
+  footer: CustomFooter(),
 }
 
 // components for pages that display a single page (e.g. a single note)
