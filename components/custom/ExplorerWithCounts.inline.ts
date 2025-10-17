@@ -10,6 +10,7 @@ type ExplorerElements = {
   title: HTMLElement
   back: HTMLButtonElement
   toggle: HTMLButtonElement | null
+  navClose: HTMLButtonElement | null
 }
 
 type FolderButton = HTMLButtonElement & {
@@ -29,22 +30,16 @@ let currentSlug: FullSlug
 const PANEL_HISTORY_STATE = { explorerPanel: true }
 const mobileMediaQuery = window.matchMedia("(max-width: 768px)")
 
-const registerCleanup = (fn: () => void) => {
-  if (typeof window.addCleanup === "function") {
-    window.addCleanup(fn)
-  }
-}
-
 const isMobile = () => mobileMediaQuery.matches
 
 const syncOverlay = () => {
   if (!explorerElements) return
   const { overlay } = explorerElements
-  const shouldShow = isMobile() && (panelOpen || navOpen)
+  const mobile = isMobile()
+  const shouldShow = mobile ? (panelOpen || navOpen) : panelOpen
   overlay.setAttribute("aria-hidden", shouldShow ? "false" : "true")
-  overlay.classList.toggle("is-visible", shouldShow)
-  overlay.style.pointerEvents = shouldShow ? "auto" : "none"
   overlay.style.opacity = shouldShow ? "1" : "0"
+  overlay.style.pointerEvents = shouldShow ? "auto" : "none"
 }
 
 const clearActiveButton = () => {
@@ -60,7 +55,13 @@ const setNavState = (open: boolean) => {
   navOpen = open
   const mobile = isMobile()
   root.classList.toggle("is-nav-open", open && mobile)
-  folders.setAttribute("aria-hidden", open || !mobile ? "false" : "true")
+
+  if (mobile) {
+    folders.setAttribute("aria-hidden", open ? "false" : "true")
+  } else {
+    folders.setAttribute("aria-hidden", "false")
+  }
+
   if (toggle) {
     toggle.setAttribute("aria-expanded", open ? "true" : "false")
   }
@@ -79,20 +80,6 @@ const closePanelDom = () => {
   historyStateActive = false
   clearActiveButton()
   syncOverlay()
-}
-
-const closePanel = (triggerHistory = false) => {
-  if (!panelOpen) {
-    return
-  }
-
-  if (triggerHistory && historyStateActive) {
-    historyStateActive = false
-    history.back()
-    return
-  }
-
-  closePanelDom()
 }
 
 const formatFolderSlug = (slug: string): string => slug.replace(/\/index$/, "")
@@ -160,7 +147,7 @@ const openPanel = async (button: FolderButton) => {
   panel.setAttribute("aria-hidden", "false")
   panelOpen = true
 
-  if (!historyStateActive) {
+  if (isMobile() && !historyStateActive) {
     history.pushState(PANEL_HISTORY_STATE, "", window.location.href)
     historyStateActive = true
   }
@@ -170,60 +157,8 @@ const openPanel = async (button: FolderButton) => {
 
 const handlePopState = (event: PopStateEvent) => {
   if (!panelOpen) return
-
-  if (event.state && event.state.explorerPanel) {
-    historyStateActive = false
-    closePanelDom()
-    return
-  }
-
   historyStateActive = false
   closePanelDom()
-}
-
-const attachListeners = () => {
-  if (!explorerElements) return
-  const { root, overlay, back, toggle } = explorerElements
-
-  const buttons = root.querySelectorAll<HTMLButtonElement>("[data-folder-slug]")
-  buttons.forEach((button) => {
-    const handler = (evt: Event) => {
-      evt.preventDefault()
-      openPanel(button as FolderButton).catch(console.error)
-    }
-
-    button.addEventListener("click", handler)
-    registerCleanup(() => button.removeEventListener("click", handler))
-  })
-
-  const backHandler = () => closePanel(true)
-  back.addEventListener("click", backHandler)
-  registerCleanup(() => back.removeEventListener("click", backHandler))
-
-  const overlayHandler = () => {
-    if (panelOpen) {
-      closePanel(true)
-    } else if (navOpen) {
-      closeNav()
-    }
-  }
-  overlay.addEventListener("click", overlayHandler)
-  registerCleanup(() => overlay.removeEventListener("click", overlayHandler))
-
-  if (toggle) {
-    toggle.classList.remove("hide-until-loaded")
-    const toggleHandler = (evt: Event) => {
-      evt.preventDefault()
-      if (navOpen) {
-        closeNav()
-      } else {
-        openNav()
-      }
-    }
-
-    toggle.addEventListener("click", toggleHandler)
-    registerCleanup(() => toggle.removeEventListener("click", toggleHandler))
-  }
 }
 
 const setupExplorer = (slug: FullSlug) => {
@@ -242,14 +177,14 @@ const setupExplorer = (slug: FullSlug) => {
   const title = root.querySelector<HTMLElement>(".custom-explorer__panel-title")
   const back = root.querySelector<HTMLButtonElement>(".custom-explorer__back")
   const toggle = root.querySelector<HTMLButtonElement>(".custom-explorer__toggle")
+  const navClose = root.querySelector<HTMLButtonElement>(".custom-explorer__nav-close")
 
   if (!folders || !panel || !overlay || !list || !title || !back) {
-    console.warn("ExplorerWithCounts: 필수 DOM 요소를 찾을 수 없습니다.")
     explorerElements = null
     return
   }
 
-  explorerElements = { root, folders, panel, overlay, list, title, back, toggle }
+  explorerElements = { root, folders, panel, overlay, list, title, back, toggle, navClose }
   panelOpen = false
   navOpen = false
   historyStateActive = false
@@ -258,24 +193,92 @@ const setupExplorer = (slug: FullSlug) => {
   root.classList.remove("is-nav-open")
   panel.setAttribute("aria-hidden", "true")
 
-  setNavState(false)
+  const mobile = isMobile()
+  if (mobile) {
+    folders.setAttribute("aria-hidden", "true")
+  } else {
+    folders.setAttribute("aria-hidden", "false")
+  }
+
   closePanelDom()
-  attachListeners()
 
-  const mediaChangeHandler = () => setNavState(navOpen)
+  // 폴더 버튼들
+  const buttons = root.querySelectorAll<HTMLButtonElement>("[data-folder-slug]")
+  buttons.forEach((button) => {
+    const handler = (evt: Event) => {
+      evt.preventDefault()
+      openPanel(button as FolderButton).catch(console.error)
+    }
+    button.removeEventListener("click", handler)
+    button.addEventListener("click", handler)
+  })
 
-  if (typeof mobileMediaQuery.addEventListener === "function") {
-    mobileMediaQuery.addEventListener("change", mediaChangeHandler)
-    registerCleanup(() => mobileMediaQuery.removeEventListener("change", mediaChangeHandler))
-  } else if (typeof mobileMediaQuery.addListener === "function") {
-    mobileMediaQuery.addListener(mediaChangeHandler)
-    registerCleanup(() => mobileMediaQuery.removeListener(mediaChangeHandler))
+  // 뒤로 버튼
+  const backHandler = (evt: Event) => {
+    evt.preventDefault()
+    if (isMobile() && historyStateActive) {
+      historyStateActive = false
+      history.back()
+    } else {
+      closePanelDom()
+      historyStateActive = false
+    }
+    if (isMobile()) {
+      setTimeout(() => {
+        if (!navOpen) openNav()
+      }, 50)
+    }
+  }
+  back.removeEventListener("click", backHandler)
+  back.addEventListener("click", backHandler)
+
+  // 오버레이
+  const overlayHandler = (evt: Event) => {
+    evt.preventDefault()
+    if (panelOpen) {
+      if (isMobile() && historyStateActive) {
+        historyStateActive = false
+        history.back()
+      } else {
+        closePanelDom()
+        historyStateActive = false
+      }
+    } else if (navOpen) {
+      closeNav()
+    }
+  }
+  overlay.removeEventListener("click", overlayHandler)
+  overlay.addEventListener("click", overlayHandler)
+
+  // 햄버거 토글
+  if (toggle) {
+    toggle.classList.remove("hide-until-loaded")
+    const toggleHandler = (evt: Event) => {
+      evt.preventDefault()
+      if (navOpen) {
+        closeNav()
+      } else {
+        openNav()
+      }
+    }
+    toggle.removeEventListener("click", toggleHandler)
+    toggle.addEventListener("click", toggleHandler)
+  }
+
+  // X 닫기 버튼
+  if (navClose) {
+    const navCloseHandler = (evt: Event) => {
+      evt.preventDefault()
+      closeNav()
+    }
+    navClose.removeEventListener("click", navCloseHandler)
+    navClose.addEventListener("click", navCloseHandler)
   }
 }
 
 const onPrenav = () => {
   if (panelOpen) {
-    closePanel()
+    closePanelDom()
   }
   if (navOpen && isMobile()) {
     closeNav()
@@ -283,10 +286,7 @@ const onPrenav = () => {
 }
 
 window.addEventListener("popstate", handlePopState)
-registerCleanup(() => window.removeEventListener("popstate", handlePopState))
-
 document.addEventListener("prenav", onPrenav)
-registerCleanup(() => document.removeEventListener("prenav", onPrenav))
 
 document.addEventListener("nav", (event: CustomEventMap["nav"]) => {
   setupExplorer(event.detail.url)

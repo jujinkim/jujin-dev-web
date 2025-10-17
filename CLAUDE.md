@@ -223,6 +223,92 @@ Modify `quartz.layout.ts` to add/remove/reorder components:
 - Right sidebar: Graph, TableOfContents, Backlinks
 - Content area: Breadcrumbs, ArticleTitle, ContentMeta, TagList
 
+### Custom Layout Components
+
+To modify or extend Quartz layouts **without touching core files**, create custom components in the `components/custom/` directory.
+
+#### File Structure
+
+Custom components follow this three-file pattern:
+
+```
+components/custom/
+├── ComponentName.tsx          # React component (server-side)
+├── ComponentName.inline.ts    # Client-side JavaScript
+└── ComponentName.scss         # Styles
+```
+
+#### Component Implementation
+
+**1. React Component (`ComponentName.tsx`)**
+```typescript
+import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../../quartz/components/types"
+import style from "./ComponentName.scss"
+// @ts-ignore - bundled at build time
+import script from "./ComponentName.inline"
+
+export default (() => {
+  const ComponentName: QuartzComponent = (props: QuartzComponentProps) => {
+    // Server-side rendering logic
+    return <div>Your component</div>
+  }
+
+  ComponentName.css = style           // Attach styles
+  ComponentName.afterDOMLoaded = script  // Attach client-side script
+
+  return ComponentName
+}) satisfies QuartzComponentConstructor
+```
+
+**2. Client-side Script (`ComponentName.inline.ts`)**
+```typescript
+// This runs in the browser after DOM loads
+document.addEventListener("nav", () => {
+  // Your interactive logic
+  const elements = document.querySelectorAll(".your-selector")
+  // Add event listeners, etc.
+})
+```
+
+**3. Styles (`ComponentName.scss`)**
+```scss
+.your-component {
+  // Your styles
+}
+```
+
+#### Using Custom Components
+
+Import and use in `quartz.layout.ts`:
+```typescript
+import ComponentName from "./components/custom/ComponentName"
+
+export const defaultContentPageLayout: PageLayout = {
+  left: [
+    ComponentName(),  // Use your custom component
+    Component.PageTitle(),
+    // ... other components
+  ],
+  // ...
+}
+```
+
+#### Example: ExplorerWithCounts
+
+See `components/custom/ExplorerWithCounts.*` for a complete example:
+- **ExplorerWithCounts.tsx**: Renders folder structure with page counts
+- **ExplorerWithCounts.inline.ts**: Handles folder panel navigation and mobile overlay
+- **ExplorerWithCounts.scss**: Styles with desktop/mobile responsive layout
+
+Recent commits (ccc9fb5, 69dabc4, bfdce12, fb94d8d) show mobile explorer toggle refinements.
+
+#### Benefits of This Approach
+
+- ✅ **No Quartz core file modifications** - easier to upgrade
+- ✅ **Clean separation** - custom code isolated in dedicated directory
+- ✅ **Full TypeScript support** - proper typing with Quartz interfaces
+- ✅ **Hot reload** - changes picked up during `npx quartz build --serve`
+
 ## Troubleshooting
 
 ### Node.js Version Issues

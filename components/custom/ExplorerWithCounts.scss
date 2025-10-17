@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
   height: 100%;
   align-self: stretch;
 }
@@ -36,6 +36,23 @@
 .custom-explorer__toggle-icon {
   display: block;
   stroke: currentColor;
+}
+
+.custom-explorer__nav-close {
+  display: none;
+  border: none;
+  background: transparent;
+  color: var(--dark);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.custom-explorer__nav-close:hover,
+.custom-explorer__nav-close:focus-visible {
+  background: var(--highlight);
 }
 
 .custom-explorer__folders {
@@ -106,7 +123,7 @@
   border: 1px solid var(--lightgray);
   border-radius: 0.75rem;
   box-shadow: 0 18px 30px rgba(0, 0, 0, 0.1);
-  transform: translateX(1.5rem);
+  transform: translateX(-1.5rem);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -189,10 +206,11 @@
 .custom-explorer__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: transparent;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  z-index: 10;
 }
 
 .custom-explorer.is-panel-open .custom-explorer__panel {
@@ -207,9 +225,16 @@
 }
 
 @media (max-width: 768px) {
+  .custom-explorer {
+    order: -1; // PageTitle 앞으로
+  }
+
   .custom-explorer__toggle {
     display: inline-flex;
-    margin-left: 0;
+  }
+
+  .custom-explorer__nav-close {
+    display: block;
   }
 
   .custom-explorer__folders {
@@ -234,19 +259,21 @@
   .custom-explorer__panel {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0;
     bottom: 0;
-    left: auto;
+    right: auto;
     width: min(90vw, 22rem);
     height: 100vh;
-    transform: translateX(100%);
+    transform: translateX(-100%);
+    border-right: 1px solid var(--lightgray);
     border-left: none;
     border-radius: 0;
-    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 12px 0 32px rgba(0, 0, 0, 0.2);
     z-index: 13;
   }
 
   .custom-explorer__overlay {
+    background: rgba(0, 0, 0, 0.35);
     z-index: 11;
   }
 
