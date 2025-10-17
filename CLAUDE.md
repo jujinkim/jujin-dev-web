@@ -159,6 +159,8 @@ Content is managed in an Obsidian vault at:
 ~/obsidian-vault/jujin.dev-publish/
 ```
 
+> Single source of truth: All Markdown content should be authored and updated inside the Obsidian vault. Do not edit files under `content/` directly within this repository; instead, sync changes from the vault using the provided scripts.
+
 ### Syncing Process
 1. Write/edit content in Obsidian
 2. Move files to the publish directory (`jujin.dev-publish`)

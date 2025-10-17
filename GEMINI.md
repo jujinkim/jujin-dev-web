@@ -14,6 +14,7 @@ This document provides context for the Gemini AI assistant to understand and eff
   ```yaml
   publish: "true"
   ```
+- **SSOT RULE**: The Obsidian vault is the single source of truth for all Markdown content. Never edit the `content/` directory directly inside this repository—always modify files through the vault and sync.
 - **SYNC AFTER WRITING**: After successfully writing an article, run the manual sync script to bring the content into the project:
   ```bash
   ./scripts/obsidian_manual_sync.sh

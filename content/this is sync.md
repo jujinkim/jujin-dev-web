@@ -1,5 +1,6 @@
 ---
 publish: true
+title: test title
 ---
 test다다
 qooppo

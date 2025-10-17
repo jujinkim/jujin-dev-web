@@ -1,5 +1,6 @@
 ---
 publish: "true"
+title: Welcome to jujin.dev
 ---
 # Jujin's Development Hub
 
