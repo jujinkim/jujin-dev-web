@@ -1,0 +1,17 @@
+.DS_Store
+.gitignore
+node_modules
+public
+prof
+tsconfig.tsbuildinfo
+.obsidian
+.quartz-cache
+.npm-cache
+private/
+.replit
+replit.nix
+
+# Obsidian sync automation
+.obsidian_publish.log
+.obsidian_watch.log
+scripts/obsidian_publish.lock
