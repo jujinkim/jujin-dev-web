@@ -3,10 +3,11 @@ import * as Component from "./quartz/components"
 import ExplorerWithCounts from "./components/custom/ExplorerWithCounts"
 import CustomFooter from "./components/custom/CustomFooter"
 import LanguageSwitcher from "./components/custom/LanguageSwitcher"
+import HeadWithHreflang from "./components/custom/HeadWithHreflang"
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
-  head: Component.Head(),
+  head: HeadWithHreflang(),
   header: [],
   afterBody: [
     Component.Comments({
