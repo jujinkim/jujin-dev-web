@@ -165,10 +165,6 @@ const openPanel = async (button: FolderButton) => {
     historyStateActive = true
   }
 
-  if (isMobile()) {
-    closeNav()
-  }
-
   syncOverlay()
 }
 

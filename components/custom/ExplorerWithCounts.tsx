@@ -100,7 +100,6 @@ export default (() => {
             <line x1="4" x2="20" y1="6" y2="6" />
             <line x1="4" x2="20" y1="18" y2="18" />
           </svg>
-          <span class="custom-explorer__toggle-label">카테고리</span>
         </button>
         <div class="custom-explorer__folders" id={foldersId} aria-hidden="false">
           <ul class="custom-explorer__folder-list">

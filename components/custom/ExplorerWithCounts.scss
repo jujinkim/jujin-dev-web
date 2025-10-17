@@ -11,18 +11,19 @@
 .custom-explorer__toggle {
   display: none;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0;
   border: none;
   background: transparent;
   color: inherit;
   cursor: pointer;
-  padding: 0.4rem 0.5rem;
+  padding: 0.35rem 0.35rem;
   border-radius: 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
   transition:
     background 0.2s ease,
     color 0.2s ease;
+  align-self: flex-start;
+  margin: 0;
 }
 
 .custom-explorer__toggle:hover,
@@ -33,10 +34,6 @@
 
 .custom-explorer__toggle-icon {
   display: block;
-}
-
-.custom-explorer__toggle-label {
-  font-size: 0.95rem;
 }
 
 .custom-explorer__folders {
@@ -210,6 +207,7 @@
 @media (max-width: 768px) {
   .custom-explorer__toggle {
     display: inline-flex;
+    margin-left: 0;
   }
 
   .custom-explorer__folders {
