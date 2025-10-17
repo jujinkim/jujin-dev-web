@@ -1,4 +1,4 @@
-# jujin.dev
+# dev.jujin.kim
 
 Personal development blog powered by [Quartz v4](https://quartz.jzhao.xyz/).
 
@@ -24,7 +24,7 @@ npx quartz build --serve
 ## 📝 Content Management
 
 Content is managed in Obsidian and synced to this repository:
-- Obsidian vault: `~/Obsidian Vault/jujin.dev-publish`
+- Obsidian vault: `~/Obsidian Vault/dev.jujin.kim-publish`
 - Run `./sync-content.sh` to sync content
 
 ## 🛠️ Tech Stack

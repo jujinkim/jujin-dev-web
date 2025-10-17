@@ -1,6 +1,6 @@
-# Gemini Project Context: jujin.dev
+# Gemini Project Context: dev.jujin.kim
 
-This document provides context for the Gemini AI assistant to understand and effectively work with the `jujin.dev` project.
+This document provides context for the Gemini AI assistant to understand and effectively work with the `dev.jujin.kim` project.
 
 ## Gemini's Role: Content Creation
 
@@ -8,7 +8,7 @@ This document provides context for the Gemini AI assistant to understand and eff
 
 - **DO NOT EDIT CODE**: Gemini should not modify any project files, including configurations, scripts, or themes.
 - **WRITE ARTICLES**: Gemini's main task is to generate high-quality articles in Markdown format.
-- **OBSIDIAN VAULT PATH**: `/home/jujin/Obsidian Vault/jujin.dev-publish`
+- **OBSIDIAN VAULT PATH**: `/home/jujin/Obsidian Vault/dev.jujin.kim-publish`
 - **VAULT I/O SCRIPT**: Use the `scripts/vault_io.sh` script to read from and write to the Obsidian vault.
 - **DOCUMENT PROPERTIES**: When creating a new article, you must include the following frontmatter property:
   ```yaml
@@ -22,7 +22,7 @@ This document provides context for the Gemini AI assistant to understand and eff
 
 ## Project Overview
 
-`jujin.dev` is a personal development blog built with [Quartz v4](https://quartz.jzhao.xyz/), a static site generator designed for creating digital gardens and wikis from Markdown files. The content is written and managed in an Obsidian vault and then synced to this repository for building and deployment.
+`dev.jujin.kim` is a personal development blog built with [Quartz v4](https://quartz.jzhao.xyz/), a static site generator designed for creating digital gardens and wikis from Markdown files. The content is written and managed in an Obsidian vault and then synced to this repository for building and deployment.
 
 - **Site URL**: https://dev.jujin.kim
 - **Source Code**: https://github.com/jujinkim/jujin-dev-web

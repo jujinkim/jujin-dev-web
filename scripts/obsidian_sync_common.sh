@@ -9,7 +9,7 @@
 # Configuration - auto-detect project directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
-DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/jujin.dev-publish"
+DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 

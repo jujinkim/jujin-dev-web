@@ -78,11 +78,11 @@ Options:
 ## Configuration
 
 ### Default Vault Path
-`$HOME/Obsidian Vault/jujin.dev-publish`
+`$HOME/Obsidian Vault/dev.jujin.kim-publish`
 
 Change in `obsidian_sync_common.sh:12`:
 ```bash
-DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/jujin.dev-publish"
+DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
 ```
 
 ### Cron Schedule

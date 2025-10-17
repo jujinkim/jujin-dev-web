@@ -1,4 +1,4 @@
-# jujin.dev - Development Blog
+# dev.jujin.kim - Development Blog
 
 This is a personal development blog powered by Quartz static site generator, deployed on GitHub Pages with Giscus comments integration.
 
@@ -8,7 +8,7 @@ This is a personal development blog powered by Quartz static site generator, dep
 - **Generator**: [Quartz v4](https://quartz.jzhao.xyz/)
 - **Deployment**: GitHub Pages
 - **Comments**: Giscus
-- **Content Source**: Obsidian vault (`~/obsidian-vault/jujin.dev-publish`)
+- **Content Source**: Obsidian vault (`~/obsidian-vault/dev.jujin.kim-publish`)
 
 ## Technology Stack
 
@@ -37,7 +37,7 @@ jujin-dev-web/
 
 ### quartz.config.ts
 Main configuration file containing:
-- Site title: "jujin.dev"
+- Site title: "dev.jujin.kim"
 - Base URL: "dev.jujin.kim"
 - Locale: Korean (ko-KR)
 - Theme settings (light/dark mode)
@@ -73,7 +73,7 @@ Layout configuration with:
 3. **Configure Obsidian vault path**
    Edit `sync-content.sh` and update `OBSIDIAN_VAULT_PATH` to point to your Obsidian publish directory:
    ```bash
-   OBSIDIAN_VAULT_PATH="$HOME/obsidian-vault/jujin.dev-publish"
+   OBSIDIAN_VAULT_PATH="$HOME/obsidian-vault/dev.jujin.kim-publish"
    ```
 
 4. **Set up Giscus**
@@ -156,14 +156,14 @@ The Giscus comment system is configured in `quartz.layout.ts`:
 ### Obsidian Vault Structure
 Content is managed in an Obsidian vault at:
 ```
-~/obsidian-vault/jujin.dev-publish/
+~/obsidian-vault/dev.jujin.kim-publish/
 ```
 
 > Single source of truth: All Markdown content should be authored and updated inside the Obsidian vault. Do not edit files under `content/` directly within this repository; instead, sync changes from the vault using the provided scripts.
 
 ### Syncing Process
 1. Write/edit content in Obsidian
-2. Move files to the publish directory (`jujin.dev-publish`)
+2. Move files to the publish directory (`dev.jujin.kim-publish`)
 3. Run `./sync-content.sh` to sync to Quartz
 4. Commit and push changes
 

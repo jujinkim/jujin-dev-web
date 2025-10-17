@@ -1,6 +1,6 @@
 ---
 publish: "true"
-title: Welcome to jujin.dev
+title: Welcome to dev.jujin.kim
 ---
 # Jujin's Development Hub
 

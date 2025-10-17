@@ -2,7 +2,7 @@
 
 ## Project Snapshot
 - Static site powered by Quartz v4 (`quartz/`, `quartz.config.ts`, `quartz.layout.ts`) and deployed to GitHub Pages at `https://dev.jujin.kim`.
-- Markdown content lives in `content/` and is sourced from the Obsidian vault `~/Obsidian Vault/jujin.dev-publish`.
+- Markdown content lives in `content/` and is sourced from the Obsidian vault `~/Obsidian Vault/dev.jujin.kim-publish`.
 - Package management uses npm with Node.js ≥ 22 (`npm install`, `npx quartz build`, `npx quartz build --serve`).
 - Comments are handled via Giscus (see `quartz.layout.ts`), analytics via Plausible (`quartz.config.ts`).
 - Obsidian sync automation lives in `scripts/` with shared logic in `obsidian_sync_common.sh`.
