@@ -16,6 +16,7 @@
   border: none;
   background: transparent;
   color: inherit;
+  color: var(--dark);
   cursor: pointer;
   padding: 0.35rem 0.35rem;
   border-radius: 0.5rem;
@@ -23,7 +24,7 @@
     background 0.2s ease,
     color 0.2s ease;
   align-self: flex-start;
-  margin: 0;
+  margin: 0 0 0.25rem 0;
 }
 
 .custom-explorer__toggle:hover,
@@ -34,6 +35,7 @@
 
 .custom-explorer__toggle-icon {
   display: block;
+  stroke: currentColor;
 }
 
 .custom-explorer__folders {

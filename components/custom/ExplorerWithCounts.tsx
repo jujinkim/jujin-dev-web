@@ -81,7 +81,7 @@ export default (() => {
       <nav class="custom-explorer" aria-label="Site navigation">
         <button
           type="button"
-          class="custom-explorer__toggle explorer-toggle mobile-explorer"
+          class="custom-explorer__toggle explorer-toggle mobile-explorer hide-until-loaded"
           aria-expanded="false"
           aria-controls={foldersId}
           aria-label="카테고리 메뉴 토글"

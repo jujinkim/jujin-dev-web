@@ -211,6 +211,7 @@ const attachListeners = () => {
   registerCleanup(() => overlay.removeEventListener("click", overlayHandler))
 
   if (toggle) {
+    toggle.classList.remove("hide-until-loaded")
     const toggleHandler = (evt: Event) => {
       evt.preventDefault()
       if (navOpen) {
