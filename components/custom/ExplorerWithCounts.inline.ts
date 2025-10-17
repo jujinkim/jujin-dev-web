@@ -165,6 +165,10 @@ const openPanel = async (button: FolderButton) => {
     historyStateActive = true
   }
 
+  if (isMobile()) {
+    closeNav()
+  }
+
   syncOverlay()
 }
 
@@ -294,4 +298,3 @@ document.addEventListener("nav", (event: CustomEventMap["nav"]) => {
 document.addEventListener("DOMContentLoaded", () => {
   setupExplorer((document.body.dataset.slug ?? "index") as FullSlug)
 })
-

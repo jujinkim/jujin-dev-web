@@ -7,6 +7,37 @@
   transition: padding-right 0.3s ease;
 }
 
+.custom-explorer__toggle {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.custom-explorer__toggle:hover,
+.custom-explorer__toggle:focus-visible {
+  background: var(--highlight);
+  color: var(--secondary);
+}
+
+.custom-explorer__toggle-icon {
+  display: block;
+}
+
+.custom-explorer__toggle-label {
+  font-size: 0.95rem;
+}
+
 .custom-explorer__folders {
   overflow-y: auto;
   max-height: 60vh;
@@ -38,7 +69,9 @@
   color: inherit;
   cursor: pointer;
   border-radius: 0.5rem;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .custom-explorer__folder:hover,
@@ -74,7 +107,9 @@
   transform: translateX(100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
   display: flex;
   flex-direction: column;
 }
@@ -131,7 +166,9 @@
   text-decoration: none;
   padding: 0.4rem 0.25rem;
   border-radius: 0.4rem;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .custom-explorer__panel-link:hover,
@@ -174,8 +211,27 @@
     padding-right: 0;
   }
 
+  .custom-explorer__toggle {
+    display: inline-flex;
+  }
+
   .custom-explorer__folders {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(85vw, 18rem);
     max-height: unset;
+    background: var(--light);
+    padding: 1rem;
+    box-shadow: 12px 0 24px rgba(0, 0, 0, 0.18);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 12;
+  }
+
+  .custom-explorer.is-nav-open .custom-explorer__folders {
+    transform: translateX(0);
   }
 
   .custom-explorer__panel {
@@ -188,7 +244,7 @@
     transform: translateX(100%);
     border-left: none;
     box-shadow: -12px 0 32px rgba(0, 0, 0, 0.2);
-    z-index: 12;
+    z-index: 13;
   }
 
   .custom-explorer__overlay {
@@ -199,4 +255,3 @@
     padding-right: 0;
   }
 }
-

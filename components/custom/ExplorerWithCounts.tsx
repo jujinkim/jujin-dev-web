@@ -1,4 +1,8 @@
-import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../../quartz/components/types"
+import {
+  QuartzComponent,
+  QuartzComponentConstructor,
+  QuartzComponentProps,
+} from "../../quartz/components/types"
 import { VNode, JSX } from "preact"
 import { FileTrieNode } from "../../quartz/util/fileTrie"
 import { trieFromAllFiles } from "../../quartz/util/ctx"
@@ -97,7 +101,7 @@ export default (() => {
           </svg>
           <span class="custom-explorer__toggle-label">카테고리</span>
         </button>
-        <div class="custom-explorer__folders" id={foldersId} aria-hidden="true">
+        <div class="custom-explorer__folders" id={foldersId} aria-hidden="false">
           <ul class="custom-explorer__folder-list">
             {loosePages.length > 0 && (
               <li class="custom-explorer__folder-item" data-depth={0}>
