@@ -3,11 +3,13 @@ import { FullSlug, resolveRelative } from "../../quartz/util/path"
 
 type ExplorerElements = {
   root: HTMLElement
+  folders: HTMLElement
   panel: HTMLElement
   overlay: HTMLElement
   list: HTMLUListElement
   title: HTMLElement
   back: HTMLButtonElement
+  toggle: HTMLButtonElement | null
 }
 
 type FolderButton = HTMLButtonElement & {
@@ -19,11 +21,13 @@ type FolderButton = HTMLButtonElement & {
 
 let explorerElements: ExplorerElements | null = null
 let panelOpen = false
+let navOpen = false
 let historyStateActive = false
 let activeButton: FolderButton | null = null
 let currentSlug: FullSlug
 
 const PANEL_HISTORY_STATE = { explorerPanel: true }
+const mobileMediaQuery = window.matchMedia("(max-width: 768px)")
 
 const registerCleanup = (fn: () => void) => {
   if (typeof window.addCleanup === "function") {
@@ -31,21 +35,50 @@ const registerCleanup = (fn: () => void) => {
   }
 }
 
-const closePanelDom = () => {
+const isMobile = () => mobileMediaQuery.matches
+
+const syncOverlay = () => {
   if (!explorerElements) return
-  const { root, panel, overlay } = explorerElements
-  root.classList.remove("is-panel-open")
-  panel.setAttribute("aria-hidden", "true")
-  overlay.setAttribute("aria-hidden", "true")
-  overlay.classList.remove("is-visible")
-  overlay.style.pointerEvents = "none"
-  overlay.style.opacity = "0"
-  panelOpen = false
-  historyStateActive = false
+  const { overlay } = explorerElements
+  const shouldShow = panelOpen || (navOpen && isMobile())
+  overlay.setAttribute("aria-hidden", shouldShow ? "false" : "true")
+  overlay.classList.toggle("is-visible", shouldShow)
+  overlay.style.pointerEvents = shouldShow ? "auto" : "none"
+  overlay.style.opacity = shouldShow ? "1" : "0"
+}
+
+const clearActiveButton = () => {
   if (activeButton) {
     activeButton.classList.remove("is-active")
     activeButton = null
   }
+}
+
+const setNavState = (open: boolean) => {
+  if (!explorerElements) return
+  const { root, folders, toggle } = explorerElements
+  navOpen = open
+  const mobile = isMobile()
+  root.classList.toggle("is-nav-open", open && mobile)
+  folders.setAttribute("aria-hidden", open || !mobile ? "false" : "true")
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false")
+  }
+  syncOverlay()
+}
+
+const closeNav = () => setNavState(false)
+const openNav = () => setNavState(true)
+
+const closePanelDom = () => {
+  if (!explorerElements) return
+  const { root, panel } = explorerElements
+  root.classList.remove("is-panel-open")
+  panel.setAttribute("aria-hidden", "true")
+  panelOpen = false
+  historyStateActive = false
+  clearActiveButton()
+  syncOverlay()
 }
 
 const closePanel = (triggerHistory = false) => {
@@ -54,7 +87,6 @@ const closePanel = (triggerHistory = false) => {
   }
 
   if (triggerHistory && historyStateActive) {
-    // Pop the synthetic history entry, popstate handler will call closePanelDom
     historyStateActive = false
     history.back()
     return
@@ -106,7 +138,7 @@ const buildListItems = (
 
 const openPanel = async (button: FolderButton) => {
   if (!explorerElements) return
-  const { root, panel, overlay, list, title } = explorerElements
+  const { root, panel, list, title } = explorerElements
 
   const data = await fetchData
   list.innerHTML = ""
@@ -126,36 +158,32 @@ const openPanel = async (button: FolderButton) => {
 
   root.classList.add("is-panel-open")
   panel.setAttribute("aria-hidden", "false")
-  overlay.setAttribute("aria-hidden", "false")
-  overlay.classList.add("is-visible")
-  overlay.style.pointerEvents = "auto"
-  overlay.style.opacity = "1"
   panelOpen = true
 
   if (!historyStateActive) {
     history.pushState(PANEL_HISTORY_STATE, "", window.location.href)
     historyStateActive = true
   }
+
+  syncOverlay()
 }
 
 const handlePopState = (event: PopStateEvent) => {
   if (!panelOpen) return
 
   if (event.state && event.state.explorerPanel) {
-    // Synthetic state popped, nothing more to do
     historyStateActive = false
     closePanelDom()
     return
   }
 
-  // Navigating back past our synthetic state should also close the panel
   historyStateActive = false
   closePanelDom()
 }
 
 const attachListeners = () => {
   if (!explorerElements) return
-  const { root, overlay, back } = explorerElements
+  const { root, overlay, back, toggle } = explorerElements
 
   const buttons = root.querySelectorAll<HTMLButtonElement>("[data-folder-slug]")
   buttons.forEach((button) => {
@@ -172,9 +200,29 @@ const attachListeners = () => {
   back.addEventListener("click", backHandler)
   registerCleanup(() => back.removeEventListener("click", backHandler))
 
-  const overlayHandler = () => closePanel(true)
+  const overlayHandler = () => {
+    if (panelOpen) {
+      closePanel(true)
+    } else if (navOpen) {
+      closeNav()
+    }
+  }
   overlay.addEventListener("click", overlayHandler)
   registerCleanup(() => overlay.removeEventListener("click", overlayHandler))
+
+  if (toggle) {
+    const toggleHandler = (evt: Event) => {
+      evt.preventDefault()
+      if (navOpen) {
+        closeNav()
+      } else {
+        openNav()
+      }
+    }
+
+    toggle.addEventListener("click", toggleHandler)
+    registerCleanup(() => toggle.removeEventListener("click", toggleHandler))
+  }
 }
 
 const setupExplorer = (slug: FullSlug) => {
@@ -186,30 +234,50 @@ const setupExplorer = (slug: FullSlug) => {
     return
   }
 
+  const folders = root.querySelector<HTMLElement>(".custom-explorer__folders")
   const panel = root.querySelector<HTMLElement>(".custom-explorer__panel")
   const overlay = root.querySelector<HTMLElement>(".custom-explorer__overlay")
   const list = root.querySelector<HTMLUListElement>(".custom-explorer__panel-list")
   const title = root.querySelector<HTMLElement>(".custom-explorer__panel-title")
   const back = root.querySelector<HTMLButtonElement>(".custom-explorer__back")
+  const toggle = root.querySelector<HTMLButtonElement>(".custom-explorer__toggle")
 
-  if (!panel || !overlay || !list || !title || !back) {
+  if (!folders || !panel || !overlay || !list || !title || !back) {
     console.warn("ExplorerWithCounts: 필수 DOM 요소를 찾을 수 없습니다.")
     explorerElements = null
     return
   }
 
-  explorerElements = { root, panel, overlay, list, title, back }
+  explorerElements = { root, folders, panel, overlay, list, title, back, toggle }
   panelOpen = false
+  navOpen = false
   historyStateActive = false
-  activeButton = null
-  closePanelDom()
+  clearActiveButton()
+  root.classList.remove("is-panel-open")
+  root.classList.remove("is-nav-open")
+  panel.setAttribute("aria-hidden", "true")
 
+  setNavState(false)
+  closePanelDom()
   attachListeners()
+
+  const mediaChangeHandler = () => setNavState(navOpen)
+
+  if (typeof mobileMediaQuery.addEventListener === "function") {
+    mobileMediaQuery.addEventListener("change", mediaChangeHandler)
+    registerCleanup(() => mobileMediaQuery.removeEventListener("change", mediaChangeHandler))
+  } else if (typeof mobileMediaQuery.addListener === "function") {
+    mobileMediaQuery.addListener(mediaChangeHandler)
+    registerCleanup(() => mobileMediaQuery.removeListener(mediaChangeHandler))
+  }
 }
 
 const onPrenav = () => {
   if (panelOpen) {
     closePanel()
+  }
+  if (navOpen && isMobile()) {
+    closeNav()
   }
 }
 
@@ -226,3 +294,4 @@ document.addEventListener("nav", (event: CustomEventMap["nav"]) => {
 document.addEventListener("DOMContentLoaded", () => {
   setupExplorer((document.body.dataset.slug ?? "index") as FullSlug)
 })
+

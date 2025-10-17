@@ -56,6 +56,8 @@ const renderFolder = (node: CountableNode, depth = 0): VNode | null => {
   )
 }
 
+let explorerInstance = 0
+
 export default (() => {
   const ExplorerWithCounts: QuartzComponent = (props: QuartzComponentProps) => {
     const { allFiles, ctx } = props
@@ -67,9 +69,35 @@ export default (() => {
       return null
     }
 
+    const instanceId = `custom-explorer-${explorerInstance++}`
+    const foldersId = `${instanceId}-folders`
+
     return (
       <nav class="custom-explorer" aria-label="Site navigation">
-        <div class="custom-explorer__folders">
+        <button
+          type="button"
+          class="custom-explorer__toggle"
+          aria-expanded="false"
+          aria-controls={foldersId}
+          aria-label="카테고리 메뉴 토글"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="custom-explorer__toggle-icon"
+          >
+            <line x1="4" x2="20" y1="12" y2="12" />
+            <line x1="4" x2="20" y1="6" y2="6" />
+            <line x1="4" x2="20" y1="18" y2="18" />
+          </svg>
+          <span class="custom-explorer__toggle-label">카테고리</span>
+        </button>
+        <div class="custom-explorer__folders" id={foldersId} aria-hidden="true">
           <ul class="custom-explorer__folder-list">
             {loosePages.length > 0 && (
               <li class="custom-explorer__folder-item" data-depth={0}>
