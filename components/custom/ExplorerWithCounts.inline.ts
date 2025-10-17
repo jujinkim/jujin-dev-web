@@ -40,7 +40,7 @@ const isMobile = () => mobileMediaQuery.matches
 const syncOverlay = () => {
   if (!explorerElements) return
   const { overlay } = explorerElements
-  const shouldShow = panelOpen || (navOpen && isMobile())
+  const shouldShow = isMobile() && (panelOpen || navOpen)
   overlay.setAttribute("aria-hidden", shouldShow ? "false" : "true")
   overlay.classList.toggle("is-visible", shouldShow)
   overlay.style.pointerEvents = shouldShow ? "auto" : "none"

@@ -75,12 +75,13 @@ export default (() => {
 
     const instanceId = `custom-explorer-${explorerInstance++}`
     const foldersId = `${instanceId}-folders`
+    const panelId = `${instanceId}-panel`
 
     return (
       <nav class="custom-explorer" aria-label="Site navigation">
         <button
           type="button"
-          class="custom-explorer__toggle"
+          class="custom-explorer__toggle explorer-toggle mobile-explorer"
           aria-expanded="false"
           aria-controls={foldersId}
           aria-label="카테고리 메뉴 토글"
@@ -119,7 +120,7 @@ export default (() => {
             {rootFolders.map((folder) => renderFolder(folder, 0))}
           </ul>
         </div>
-        <div class="custom-explorer__panel" aria-hidden="true" role="dialog">
+        <div class="custom-explorer__panel" aria-hidden="true" role="dialog" id={panelId}>
           <div class="custom-explorer__panel-header">
             <button type="button" class="custom-explorer__back">
               ←
