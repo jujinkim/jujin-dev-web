@@ -171,15 +171,21 @@ commit_and_push() {
     # Determine branch and push
     local branch
     branch="$(git rev-parse --abbrev-ref HEAD)"
-    log "Pushing to branch: $branch"
+    log "Preparing to rebase and push branch: $branch"
 
     if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+        log "Rebasing onto upstream before push..."
+        if ! git pull --rebase; then
+            log "ERROR: Git pull --rebase failed"
+            exit 1
+        fi
         # Upstream exists
         if ! git push; then
             log "ERROR: Git push failed"
             exit 1
         fi
     else
+        log "No upstream configured. Skipping pull --rebase."
         # No upstream, push to origin
         if ! git push origin "$branch"; then
             log "ERROR: Git push to origin failed"
