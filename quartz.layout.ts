@@ -1,5 +1,6 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
+import ExplorerWithCounts from "./components/custom/ExplorerWithCounts"
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -52,7 +53,7 @@ export const defaultContentPageLayout: PageLayout = {
         { Component: Component.ReaderMode() },
       ],
     }),
-    Component.Explorer(),
+    ExplorerWithCounts(),
   ],
   right: [
     Component.Graph(),
@@ -76,7 +77,7 @@ export const defaultListPageLayout: PageLayout = {
         { Component: Component.Darkmode() },
       ],
     }),
-    Component.Explorer(),
+    ExplorerWithCounts(),
   ],
   right: [],
 }
