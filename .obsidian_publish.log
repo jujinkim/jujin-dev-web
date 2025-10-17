@@ -2787,3 +2787,10 @@ sent 158 bytes  received 19 bytes  354.00 bytes/sec
 total size is 1.61K  speedup is 9.12
 [2025-10-18T00:00:01+09:00] Sync complete
 [2025-10-18T00:00:01+09:00] Changes detected. Committing and pushing...
+[main cf2981c] Publish update from Obsidian vault
+ 7 files changed, 270 insertions(+), 101 deletions(-)
+[2025-10-18T00:00:01+09:00] Preparing to rebase and push branch: main
+[2025-10-18T00:00:01+09:00] Rebasing onto upstream before push...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+[2025-10-18T00:00:01+09:00] ERROR: Git pull --rebase failed

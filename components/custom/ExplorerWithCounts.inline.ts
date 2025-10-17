@@ -202,19 +202,22 @@ const setupExplorer = (slug: FullSlug) => {
 
   closePanelDom()
 
-  // 폴더 버튼들
+  // 폴더 버튼들 - 클론하여 리스너 제거
   const buttons = root.querySelectorAll<HTMLButtonElement>("[data-folder-slug]")
   buttons.forEach((button) => {
-    const handler = (evt: Event) => {
+    const newButton = button.cloneNode(true) as HTMLButtonElement
+    button.replaceWith(newButton)
+    newButton.addEventListener("click", (evt: Event) => {
       evt.preventDefault()
-      openPanel(button as FolderButton).catch(console.error)
-    }
-    button.removeEventListener("click", handler)
-    button.addEventListener("click", handler)
+      openPanel(newButton as FolderButton).catch(console.error)
+    })
   })
 
-  // 뒤로 버튼
-  const backHandler = (evt: Event) => {
+  // 뒤로 버튼 - 클론하여 리스너 제거
+  const newBack = back.cloneNode(true) as HTMLButtonElement
+  back.replaceWith(newBack)
+  explorerElements.back = newBack
+  newBack.addEventListener("click", (evt: Event) => {
     evt.preventDefault()
     if (isMobile() && historyStateActive) {
       historyStateActive = false
@@ -228,12 +231,13 @@ const setupExplorer = (slug: FullSlug) => {
         if (!navOpen) openNav()
       }, 50)
     }
-  }
-  back.removeEventListener("click", backHandler)
-  back.addEventListener("click", backHandler)
+  })
 
-  // 오버레이
-  const overlayHandler = (evt: Event) => {
+  // 오버레이 - 클론하여 리스너 제거
+  const newOverlay = overlay.cloneNode(true) as HTMLElement
+  overlay.replaceWith(newOverlay)
+  explorerElements.overlay = newOverlay
+  newOverlay.addEventListener("click", (evt: Event) => {
     evt.preventDefault()
     if (panelOpen) {
       if (isMobile() && historyStateActive) {
@@ -246,33 +250,34 @@ const setupExplorer = (slug: FullSlug) => {
     } else if (navOpen) {
       closeNav()
     }
-  }
-  overlay.removeEventListener("click", overlayHandler)
-  overlay.addEventListener("click", overlayHandler)
+  })
 
-  // 햄버거 토글
+  // 햄버거 토글 - 클론하여 리스너 제거
   if (toggle) {
     toggle.classList.remove("hide-until-loaded")
-    const toggleHandler = (evt: Event) => {
+    const newToggle = toggle.cloneNode(true) as HTMLButtonElement
+    newToggle.classList.remove("hide-until-loaded")
+    toggle.replaceWith(newToggle)
+    explorerElements.toggle = newToggle
+    newToggle.addEventListener("click", (evt: Event) => {
       evt.preventDefault()
       if (navOpen) {
         closeNav()
       } else {
         openNav()
       }
-    }
-    toggle.removeEventListener("click", toggleHandler)
-    toggle.addEventListener("click", toggleHandler)
+    })
   }
 
-  // X 닫기 버튼
+  // X 닫기 버튼 - 클론하여 리스너 제거
   if (navClose) {
-    const navCloseHandler = (evt: Event) => {
+    const newNavClose = navClose.cloneNode(true) as HTMLButtonElement
+    navClose.replaceWith(newNavClose)
+    explorerElements.navClose = newNavClose
+    newNavClose.addEventListener("click", (evt: Event) => {
       evt.preventDefault()
       closeNav()
-    }
-    navClose.removeEventListener("click", navCloseHandler)
-    navClose.addEventListener("click", navCloseHandler)
+    })
   }
 }
 
