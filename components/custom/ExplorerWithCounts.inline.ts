@@ -109,26 +109,25 @@ const buildListItems = (
     })
     .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }))
 
-  // 하위 폴더 정보 수집
-  const subfolderInfo = new Map<string, number>()
+  // 하위 폴더의 모든 파일 개수 계산 (하나로 합침)
+  let subfolderCount = 0
   Object.values(data).forEach((item) => {
     const itemSlug = item.slug
     if (!itemSlug || itemSlug.endsWith("/index")) return
 
-    let prefix: string
     if (normalized === "") {
-      // 루트의 경우
-      if (!itemSlug.includes("/")) return
-      prefix = itemSlug.split("/")[0]
+      // 루트의 경우: 슬래시가 있는 모든 것
+      if (itemSlug.includes("/")) {
+        subfolderCount++
+      }
     } else {
       // 특정 폴더의 경우
       if (!itemSlug.startsWith(normalized + "/")) return
       const remainder = itemSlug.substring(normalized.length + 1)
-      if (!remainder.includes("/")) return // 직접 자식은 제외
-      prefix = normalized + "/" + remainder.split("/")[0]
+      if (remainder.includes("/")) {
+        subfolderCount++
+      }
     }
-
-    subfolderInfo.set(prefix, (subfolderInfo.get(prefix) || 0) + 1)
   })
 
   const result: HTMLLIElement[] = []
@@ -147,18 +146,12 @@ const buildListItems = (
     result.push(li)
   })
 
-  // 하위 폴더 정보
-  if (subfolderInfo.size > 0) {
-    const sortedSubfolders = Array.from(subfolderInfo.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-
-    sortedSubfolders.forEach(([folderPath, count]) => {
-      const folderName = folderPath.split("/").pop() || folderPath
-      const li = document.createElement("li")
-      li.className = "custom-explorer__subfolder-info"
-      li.textContent = `${folderName}에 ${count}개의 글`
-      result.push(li)
-    })
+  // 하위 폴더 정보 (하나로 합침) - 루트 제외
+  if (subfolderCount > 0 && normalized !== "") {
+    const li = document.createElement("li")
+    li.className = "custom-explorer__subfolder-info"
+    li.textContent = `하위 카테고리에 ${subfolderCount}개의 문서`
+    result.push(li)
   }
 
   if (result.length === 0) {
