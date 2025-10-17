@@ -23,10 +23,10 @@ Here are some of the topics I'm currently interested in and writing about:
 - **Software Architecture:** Design patterns, microservices, and system design.
 - **Programming Languages:** Exploring the nuances of languages like TypeScript, Python, and Go.
 
-## Latest Articles
-
-_(This section can be automatically populated by Quartz)_
-
 ## Get in Touch
 
 I'm always open to connecting with other developers. You can find me on [GitHub](https://github.com/jujinkim) or reach out to me through the contact information on my [main site](https://jujin.kim).
+
+## Anything Else
+
+You can also access this page via [jujin.dev](https://jujin.dev). This URL points exactly same webpage (forwarding).
