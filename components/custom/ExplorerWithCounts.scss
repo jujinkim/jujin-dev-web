@@ -133,6 +133,7 @@
   flex-direction: column;
   height: 100%;
   backdrop-filter: blur(2px);
+  z-index: 11;
 }
 
 .custom-explorer__panel-header {
