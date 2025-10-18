@@ -11,7 +11,6 @@ export const sharedPageComponents: SharedLayout = {
   head: HeadWithHreflang(),
   header: [],
   afterBody: [
-    TranslationNotice(),
     Component.Comments({
       provider: "giscus",
       options: {
