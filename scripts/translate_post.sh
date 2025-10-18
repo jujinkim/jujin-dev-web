@@ -77,10 +77,123 @@ get_content() {
     awk '/^---$/{if(++count==2) {getline; print; next}} count==2' "$file"
 }
 
-# Get frontmatter
+# Get frontmatter (without the --- delimiters)
 get_frontmatter() {
     local file="$1"
-    awk '/^---$/{if(++count==2) exit} count==1' "$file"
+    awk '/^---$/{if(++count==1) next; if(count==2) exit} {print}' "$file"
+}
+
+# Update frontmatter with translation reference
+update_frontmatter_translations() {
+    local file="$1"
+    local lang_code="$2"
+    local slug="$3"
+
+    # Create temp file
+    local temp_file="${file}.tmp"
+
+    # Check if translation already exists
+    if grep -q "^translations:" "$file"; then
+        local existing_entry=$(sed -n "/^translations:/,/^[a-z][a-z]*:/p" "$file" | grep "^[[:space:]]*${lang_code}:")
+        if [[ -n "$existing_entry" ]]; then
+            # Translation already exists, skip
+            return
+        fi
+    fi
+
+    # Check if translations field exists
+    if grep -q "^translations:" "$file"; then
+        # Translations field exists, add new entry
+        awk -v lang="$lang_code" -v slug="$slug" '
+        /^translations:/ {
+            print
+            in_translations = 1
+            next
+        }
+        in_translations && /^[[:space:]]+[a-z]+:/ {
+            # Still in translations block
+            print
+            next
+        }
+        in_translations && !/^[[:space:]]/ {
+            # End of translations block, insert new entry before this line
+            print "  " lang ": " slug
+            in_translations = 0
+            print
+            next
+        }
+        {
+            if (in_translations) {
+                # End of file while in translations, insert before closing
+                print "  " lang ": " slug
+                in_translations = 0
+            }
+            print
+        }
+        END {
+            if (in_translations) {
+                print "  " lang ": " slug
+            }
+        }
+        ' "$file" > "$temp_file"
+    else
+        # Translations field doesn't exist, add it before closing ---
+        awk -v lang="$lang_code" -v slug="$slug" '
+        /^---$/ {
+            if (++count == 2) {
+                # Before closing ---, add translations
+                print "translations:"
+                print "  " lang ": " slug
+            }
+            print
+            next
+        }
+        { print }
+        ' "$file" > "$temp_file"
+    fi
+
+    # Replace original with updated version
+    mv "$temp_file" "$file"
+}
+
+# Build frontmatter for translation with back-reference to original
+build_translation_frontmatter() {
+    local source_file="$1"
+    local target_lang="$2"
+    local translated_title="$3"
+
+    # Get original frontmatter and source language
+    local original_frontmatter=$(get_frontmatter "$source_file")
+    local source_lang=$(get_source_lang "$source_file")
+
+    # Calculate original slug (without .md extension)
+    local source_basename=$(basename "$source_file" .md)
+
+    # Build new frontmatter with translated title and lang, removing existing translations field
+    local new_frontmatter=$(echo "$original_frontmatter" | awk -v title="$translated_title" -v lang="$target_lang" '
+    /^title:/ { print "title: \"" title "\""; next }
+    /^lang:/ { print "lang: " lang; next }
+    /^translations:/ { in_trans=1; next }
+    in_trans && /^[[:space:]]+[a-z]+:/ { next }
+    in_trans && /^[a-z]+:/ { in_trans=0 }
+    { if (!in_trans) print }
+    ')
+
+    # Add back-reference to original and other translations
+    local translations_block="translations:\n  ${source_lang}: ${source_basename}"
+
+    # Get existing translations from original file (except target_lang)
+    if grep -q "^translations:" "$source_file"; then
+        while IFS=: read -r lang slug; do
+            lang=$(echo "$lang" | tr -d ' ')
+            slug=$(echo "$slug" | tr -d ' ')
+            if [[ -n "$lang" ]] && [[ "$lang" != "$target_lang" ]]; then
+                translations_block="${translations_block}\n  ${lang}: ${slug}"
+            fi
+        done < <(sed -n '/^translations:/,/^[a-z][a-z]*:/p' "$source_file" | grep "^[[:space:]]*[a-z][a-z]*:" | grep -v "^translations:")
+    fi
+
+    echo -e "${new_frontmatter}\n${translations_block}"
 }
 
 # Translate using Gemini CLI
@@ -155,11 +268,8 @@ ${content}"
     # Get content without title
     local translated_body=$(echo "$translated_content" | awk '/^#/{if(++count==1) next} {print}')
 
-    # Build new frontmatter with translated title
-    local original_frontmatter=$(get_frontmatter "$source_file")
-    local new_frontmatter=$(echo "$original_frontmatter" | sed "s/^title:.*/title: ${translated_title}/" | sed "s/^lang:.*/lang: ${target_lang}/")
-
-    # TODO: Update translations field in frontmatter
+    # Build frontmatter for translation file with back-references
+    local new_frontmatter=$(build_translation_frontmatter "$source_file" "$target_lang" "$translated_title")
 
     # Write output file
     cat > "$output_file" <<EOF
@@ -170,6 +280,26 @@ ${translated_body}
 EOF
 
     log "Created: $output_file"
+
+    # Update source file frontmatter with reference to this translation
+    local output_basename=$(basename "$output_file" .md)
+    update_frontmatter_translations "$source_file" "$target_lang" "$output_basename"
+    log "Updated source file with translation reference"
+
+    # Update all existing translation files with reference to new translation
+    if grep -q "^translations:" "$source_file"; then
+        while IFS=: read -r lang slug; do
+            lang=$(echo "$lang" | tr -d ' ')
+            slug=$(echo "$slug" | tr -d ' ')
+            if [[ -n "$lang" ]] && [[ "$lang" != "$target_lang" ]]; then
+                local existing_trans_file="${dir}/${slug}.md"
+                if [[ -f "$existing_trans_file" ]]; then
+                    update_frontmatter_translations "$existing_trans_file" "$target_lang" "$output_basename"
+                    log "Updated existing translation: $existing_trans_file"
+                fi
+            fi
+        done < <(sed -n '/^translations:/,/^[a-z][a-z]*:/p' "$source_file" | grep "^[[:space:]]*[a-z][a-z]*:" | grep -v "^translations:")
+    fi
 }
 
 # Main script
