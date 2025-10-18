@@ -97,6 +97,12 @@ const buildListItems = (
       if (!itemSlug) return false
       if (itemSlug.endsWith("/index")) return false
 
+      // 번역본 필터링: slug의 마지막 부분에 .이 있으면 제외
+      // 예: index.ko, post.ja, article.zh 등
+      const slugParts = itemSlug.split("/")
+      const lastPart = slugParts[slugParts.length - 1]
+      if (lastPart.includes(".")) return false
+
       if (normalized === "") {
         // 루트: 슬래시가 없는 것만
         return !itemSlug.includes("/")
@@ -114,6 +120,11 @@ const buildListItems = (
   Object.values(data).forEach((item) => {
     const itemSlug = item.slug
     if (!itemSlug || itemSlug.endsWith("/index")) return
+
+    // 번역본 제외
+    const slugParts = itemSlug.split("/")
+    const lastPart = slugParts[slugParts.length - 1]
+    if (lastPart.includes(".")) return
 
     if (normalized === "") {
       // 루트의 경우: 슬래시가 있는 모든 것

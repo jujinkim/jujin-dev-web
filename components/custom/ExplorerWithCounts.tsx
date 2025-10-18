@@ -17,7 +17,13 @@ const countPages = (node: CountableNode): number => {
   let total = 0
 
   if (!node.isFolder && node.data) {
-    total += 1
+    // 번역본 제외: slug에 .이 포함되어 있으면 제외
+    const slug = node.slug || ""
+    const slugParts = slug.split("/")
+    const lastPart = slugParts[slugParts.length - 1]
+    if (!lastPart.includes(".")) {
+      total += 1
+    }
   }
 
   for (const child of node.children) {
@@ -67,7 +73,14 @@ export default (() => {
     const { allFiles, ctx } = props
     const trie = (ctx.trie ??= trieFromAllFiles(allFiles))
     const rootFolders = trie.children.filter((child) => child.isFolder)
-    const loosePages = trie.children.filter((child) => !child.isFolder && child.data)
+    const loosePages = trie.children.filter((child) => {
+      if (child.isFolder || !child.data) return false
+      // 번역본 제외
+      const slug = child.slug || ""
+      const slugParts = slug.split("/")
+      const lastPart = slugParts[slugParts.length - 1]
+      return !lastPart.includes(".")
+    })
 
     if (rootFolders.length === 0 && loosePages.length === 0) {
       return null
