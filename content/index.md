@@ -6,6 +6,7 @@ translations:
   en: index
   ja: index
   zh: index
+dummy: dummy
 ---
 # Jujin의 개발 허브
 
