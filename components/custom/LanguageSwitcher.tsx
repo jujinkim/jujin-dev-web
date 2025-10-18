@@ -12,7 +12,11 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ko: "한국어",
   en: "English",
   ja: "日本語",
+  zh: "中文",
 }
+
+// 언어 표시 순서 (고정)
+const LANGUAGE_ORDER = ["en", "ko", "ja", "zh"]
 
 export default (() => {
   const LanguageSwitcher: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => {
@@ -26,7 +30,6 @@ export default (() => {
     }
 
     const currentSlug = fileData.slug as FullSlug
-    const languages: LanguageInfo[] = []
 
     // 원본 언어 찾기: slug에 .이 없으면 원본
     const isCurrentOriginal = !currentSlug.includes(".")
@@ -42,8 +45,11 @@ export default (() => {
       }
     }
 
+    // 모든 가능한 언어를 수집
+    const allLanguages = new Map<string, LanguageInfo>()
+
     // 현재 언어 추가
-    languages.push({
+    allLanguages.set(currentLang, {
       code: currentLang,
       name: isCurrentOriginal
         ? `📝 ${LANGUAGE_NAMES[currentLang] || currentLang.toUpperCase()}`
@@ -58,7 +64,7 @@ export default (() => {
           : (slugSuffix as FullSlug)
 
         const isTranslationOriginal = langCode === originalLang
-        languages.push({
+        allLanguages.set(langCode, {
           code: langCode,
           name: isTranslationOriginal
             ? `📝 ${LANGUAGE_NAMES[langCode] || langCode.toUpperCase()}`
@@ -67,6 +73,11 @@ export default (() => {
         })
       })
     }
+
+    // 고정된 순서로 정렬
+    const languages: LanguageInfo[] = LANGUAGE_ORDER
+      .filter(lang => allLanguages.has(lang))
+      .map(lang => allLanguages.get(lang)!)
 
     // 언어가 하나뿐이면 (번역본 없음) 렌더링 안 함
     if (languages.length <= 1) {
