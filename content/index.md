@@ -2,6 +2,10 @@
 publish: "true"
 title: dev.jujin.kim에 오신 것을 환영합니다
 lang: ko
+translations:
+  en: index
+  ja: index
+  zh: index
 ---
 # Jujin의 개발 허브
 
