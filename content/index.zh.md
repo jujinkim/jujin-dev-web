@@ -31,7 +31,7 @@ translations:
 
 ## 联系我
 
-我随时乐意与其他开发者交流。你可以在 [GitHub](https.github.com/jujinkim) 上找到我，或通过我的[主站](https://jujin.kim)上的联系方式与我联系。
+我随时乐意与其他开发者交流。你可以在 [GitHub](https://github.com/jujinkim) 上找到我，或通过我的[主站](https://jujin.kim)上的联系方式与我联系。
 
 ## 其他
 
