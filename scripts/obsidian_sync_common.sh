@@ -147,6 +147,72 @@ sync_content() {
     log "Sync complete"
 }
 
+# Translate changed files
+translate_changed_files() {
+    local target_dir="${1:-$PROJECT_DIR}"
+
+    cd "$target_dir"
+
+    log "Checking for files to translate..."
+
+    # Get list of changed markdown files in content/
+    local changed_files
+    changed_files=$(git diff --name-only HEAD content/*.md 2>/dev/null || git ls-files --others --exclude-standard content/*.md 2>/dev/null || true)
+
+    if [[ -z "$changed_files" ]]; then
+        log "No changed markdown files found"
+        return 0
+    fi
+
+    local translate_script="$SCRIPTS_DIR/translate_post.sh"
+    if [[ ! -x "$translate_script" ]]; then
+        log "WARNING: translate_post.sh not found or not executable. Skipping translations."
+        return 0
+    fi
+
+    # Process each changed file
+    while IFS= read -r file; do
+        # Skip if file doesn't exist
+        [[ -f "$file" ]] || continue
+
+        # Skip translation files (contains . in basename)
+        local basename
+        basename=$(basename "$file" .md)
+        if [[ "$basename" == *"."* ]]; then
+            log "  Skipping translation file: $file"
+            continue
+        fi
+
+        # Check if file has lang field
+        if ! grep -q '^lang:' "$file" 2>/dev/null; then
+            log "  Skipping (no lang field): $file"
+            continue
+        fi
+
+        # Extract translation targets from frontmatter
+        local translations
+        translations=$(awk '/^translations:/,/^[a-z]+:/ {if ($0 ~ /^  [a-z]+:/) print $1}' "$file" | sed 's/://g' || true)
+
+        if [[ -z "$translations" ]]; then
+            log "  No translations configured for: $file"
+            continue
+        fi
+
+        # Run translation
+        log "  Translating: $file → $translations"
+        if "$translate_script" "$file" $translations 2>&1 | sed 's/^/    /'; then
+            log "  ✓ Translation successful"
+        else
+            log "  ✗ Translation failed (continuing anyway)"
+        fi
+    done <<< "$changed_files"
+
+    # Stage any new translation files
+    git add content/*.md 2>/dev/null || true
+
+    log "Translation processing complete"
+}
+
 # Commit and push changes
 commit_and_push() {
     local commit_message="$1"
@@ -219,6 +285,7 @@ run_sync() {
     fi
 
     sync_content "$source_vault"
+    translate_changed_files "$PROJECT_DIR"
     commit_and_push "$commit_message"
 
     if [[ $started_by_script -eq 1 && -n "$obs_pid" ]]; then
