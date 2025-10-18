@@ -1,37 +1,31 @@
 ---
 publish: "true"
-title: Welcome to dev.jujin.kim
-lang: en
-translations:
-  ko: index.ko
-  ja: index.ja
-  zh: index.zh
+title: dev.jujin.kim에 오신 것을 환영합니다
+lang: ko
 ---
-# Jujin's Development Hub
+# Jujin의 개발 허브
 
-Welcome to my corner of the internet where I share my thoughts, learnings, and explorations in the world of software engineering.
+소프트웨어 엔지니어링의 세계에서 제 생각과 배움, 탐험을 공유하는 인터넷 공간에 오신 것을 환영합니다.
 
-## About This Site
+## 이 사이트에 대하여
 
-This site serves as my digital garden—a place where I document my journey as a developer. You'll find articles on various topics, from web development and system design to programming languages and tools. My goal is to create a collection of high-quality, practical content that can be helpful to other developers.
+이 사이트는 저의 디지털 가든 역할을 합니다. 개발자로서의 여정을 기록하는 곳이죠. 웹 개발과 시스템 설계부터 프로그래밍 언어와 도구에 이르기까지 다양한 주제의 글을 찾을 수 있습니다. 다른 개발자들에게 도움이 될 수 있는 고품질의 실용적인 콘텐츠 모음을 만드는 것이 제 목표입니다.
 
-## About Me
+## 저에 대하여
 
-I'm Jujin Kim, a software engineer with a passion for building elegant and efficient solutions. I'm constantly learning and experimenting with new technologies, and I believe in the power of sharing knowledge.
+저는 주로 프론트엔드 기술을 다루지만, 풀스택 개발에도 꾸준히 도전하며 IT 기술의 최전선에 서고자 노력하는 김주진입니다.
 
-## Featured Topics
+코틀린과 C#을 주력으로 사용하며, 다른 언어들은 AI의 도움을 받아 적극적으로 활용하고 있습니다. 단순한 코딩보다는 전체적인 프로그래밍 설계와 아키텍처에 더 큰 관심을 두고 있으며, AI 페어코딩 및 AI 코드 에이전트를 활용하여 개발 생산성을 높이는 방법에 대해 깊이 탐구하고 있습니다.
 
-Here are some of the topics I'm currently interested in and writing about:
+## 주요 관심사
 
-- **Web Development:** Front-end and back-end technologies, frameworks, and best practices.
-- **Cloud & DevOps:** AWS, Docker, and CI/CD pipelines.
-- **Software Architecture:** Design patterns, microservices, and system design.
-- **Programming Languages:** Exploring the nuances of languages like TypeScript, Python, and Go.
+제가 현재 관심을 갖고 글을 쓰고 있는 몇 가지 주제는 다음과 같습니다.
 
-## Get in Touch
+- **풀스택 개발:** 프론트엔드 기술을 중심으로 백엔드까지 아우르는 개발 경험과 모범 사례.
+- **프로그래밍과 아키텍처:** 확장 가능하고 유지보수하기 쉬운 소프트웨어를 만들기 위한 설계 패턴, 마이크로서비스, 시스템 디자인.
+- **AI 기반 개발:** AI 페어코딩, 코드 에이전트 등 AI를 활용한 개발 워크플로우 혁신.
+- **주력 언어 탐구:** 코틀린과 C#의 깊이 있는 활용법과 최신 기능 분석.
 
-I'm always open to connecting with other developers. You can find me on [GitHub](https://github.com/jujinkim) or reach out to me through the contact information on my [main site](https://jujin.kim).
+## 연락하기
 
-## Anything Else
-
-You can also access this page via [jujin.dev](https://jujin.dev). This URL points exactly same webpage (forwarding).
+다른 개발자들과 교류하는 것을 언제나 환영합니다. [GitHub](https://github.com/jujinkim)에서 저를 찾거나 [제 메인 사이트](https://jujin.kim)의 연락처 정보로 연락하실 수 있습니다.
