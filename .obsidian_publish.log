@@ -2914,3 +2914,10 @@ sent 488 bytes  received 24 bytes  1.02K bytes/sec
 total size is 1.88K  speedup is 3.68
 [2025-10-19T00:00:01+09:00] Sync complete
 [2025-10-19T00:00:01+09:00] Changes detected. Committing and pushing...
+[main 3893a2a] Publish update from Obsidian vault
+ 1 file changed, 31 insertions(+)
+[2025-10-19T00:00:01+09:00] Preparing to rebase and push branch: main
+[2025-10-19T00:00:01+09:00] Rebasing onto upstream before push...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+[2025-10-19T00:00:01+09:00] ERROR: Git pull --rebase failed

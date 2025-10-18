@@ -1,10 +1,6 @@
 ---
 publish: "true"
 title: Welcome to dev.jujin.kim
-lang: en
-translations:
-  ko: index.ko
-  ja: index.ja
 ---
 # Jujin's Development Hub
 
