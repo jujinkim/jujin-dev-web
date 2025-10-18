@@ -4,6 +4,7 @@ import ExplorerWithCounts from "./components/custom/ExplorerWithCounts"
 import CustomFooter from "./components/custom/CustomFooter"
 import LanguageSwitcher from "./components/custom/LanguageSwitcher"
 import HeadWithHreflang from "./components/custom/HeadWithHreflang"
+import TranslationNotice from "./components/custom/TranslationNotice"
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -24,6 +25,7 @@ export const sharedPageComponents: SharedLayout = {
         lang: "ko",
       },
     }),
+    TranslationNotice(),
   ],
   footer: CustomFooter(),
 }
@@ -31,6 +33,7 @@ export const sharedPageComponents: SharedLayout = {
 // components for pages that display a single page (e.g. a single note)
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
+    TranslationNotice(),
     Component.ConditionalRender({
       component: Component.Breadcrumbs(),
       condition: (page) => page.fileData.slug !== "index",

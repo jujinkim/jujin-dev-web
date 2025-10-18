@@ -1,0 +1,33 @@
+.translation-notice {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--highlight);
+  border-left: 4px solid var(--secondary);
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.translation-notice__text {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--darkgray);
+  font-weight: 500;
+}
+
+.translation-notice__icon {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .translation-notice {
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .translation-notice__icon {
+    font-size: 1rem;
+  }
+}

@@ -28,10 +28,26 @@ export default (() => {
     const currentSlug = fileData.slug as FullSlug
     const languages: LanguageInfo[] = []
 
+    // 원본 언어 찾기: slug에 .이 없으면 원본
+    const isCurrentOriginal = !currentSlug.includes(".")
+
+    // translations에서 원본 언어 찾기 (slug에 .이 없는 것)
+    let originalLang = isCurrentOriginal ? currentLang : null
+    if (!originalLang && translations) {
+      for (const [langCode, slugSuffix] of Object.entries(translations)) {
+        if (!slugSuffix.includes(".")) {
+          originalLang = langCode
+          break
+        }
+      }
+    }
+
     // 현재 언어 추가
     languages.push({
       code: currentLang,
-      name: LANGUAGE_NAMES[currentLang] || currentLang.toUpperCase(),
+      name: isCurrentOriginal
+        ? `📝 ${LANGUAGE_NAMES[currentLang] || currentLang.toUpperCase()}`
+        : `🌐 ${LANGUAGE_NAMES[currentLang] || currentLang.toUpperCase()}`,
     })
 
     // 번역본 추가
@@ -41,9 +57,12 @@ export default (() => {
           ? (slugSuffix.slice(1) as FullSlug)
           : (slugSuffix as FullSlug)
 
+        const isTranslationOriginal = langCode === originalLang
         languages.push({
           code: langCode,
-          name: LANGUAGE_NAMES[langCode] || langCode.toUpperCase(),
+          name: isTranslationOriginal
+            ? `📝 ${LANGUAGE_NAMES[langCode] || langCode.toUpperCase()}`
+            : `🌐 ${LANGUAGE_NAMES[langCode] || langCode.toUpperCase()}`,
           slug: translationSlug,
         })
       })
