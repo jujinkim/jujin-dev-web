@@ -3,18 +3,7 @@
 # translate_post.sh - Translate a blog post using Gemini CLI
 #
 # USAGE:
-#   ./scripts/translate_post.sh <source_file> <target_lang1> [target_lang2...]
-#
-# ARGUMENTS:
-#   source_file     - Path to the source markdown file
-#   target_lang     - Target language code(s) (en, ko, ja, etc.)
-#
-# EXAMPLES:
-#   # Translate to English and Japanese
-#   ./scripts/translate_post.sh content/my-post.md en ja
-#
-#   # Translate to Korean only
-#   ./scripts/translate_post.sh content/my-post.md ko
+#   ./scripts/translate_post.sh <source_file>
 #
 # REQUIREMENTS:
 #   - Gemini CLI must be installed and available in PATH
@@ -28,6 +17,8 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
+
+SUPPORTED_LANGUAGES=("ko" "en" "ja" "zh")
 
 log() {
     echo -e "${GREEN}[$(date +%H:%M:%S)]${NC} $*"
@@ -83,76 +74,57 @@ get_frontmatter() {
     awk '/^---$/{if(++count==1) next; if(count==2) exit} {print}' "$file"
 }
 
-# Update frontmatter with translation reference
-update_frontmatter_translations() {
+# Remove translations field from frontmatter if it exists
+remove_translations_field() {
     local file="$1"
-    local lang_code="$2"
-    local slug="$3"
 
-    # Create temp file
+    if [[ ! -f "$file" ]]; then
+        return
+    fi
+
+    if ! grep -q "^translations:" "$file"; then
+        return
+    fi
+
     local temp_file="${file}.tmp"
 
-    # Check if translation already exists
-    if grep -q "^translations:" "$file"; then
-        local existing_entry=$(sed -n "/^translations:/,/^[a-z][a-z]*:/p" "$file" | grep "^[[:space:]]*${lang_code}:")
-        if [[ -n "$existing_entry" ]]; then
-            # Translation already exists, skip
-            return
-        fi
-    fi
+    awk '
+    BEGIN { section = 0; skip = 0 }
+    /^---$/ {
+        section++
+        skip = (section == 1) ? skip : 0
+        print
+        next
+    }
+    {
+        if (section != 1) {
+            print
+            next
+        }
 
-    # Check if translations field exists
-    if grep -q "^translations:" "$file"; then
-        # Translations field exists, add new entry
-        awk -v lang="$lang_code" -v slug="$slug" '
-        /^translations:/ {
-            print
-            in_translations = 1
-            next
-        }
-        in_translations && /^[[:space:]]+[a-z]+:/ {
-            # Still in translations block
-            print
-            next
-        }
-        in_translations && !/^[[:space:]]/ {
-            # End of translations block, insert new entry before this line
-            print "  " lang ": " slug
-            in_translations = 0
-            print
-            next
-        }
-        {
-            if (in_translations) {
-                # End of file while in translations, insert before closing
-                print "  " lang ": " slug
-                in_translations = 0
+        if (skip) {
+            if ($0 ~ /^[[:space:]]+/) {
+                next
             }
-            print
-        }
-        END {
-            if (in_translations) {
-                print "  " lang ": " slug
+            if ($0 ~ /^[[:space:]]*$/) {
+                next
             }
+            skip = 0
         }
-        ' "$file" > "$temp_file"
-    else
-        # Translations field doesn't exist, add it before closing ---
-        awk -v lang="$lang_code" -v slug="$slug" '
-        /^---$/ {
-            if (++count == 2) {
-                # Before closing ---, add translations
-                print "translations:"
-                print "  " lang ": " slug
-            }
-            print
-            next
-        }
-        { print }
-        ' "$file" > "$temp_file"
-    fi
 
-    # Replace original with updated version
+        if (skip) {
+            next
+        }
+
+        if (/^translations:/) {
+            skip = 1
+            next
+        }
+
+        print
+    }
+    ' "$file" > "$temp_file"
+
     mv "$temp_file" "$file"
 }
 
@@ -164,36 +136,39 @@ build_translation_frontmatter() {
 
     # Get original frontmatter and source language
     local original_frontmatter=$(get_frontmatter "$source_file")
-    local source_lang=$(get_source_lang "$source_file")
-
     # Calculate original slug (without .md extension)
-    local source_basename=$(basename "$source_file" .md)
-
-    # Build new frontmatter with translated title and lang, removing existing translations field
     local new_frontmatter=$(echo "$original_frontmatter" | awk -v title="$translated_title" -v lang="$target_lang" '
-    /^title:/ { print "title: \"" title "\""; next }
-    /^lang:/ { print "lang: " lang; next }
+    BEGIN { in_trans=0; title_set=0; lang_set=0 }
     /^translations:/ { in_trans=1; next }
-    in_trans && /^[[:space:]]+[a-z]+:/ { next }
-    in_trans && /^[a-z]+:/ { in_trans=0 }
-    { if (!in_trans) print }
+    in_trans && /^[[:space:]]+/ { next }
+    in_trans && /^[[:space:]]*$/ { next }
+    {
+        if (in_trans) {
+            in_trans=0
+        }
+        if (/^title:/) {
+            print "title: \"" title "\""
+            title_set=1
+            next
+        }
+        if (/^lang:/) {
+            print "lang: " lang
+            lang_set=1
+            next
+        }
+        print
+    }
+    END {
+        if (!title_set && title != "") {
+            print "title: \"" title "\""
+        }
+        if (!lang_set) {
+            print "lang: " lang
+        }
+    }
     ')
 
-    # Add back-reference to original and other translations
-    local translations_block="translations:\n  ${source_lang}: ${source_basename}"
-
-    # Get existing translations from original file (except target_lang)
-    if grep -q "^translations:" "$source_file"; then
-        while IFS=: read -r lang slug; do
-            lang=$(echo "$lang" | tr -d ' ')
-            slug=$(echo "$slug" | tr -d ' ')
-            if [[ -n "$lang" ]] && [[ "$lang" != "$target_lang" ]]; then
-                translations_block="${translations_block}\n  ${lang}: ${slug}"
-            fi
-        done < <(sed -n '/^translations:/,/^[a-z][a-z]*:/p' "$source_file" | grep "^[[:space:]]*[a-z][a-z]*:" | grep -v "^translations:")
-    fi
-
-    echo -e "${new_frontmatter}\n${translations_block}"
+    echo "$new_frontmatter"
 }
 
 # Translate using Gemini CLI
@@ -218,25 +193,22 @@ translate_post() {
     local source_file="$1"
     local target_lang="$2"
 
-    log "Translating $(basename "$source_file") to $target_lang..."
-
-    # Get source language
     local source_lang=$(get_source_lang "$source_file")
+
+    log "Translating $(basename "$source_file") to $target_lang..."
     log "Source language: $source_lang"
 
-    # Check if target is same as source
     if [[ "$source_lang" == "$target_lang" ]]; then
         warn "Target language ($target_lang) is same as source language. Skipping."
         return
     fi
 
-    # Prepare output filename
     local dir=$(dirname "$source_file")
     local basename=$(basename "$source_file" .md)
     local output_file="${dir}/${basename}.${target_lang}.md"
 
-    # Check if translation already exists
     if [[ -f "$output_file" ]]; then
+        remove_translations_field "$output_file"
         warn "Translation already exists: $output_file"
         read -p "Overwrite? (y/n) " -n 1 -r
         echo
@@ -246,14 +218,12 @@ translate_post() {
         fi
     fi
 
-    # Get content to translate
     local title=$(get_title "$source_file")
     local content=$(get_content "$source_file")
     local full_text="# ${title}
 
 ${content}"
 
-    # Translate
     log "Calling Gemini CLI for translation..."
     local translated_content=$(translate_text "$source_lang" "$target_lang" "$full_text")
 
@@ -262,16 +232,10 @@ ${content}"
         return 1
     fi
 
-    # Extract translated title (first line after #)
     local translated_title=$(echo "$translated_content" | grep "^#" | head -1 | sed 's/^#[[:space:]]*//')
-
-    # Get content without title
     local translated_body=$(echo "$translated_content" | awk '/^#/{if(++count==1) next} {print}')
-
-    # Build frontmatter for translation file with back-references
     local new_frontmatter=$(build_translation_frontmatter "$source_file" "$target_lang" "$translated_title")
 
-    # Write output file
     cat > "$output_file" <<EOF
 ---
 ${new_frontmatter}
@@ -279,53 +243,66 @@ ${new_frontmatter}
 ${translated_body}
 EOF
 
+    remove_translations_field "$output_file"
+
     log "Created: $output_file"
-
-    # Update source file frontmatter with reference to this translation
-    local output_basename=$(basename "$output_file" .md)
-    update_frontmatter_translations "$source_file" "$target_lang" "$output_basename"
-    log "Updated source file with translation reference"
-
-    # Update all existing translation files with reference to new translation
-    if grep -q "^translations:" "$source_file"; then
-        while IFS=: read -r lang slug; do
-            lang=$(echo "$lang" | tr -d ' ')
-            slug=$(echo "$slug" | tr -d ' ')
-            if [[ -n "$lang" ]] && [[ "$lang" != "$target_lang" ]]; then
-                local existing_trans_file="${dir}/${slug}.md"
-                if [[ -f "$existing_trans_file" ]]; then
-                    update_frontmatter_translations "$existing_trans_file" "$target_lang" "$output_basename"
-                    log "Updated existing translation: $existing_trans_file"
-                fi
-            fi
-        done < <(sed -n '/^translations:/,/^[a-z][a-z]*:/p' "$source_file" | grep "^[[:space:]]*[a-z][a-z]*:" | grep -v "^translations:")
-    fi
 }
 
 # Main script
 main() {
-    if [[ $# -lt 2 ]]; then
-        error "Usage: $0 <source_file> <target_lang1> [target_lang2...]"
-        error "Example: $0 content/my-post.md en ja"
+    if [[ $# -lt 1 ]]; then
+        error "Usage: $0 <source_file>"
         exit 1
     fi
 
     check_requirements
 
     local source_file="$1"
-    shift
 
     if [[ ! -f "$source_file" ]]; then
         error "Source file not found: $source_file"
         exit 1
     fi
 
+    shift
+    if [[ $# -gt 0 ]]; then
+        warn "Ignoring explicit language arguments. Using supported set: ${SUPPORTED_LANGUAGES[*]}"
+    fi
+
+    local source_lang=$(get_source_lang "$source_file")
+
+    local source_supported=false
+    for lang in "${SUPPORTED_LANGUAGES[@]}"; do
+        if [[ "$lang" == "$source_lang" ]]; then
+            source_supported=true
+            break
+        fi
+    done
+
+    if [[ "$source_supported" == false ]]; then
+        warn "Source language '${source_lang}' is outside the supported set (${SUPPORTED_LANGUAGES[*]}). Proceeding with fixed targets."
+    fi
+
+    remove_translations_field "$source_file"
+
+    local target_langs=()
+    for lang in "${SUPPORTED_LANGUAGES[@]}"; do
+        if [[ "$lang" != "$source_lang" ]]; then
+            target_langs+=("$lang")
+        fi
+    done
+
+    if [[ ${#target_langs[@]} -eq 0 ]]; then
+        warn "No target languages determined for $source_file (source lang: $source_lang). Nothing to do."
+        return 0
+    fi
+
     log "=== Starting translation ==="
-    log "Source file: $source_file"
-    log "Target languages: $*"
+    log "Source file: $source_file (lang: $source_lang)"
+    log "Target languages: ${target_langs[*]}"
     echo
 
-    for target_lang in "$@"; do
+    for target_lang in "${target_langs[@]}"; do
         translate_post "$source_file" "$target_lang"
         echo
     done

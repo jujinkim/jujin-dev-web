@@ -50,6 +50,7 @@ npx quartz build                # Production build
 - Sync script handles: lock file, validation, rsync, git pull --rebase, commit, push
 
 **Sync Automation**:
+
 - `obsidian_manual_sync.sh`: Manual sync with git pull --rebase
 - `obsidian_watch.sh`: Auto-sync on vault changes (60s debounce, requires inotifywait)
 - `obsidian_cron.sh`: Cron-based sync (every 6 hours)
@@ -57,36 +58,37 @@ npx quartz build                # Production build
 
 ## Multilingual Support
 
-**File Naming Convention**: `post.md` (original), `post.ko.md`, `post.ja.md` (translations)
+**File Naming Convention**: `post.md` (original), `post.<lang>.md` (translations for ko/en/ja/zh)
 
 **Frontmatter Structure**:
+
 ```yaml
 ---
 title: Post Title
 lang: en
-translations:
-  ko: post.ko
-  ja: post.ja
 ---
 ```
 
 **Features**:
-- Language switcher UI component (한국어, English, 日本語)
+
+- Language switcher UI component (한국어, English, 日本語, 中文)
 - hreflang SEO tags (x-default points to original language)
 - Automatic translation via Gemini CLI
-- Bidirectional translation links auto-maintained
+- Fixed language set: ko / en / ja / zh
+- Translation links resolved automatically from filenames (no frontmatter bookkeeping)
 
 **Translation Workflow**:
+
 ```bash
 # Add lang field to source file
 # Then run translation script
-./scripts/translate_post.sh content/post.md ko ja
+./scripts/translate_post.sh content/post.md
 
 # Script automatically:
 # - Translates content via Gemini CLI
-# - Creates translation files with proper frontmatter
-# - Updates all files with bidirectional translation links
-# - Prevents duplicate entries
+# - Generates ko/en/ja/zh variants (skipping the source language)
+# - Cleans up any legacy translations frontmatter
+# - Prevents duplicate entries by prompting before overwriting
 ```
 
 ## Custom Components Pattern
@@ -101,6 +103,7 @@ components/custom/
 ```
 
 **Component Template**:
+
 ```typescript
 // ComponentName.tsx
 import { QuartzComponent, QuartzComponentConstructor } from "../../quartz/components/types"
@@ -119,6 +122,7 @@ export default (() => {
 ```
 
 **Usage in `quartz.layout.ts`**:
+
 ```typescript
 import ComponentName from "./components/custom/ComponentName"
 
@@ -132,6 +136,7 @@ export const defaultContentPageLayout: PageLayout = {
 ## Configuration
 
 ### quartz.config.ts
+
 - Site title, base URL, locale
 - Google Analytics integration
 - Theme colors (light/dark mode)
@@ -139,6 +144,7 @@ export const defaultContentPageLayout: PageLayout = {
 - Plugin stack
 
 ### quartz.layout.ts
+
 - Page components (search, explorer, graph, TOC, backlinks)
 - Giscus comments (repo: jujinkim/jujin-dev-web, lang: ko)
 - Custom components integration
@@ -146,6 +152,7 @@ export const defaultContentPageLayout: PageLayout = {
 ## Agent Roles
 
 ### Codex / Claude Code
+
 **Role**: Development & Maintenance
 
 - Full repository access with file read/write/edit
@@ -155,6 +162,7 @@ export const defaultContentPageLayout: PageLayout = {
 - Git commit/push with proper messages
 
 **Focus Areas**:
+
 - Quartz configuration and customization
 - Custom component development
 - Automation scripts (Obsidian sync, translation)
@@ -162,6 +170,7 @@ export const defaultContentPageLayout: PageLayout = {
 - Testing and validation
 
 ### Gemini
+
 **Role**: Content Creation Only
 
 - Write Markdown articles via `scripts/vault_io.sh`

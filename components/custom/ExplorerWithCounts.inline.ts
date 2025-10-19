@@ -36,7 +36,7 @@ const syncOverlay = () => {
   if (!explorerElements) return
   const { overlay } = explorerElements
   const mobile = isMobile()
-  const shouldShow = mobile ? (panelOpen || navOpen) : panelOpen
+  const shouldShow = mobile ? panelOpen || navOpen : panelOpen
   overlay.setAttribute("aria-hidden", shouldShow ? "false" : "true")
   overlay.style.opacity = shouldShow ? "1" : "0"
   overlay.style.pointerEvents = shouldShow ? "auto" : "none"
@@ -207,7 +207,7 @@ const openPanel = async (button: FolderButton) => {
   syncOverlay()
 }
 
-const handlePopState = (event: PopStateEvent) => {
+const handlePopState = (_event: PopStateEvent) => {
   if (!panelOpen) return
   historyStateActive = false
   closePanelDom()

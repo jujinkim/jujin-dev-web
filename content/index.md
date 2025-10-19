@@ -2,11 +2,8 @@
 publish: "true"
 title: dev.jujin.kim에 오신 것을 환영합니다
 lang: ko
-translations:
-  en
-  ja
-  zh
 ---
+
 # Jujin의 개발 허브
 
 소프트웨어 엔지니어링의 세계에서 제 생각과 배움, 탐험을 공유하는 인터넷 공간에 오신 것을 환영합니다.

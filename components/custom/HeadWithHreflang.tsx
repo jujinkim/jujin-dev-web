@@ -1,17 +1,35 @@
+import { JSX } from "preact"
 import { i18n } from "../../quartz/i18n"
-import { FullSlug, getFileExtension, joinSegments, pathToRoot, resolveRelative } from "../../quartz/util/path"
+import { FullSlug, getFileExtension, joinSegments, pathToRoot } from "../../quartz/util/path"
 import { CSSResourceToStyleElement, JSResourceToScriptElement } from "../../quartz/util/resources"
 import { googleFontHref, googleFontSubsetHref } from "../../quartz/util/theme"
-import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../../quartz/components/types"
+import {
+  QuartzComponent,
+  QuartzComponentConstructor,
+  QuartzComponentProps,
+} from "../../quartz/components/types"
 import { unescapeHTML } from "../../quartz/util/escape"
 import { CustomOgImagesEmitterName } from "../../quartz/plugins/emitters/ogImage"
 
 export default (() => {
+  const SUPPORTED_LANGUAGES = ["ko", "en", "ja", "zh"] as const
+
+  const stripLanguageSuffix = (slug: string): string => {
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const suffix = `.${lang}`
+      if (slug.endsWith(suffix)) {
+        return slug.slice(0, -suffix.length)
+      }
+    }
+    return slug
+  }
+
   const HeadWithHreflang: QuartzComponent = ({
     cfg,
     fileData,
     externalResources,
     ctx,
+    allFiles,
   }: QuartzComponentProps) => {
     const titleSuffix = cfg.pageTitleSuffix ?? ""
     const title =
@@ -39,46 +57,64 @@ export default (() => {
 
     // Generate hreflang tags
     const currentLang = fileData.frontmatter?.lang as string | undefined
-    const translations = fileData.frontmatter?.translations as Record<string, string> | undefined
     const hreflangTags: JSX.Element[] = []
 
     if (currentLang && cfg.baseUrl) {
-      // Add current language
-      hreflangTags.push(
-        <link
-          key={`hreflang-${currentLang}`}
-          rel="alternate"
-          hrefLang={currentLang}
-          href={`https://${cfg.baseUrl}/${fileData.slug}`}
-        />
-      )
+      const currentSlug = fileData.slug as FullSlug
+      const baseSlug = stripLanguageSuffix(currentSlug)
+      const languageMap = new Map<string, FullSlug>()
 
-      // Add x-default (original language)
-      hreflangTags.push(
-        <link
-          key="hreflang-x-default"
-          rel="alternate"
-          hrefLang="x-default"
-          href={`https://${cfg.baseUrl}/${fileData.slug}`}
-        />
-      )
+      for (const file of allFiles) {
+        const slug = file.slug as FullSlug | undefined
+        const lang = file.frontmatter?.lang as string | undefined
+        if (!slug || !lang) {
+          continue
+        }
 
-      // Add translations
-      if (translations) {
-        Object.entries(translations).forEach(([langCode, slugSuffix]) => {
-          const translationSlug = slugSuffix.startsWith("/")
-            ? slugSuffix.slice(1)
-            : slugSuffix
+        if (stripLanguageSuffix(slug) === baseSlug) {
+          languageMap.set(lang, slug)
+        }
+      }
 
-          hreflangTags.push(
-            <link
-              key={`hreflang-${langCode}`}
-              rel="alternate"
-              hrefLang={langCode}
-              href={`https://${cfg.baseUrl}/${translationSlug}`}
-            />
-          )
-        })
+      if (!languageMap.has(currentLang)) {
+        languageMap.set(currentLang, currentSlug)
+      }
+
+      const originalSlug =
+        [...languageMap.values()].find((slug) => stripLanguageSuffix(slug) === slug) ?? currentSlug
+
+      if (originalSlug) {
+        hreflangTags.push(
+          <link
+            key="hreflang-x-default"
+            rel="alternate"
+            hrefLang="x-default"
+            href={`https://${cfg.baseUrl}/${originalSlug}`}
+          />,
+        )
+      }
+
+      const orderedLanguages = [
+        ...SUPPORTED_LANGUAGES.filter((lang) => languageMap.has(lang)),
+        ...Array.from(languageMap.keys()).filter(
+          (lang) => !(SUPPORTED_LANGUAGES as readonly string[]).includes(lang),
+        ),
+      ]
+
+      for (const lang of orderedLanguages) {
+        const slug = languageMap.get(lang)
+        if (!slug) {
+          continue
+        }
+
+        hreflangTags.push(
+          <link
+            key={`hreflang-${lang}`}
+            rel="alternate"
+            hrefLang={lang}
+            href={`https://${cfg.baseUrl}/${slug}`}
+          />,
+        )
       }
     }
 

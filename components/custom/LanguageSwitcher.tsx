@@ -1,11 +1,15 @@
-import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../../quartz/components/types"
+import {
+  QuartzComponent,
+  QuartzComponentConstructor,
+  QuartzComponentProps,
+} from "../../quartz/components/types"
 import { resolveRelative, FullSlug } from "../../quartz/util/path"
 import style from "./LanguageSwitcher.scss"
 
 interface LanguageInfo {
   code: string
   name: string
-  slug?: string
+  slug?: FullSlug
 }
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -15,14 +19,30 @@ const LANGUAGE_NAMES: Record<string, string> = {
   zh: "中文",
 }
 
-// 언어 표시 순서 (고정)
-const LANGUAGE_ORDER = ["en", "ko", "ja", "zh"]
+const SUPPORTED_LANGUAGES = ["ko", "en", "ja", "zh"] as const
 
 export default (() => {
-  const LanguageSwitcher: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => {
+  const stripLanguageSuffix = (slug: string): string => {
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const suffix = `.${lang}`
+      if (slug.endsWith(suffix)) {
+        return slug.slice(0, -suffix.length)
+      }
+    }
+    return slug
+  }
+
+  const isSupportedLanguage = (lang: string): boolean => {
+    return (SUPPORTED_LANGUAGES as readonly string[]).includes(lang)
+  }
+
+  const LanguageSwitcher: QuartzComponent = ({
+    fileData,
+    displayClass,
+    allFiles,
+  }: QuartzComponentProps) => {
     const frontmatter = fileData.frontmatter
     const currentLang = frontmatter?.lang as string | undefined
-    const translations = frontmatter?.translations as Record<string, string> | undefined
 
     // 현재 언어가 없으면 컴포넌트 렌더링 안 함
     if (!currentLang) {
@@ -30,54 +50,46 @@ export default (() => {
     }
 
     const currentSlug = fileData.slug as FullSlug
+    const baseSlug = stripLanguageSuffix(currentSlug)
 
-    // 원본 언어 찾기: slug에 .이 없으면 원본
-    const isCurrentOriginal = !currentSlug.includes(".")
+    // 모든 가능한 언어를 수집
+    const languageMap = new Map<string, FullSlug>()
 
-    // translations에서 원본 언어 찾기 (slug에 .이 없는 것)
-    let originalLang = isCurrentOriginal ? currentLang : null
-    if (!originalLang && translations) {
-      for (const [langCode, slugSuffix] of Object.entries(translations)) {
-        if (!slugSuffix.includes(".")) {
-          originalLang = langCode
-          break
-        }
+    for (const file of allFiles) {
+      const slug = file.slug as FullSlug | undefined
+      const lang = file.frontmatter?.lang as string | undefined
+      if (!slug || !lang || !isSupportedLanguage(lang)) {
+        continue
+      }
+
+      if (stripLanguageSuffix(slug) === baseSlug) {
+        languageMap.set(lang, slug)
       }
     }
 
-    // 모든 가능한 언어를 수집
-    const allLanguages = new Map<string, LanguageInfo>()
-
-    // 현재 언어 추가
-    allLanguages.set(currentLang, {
-      code: currentLang,
-      name: isCurrentOriginal
-        ? `📝 ${LANGUAGE_NAMES[currentLang] || currentLang.toUpperCase()}`
-        : `🌐 ${LANGUAGE_NAMES[currentLang] || currentLang.toUpperCase()}`,
-    })
-
-    // 번역본 추가
-    if (translations) {
-      Object.entries(translations).forEach(([langCode, slugSuffix]) => {
-        const translationSlug = slugSuffix.startsWith("/")
-          ? (slugSuffix.slice(1) as FullSlug)
-          : (slugSuffix as FullSlug)
-
-        const isTranslationOriginal = langCode === originalLang
-        allLanguages.set(langCode, {
-          code: langCode,
-          name: isTranslationOriginal
-            ? `📝 ${LANGUAGE_NAMES[langCode] || langCode.toUpperCase()}`
-            : `🌐 ${LANGUAGE_NAMES[langCode] || langCode.toUpperCase()}`,
-          slug: translationSlug,
-        })
-      })
+    if (currentLang && isSupportedLanguage(currentLang) && !languageMap.has(currentLang)) {
+      languageMap.set(currentLang, currentSlug)
     }
 
     // 고정된 순서로 정렬
-    const languages: LanguageInfo[] = LANGUAGE_ORDER
-      .filter(lang => allLanguages.has(lang))
-      .map(lang => allLanguages.get(lang)!)
+    const languages: LanguageInfo[] = SUPPORTED_LANGUAGES.flatMap((lang) => {
+      if (!languageMap.has(lang)) {
+        return []
+      }
+
+      const slug = languageMap.get(lang)!
+      const isOriginal = stripLanguageSuffix(slug) === slug
+
+      return [
+        {
+          code: lang,
+          name: isOriginal
+            ? `📝 ${LANGUAGE_NAMES[lang] || lang.toUpperCase()}`
+            : `🌐 ${LANGUAGE_NAMES[lang] || lang.toUpperCase()}`,
+          slug,
+        },
+      ]
+    })
 
     // 언어가 하나뿐이면 (번역본 없음) 렌더링 안 함
     if (languages.length <= 1) {

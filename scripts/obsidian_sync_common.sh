@@ -189,18 +189,9 @@ translate_changed_files() {
             continue
         fi
 
-        # Extract translation targets from frontmatter
-        local translations
-        translations=$(awk '/^translations:/,/^[a-z]+:/ {if ($0 ~ /^  [a-z]+:/) print $1}' "$file" | sed 's/://g' || true)
-
-        if [[ -z "$translations" ]]; then
-            log "  No translations configured for: $file"
-            continue
-        fi
-
         # Run translation
-        log "  Translating: $file → $translations"
-        if "$translate_script" "$file" $translations 2>&1 | sed 's/^/    /'; then
+        log "  Translating: $file (ko/en/ja/zh)"
+        if "$translate_script" "$file" 2>&1 | sed 's/^/    /'; then
             log "  ✓ Translation successful"
         else
             log "  ✗ Translation failed (continuing anyway)"
