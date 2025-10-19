@@ -73,16 +73,18 @@ export default (() => {
     const { allFiles, ctx } = props
     const trie = (ctx.trie ??= trieFromAllFiles(allFiles))
     const rootFolders = trie.children.filter((child) => child.isFolder)
-    const loosePages = trie.children.filter((child) => {
-      if (child.isFolder || !child.data) return false
-      // 번역본 제외
-      const slug = child.slug || ""
-      const slugParts = slug.split("/")
-      const lastPart = slugParts[slugParts.length - 1]
-      return !lastPart.includes(".")
-    })
+    const loosePagesCount = allFiles.filter((file) => {
+      const slug = file.slug as string | undefined
+      if (!slug) return false
 
-    if (rootFolders.length === 0 && loosePages.length === 0) {
+      // 루트에 존재하는 원본 문서만 카운트 (번역본 제외)
+      if (slug.includes("/")) return false
+      const parts = slug.split("/")
+      const lastPart = parts[parts.length - 1]
+      return !lastPart.includes(".")
+    }).length
+
+    if (rootFolders.length === 0 && loosePagesCount === 0) {
       return null
     }
 
@@ -136,7 +138,7 @@ export default (() => {
             </svg>
           </button>
           <ul class="custom-explorer__folder-list">
-            {loosePages.length > 0 && (
+            {loosePagesCount > 0 && (
               <li class="custom-explorer__folder-item" data-depth={0}>
                 <button
                   type="button"
@@ -145,7 +147,7 @@ export default (() => {
                   data-folder-name="루트"
                 >
                   <span class="custom-explorer__folder-label">루트</span>
-                  <span class="custom-explorer__count">({loosePages.length})</span>
+                  <span class="custom-explorer__count">({loosePagesCount})</span>
                 </button>
               </li>
             )}
