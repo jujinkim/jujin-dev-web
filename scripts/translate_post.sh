@@ -19,6 +19,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 SUPPORTED_LANGUAGES=("ko" "en" "ja" "zh")
+generated_files=()
 
 log() {
     echo -e "${GREEN}[$(date +%H:%M:%S)]${NC} $*"
@@ -246,6 +247,7 @@ EOF
     remove_translations_field "$output_file"
 
     log "Created: $output_file"
+    generated_files+=("$output_file")
 }
 
 # Main script
@@ -297,15 +299,63 @@ main() {
         return 0
     fi
 
+    generated_files=()
+    local all_success=true
+
     log "=== Starting translation ==="
     log "Source file: $source_file (lang: $source_lang)"
     log "Target languages: ${target_langs[*]}"
     echo
 
     for target_lang in "${target_langs[@]}"; do
-        translate_post "$source_file" "$target_lang"
+        if ! translate_post "$source_file" "$target_lang"; then
+            warn "Translation failed for target language: $target_lang"
+            all_success=false
+        fi
         echo
     done
+
+    if "$all_success"; then
+        log "All translations completed successfully. Preparing to commit changes..."
+
+        git add "$source_file" >/dev/null 2>&1 || true
+        if [[ ${#generated_files[@]} -gt 0 ]]; then
+            git add "${generated_files[@]}" >/dev/null 2>&1 || true
+        fi
+
+        if git diff --cached --quiet; then
+            log "No changes detected to commit after translation."
+        else
+            local basename
+            basename=$(basename "$source_file")
+            local commit_message="Translate ${basename} to ${target_langs[*]}"
+
+            if git commit -m "$commit_message"; then
+                log "Committed translation changes."
+
+                local branch
+                branch="$(git rev-parse --abbrev-ref HEAD)"
+
+                if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+                    if git push; then
+                        log "Pushed translation commit to remote."
+                    else
+                        warn "Git push failed. Please push manually."
+                    fi
+                else
+                    if git push origin "$branch"; then
+                        log "Pushed translation commit to origin/${branch}."
+                    else
+                        warn "Git push to origin/${branch} failed. Please push manually."
+                    fi
+                fi
+            else
+                warn "Git commit failed. Please resolve any issues and commit manually."
+            fi
+        fi
+    else
+        warn "Skipping commit/push because one or more translations failed."
+    fi
 
     log "=== Translation completed ==="
 }
