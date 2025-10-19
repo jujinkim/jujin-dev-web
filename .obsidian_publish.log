@@ -3020,3 +3020,32 @@ total size is 2.51K  speedup is 5.95
 error: cannot pull with rebase: You have unstaged changes.
 error: Please commit or stash them.
 [2025-10-19T18:00:01+09:00] ERROR: Git pull --rebase failed
+[2025-10-20T00:00:01+09:00] === Starting Obsidian auto-sync ===
+[2025-10-20T00:00:01+09:00] Obsidian is already running. Proceeding with sync...
+[2025-10-20T00:00:01+09:00] Syncing content from vault to project...
+[2025-10-20T00:00:01+09:00]   Source: /home/jujin/Obsidian Vault/dev.jujin.kim-publish
+[2025-10-20T00:00:01+09:00]   Target: /home/jujin/workspace/projects/jujin-dev-web/content
+
+Number of files: 9 (reg: 5, dir: 4)
+Number of created files: 0
+Number of deleted files: 3 (reg: 3)
+Number of regular files transferred: 1
+Total file size: 2.29K bytes
+Total transferred file size: 2.17K bytes
+Literal data: 2.17K bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 2.51K
+Total bytes received: 93
+
+sent 2.51K bytes  received 93 bytes  5.20K bytes/sec
+total size is 2.29K  speedup is 0.88
+[2025-10-20T00:00:01+09:00] Sync complete
+[2025-10-20T00:00:01+09:00] Checking for files to translate...
+[2025-10-20T00:00:01+09:00]   Translating: content/index.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-10-20T00:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-10-20T00:00:02+09:00] Translation processing complete
+[2025-10-20T00:00:02+09:00] Changes detected. Committing and pushing...
