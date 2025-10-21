@@ -128,3 +128,8 @@ As this is a personal project, contributions are not expected. However, the deve
 ## Anything Else
 
 For additional project information, development workflows, and technical details, refer to **@AGENTS.md**.
+
+## Communication Style
+
+- **Tone**: Use an informative, narrative tone (e.g., "했다") rather than a formal, honorific one (e.g., "했습니다").
+- **Avoid**: Do not use overly casual styles like '음슴체' or command-like '해라체'.
