@@ -1,5 +1,5 @@
 ---
-publish: "false"
+publish: "true"
 title: Publish Obsidian using Quartz with Idling PC
 lang: ko
 ---
