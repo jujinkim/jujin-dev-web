@@ -1,12 +1,10 @@
 ---
-publish: "false"
+publish: true
 lang: ko
+title: 놀고 있는 PC로 Obsidian과 Quartz를 이용해 블로그 운영하기
 ---
-
-# 놀고 있는 PC로 Obsidian과 Quartz를 이용해 블로그 운영하기
-
 ## 개요
-이 블로그는 Obsidian, Obsidian Sync, Quartz, 그리고 항상 켜져 있는 PC(놀고 있는 PC)를 조합하여 구축 및 배포가 자동화되어 있습니다.
+이 블로그는 Obsidian + Sync, Quartz, 그리고 항상 켜져 있는 PC(놀고 있는 PC)를 조합하여 구축 및 배포가 자동화되어 있습니다.
 어디서든 Obsidian으로 글을 작성하고 동기화하면, 별도의 PC에서 자동으로 빌드 및 배포 과정이 진행되는 구조입니다.
 이를 통해 사용자는 글 작성에만 집중할 수 있습니다.
 
@@ -21,11 +19,11 @@ Obsidian의 공식 유료 서비스인 Obsidian Sync를 사용하여 모든 기�
 집에 항상 켜져 있는 PC(홈 서버 또는 데스크톱)가 이 역할을 담당합니다.
 이 PC에는 Obsidian 앱이 설치되어 있으며, 동일한 Obsidian 계정으로 로그인하여 노트를 동기화합니다.
 
-`scripts/obsidian_watch.sh` 셸 스크립트가 `inotify-tools`를 사용하여 Obsidian 볼트 디렉토리의 파일 변경을 실시간으로 감지합니다.
-파일 변경이 감지되면, 이 스크립트는 자동으로 빌드 및 배포 과정을 시작합니다.
+`inotify-tools`를 사용하여 Obsidian 볼트 디렉토리의 파일 변경을 실시간으로 감지합니다.
+파일 변경이 감지되면, 자동으로 빌드 및 배포 과정을 시작합니다.
 
 ## 빌드 및 배포 자동화: Quartz와 셸 스크립트
-`obsidian_watch.sh` 스크립트는 `obsidian_manual_sync.sh` 스크립트를 실행합니다. 이 스크립트는 다음 작업을 순차적으로 수행합니다.
+파일 변경 감지시 아래 동작을 수행합니다.
 
 *   **콘텐츠 동기화**: Obsidian 볼트의 최신 내용을 프로젝트의 `content` 디렉토리로 복사(`rsync`)합니다.
 *   **사이트 빌드**: Quartz CLI(`npx quartz build`)를 사용하여 마크다운 파일을 정적 웹사이트 파일로 변환하고 `public` 디렉토리에 빌드합니다.
