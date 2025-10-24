@@ -3715,3 +3715,36 @@ total size is 4.51K  speedup is 22.01
 [2025-10-25T00:00:01+09:00] Checking for files to translate...
 [2025-10-25T00:00:01+09:00] No changed markdown files found
 [2025-10-25T00:00:01+09:00] Changes detected. Committing and pushing...
+[main d28a496] Publish update from Obsidian vault
+ 1 file changed, 33 insertions(+)
+[2025-10-25T00:00:01+09:00] Preparing to rebase and push branch: main
+[2025-10-25T00:00:01+09:00] Rebasing onto upstream before push...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+[2025-10-25T00:00:01+09:00] ERROR: Git pull --rebase failed
+[2025-10-25T06:00:01+09:00] === Starting Obsidian auto-sync ===
+[2025-10-25T06:00:01+09:00] Obsidian is already running. Proceeding with sync...
+[2025-10-25T06:00:01+09:00] Syncing content from vault to project...
+[2025-10-25T06:00:01+09:00]   Source: /home/jujin/Obsidian Vault/dev.jujin.kim-publish
+[2025-10-25T06:00:01+09:00]   Target: /home/jujin/workspace/projects/jujin-dev-web/content
+
+Number of files: 4 (reg: 2, dir: 2)
+Number of created files: 0
+Number of deleted files: 0
+Number of regular files transferred: 0
+Total file size: 4.51K bytes
+Total transferred file size: 0 bytes
+Literal data: 0 bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 185
+Total bytes received: 20
+
+sent 185 bytes  received 20 bytes  410.00 bytes/sec
+total size is 4.51K  speedup is 22.01
+[2025-10-25T06:00:01+09:00] Sync complete
+[2025-10-25T06:00:01+09:00] Checking for files to translate...
+[2025-10-25T06:00:01+09:00] No changed markdown files found
+[2025-10-25T06:00:01+09:00] Changes detected. Committing and pushing...
