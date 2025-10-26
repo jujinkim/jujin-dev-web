@@ -156,10 +156,14 @@ translate_changed_files() {
     log "Checking for files to translate..."
 
     # Get list of changed markdown files in content/
-    local changed_files
-    changed_files=$(git diff --name-only HEAD content/*.md 2>/dev/null || git ls-files --others --exclude-standard content/*.md 2>/dev/null || true)
+    mapfile -t changed_files < <(
+        {
+            git diff --name-only HEAD -- 'content/**/*.md'
+            git ls-files --others --exclude-standard -- 'content/**/*.md'
+        } | sed '/^$/d' | sort -u
+    )
 
-    if [[ -z "$changed_files" ]]; then
+    if [[ ${#changed_files[@]} -eq 0 ]]; then
         log "No changed markdown files found"
         return 0
     fi
@@ -171,7 +175,7 @@ translate_changed_files() {
     fi
 
     # Process each changed file
-    while IFS= read -r file; do
+    for file in "${changed_files[@]}"; do
         # Skip if file doesn't exist
         [[ -f "$file" ]] || continue
 
@@ -196,7 +200,7 @@ translate_changed_files() {
         else
             log "  ✗ Translation failed (continuing anyway)"
         fi
-    done <<< "$changed_files"
+    done
 
     # Stage any new translation files
     git add content/*.md 2>/dev/null || true
