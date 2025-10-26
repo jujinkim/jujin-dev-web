@@ -3986,3 +3986,35 @@ total size is 8.59K  speedup is 41.88
 error: cannot pull with rebase: You have unstaged changes.
 error: Please commit or stash them.
 [2025-10-27T00:00:01+09:00] ERROR: Git pull --rebase failed
+[2025-10-27T06:00:01+09:00] === Starting Obsidian auto-sync ===
+[2025-10-27T06:00:01+09:00] Obsidian is already running. Proceeding with sync...
+[2025-10-27T06:00:01+09:00] Syncing content from vault to project...
+[2025-10-27T06:00:01+09:00]   Source: /home/jujin/Obsidian Vault/dev.jujin.kim-publish
+[2025-10-27T06:00:01+09:00]   Target: /home/jujin/workspace/projects/jujin-dev-web/content
+
+Number of files: 4 (reg: 2, dir: 2)
+Number of created files: 0
+Number of deleted files: 6 (reg: 6)
+Number of regular files transferred: 0
+Total file size: 8.59K bytes
+Total transferred file size: 0 bytes
+Literal data: 0 bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 191
+Total bytes received: 254
+
+sent 191 bytes  received 254 bytes  890.00 bytes/sec
+total size is 8.59K  speedup is 19.29
+[2025-10-27T06:00:01+09:00] Sync complete
+[2025-10-27T06:00:01+09:00] Checking for files to translate...
+[2025-10-27T06:00:01+09:00]   Translating: content/index.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-10-27T06:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-10-27T06:00:01+09:00]   Translating: content/it_etc/publish-obsidian-using-quartz-with-idling-pc.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-10-27T06:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-10-27T06:00:01+09:00] Translation processing complete
+[2025-10-27T06:00:01+09:00] Changes detected. Committing and pushing...

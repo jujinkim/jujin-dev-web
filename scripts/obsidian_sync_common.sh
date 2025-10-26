@@ -13,6 +13,7 @@ DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
 SUPPORTED_LANGUAGES=(ko en ja zh)
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
+TRANSLATION_CACHE_FILE="$PROJECT_DIR/.translation_cache"
 
 # Logging helper
 log() {
@@ -25,6 +26,40 @@ cleanup() {
         flock -u "$LOCK_FD" 2>/dev/null || true
     fi
     rm -f "$LOCKFILE"
+}
+
+# Translation cache helpers
+load_translation_cache() {
+    local -n cache_ref=$1
+
+    if [[ -f "$TRANSLATION_CACHE_FILE" ]]; then
+        while IFS= read -r line; do
+            [[ -z "$line" || "$line" == \#* ]] && continue
+
+            local hash="${line%%$'\t'*}"
+            local file="${line#*$'\t'}"
+
+            # Skip malformed entries
+            if [[ -z "$file" || "$file" == "$line" ]]; then
+                continue
+            fi
+
+            cache_ref["$file"]="$hash"
+        done < "$TRANSLATION_CACHE_FILE"
+    fi
+}
+
+save_translation_cache() {
+    local -n cache_ref=$1
+    local tmp_file
+
+    tmp_file="$(mktemp "${TRANSLATION_CACHE_FILE}.XXXXXX")"
+
+    for file in "${!cache_ref[@]}"; do
+        printf '%s\t%s\n' "${cache_ref[$file]}" "$file"
+    done | sort -k2 > "$tmp_file"
+
+    mv "$tmp_file" "$TRANSLATION_CACHE_FILE"
 }
 
 # Acquire exclusive lock
@@ -156,62 +191,76 @@ translate_changed_files() {
 
     log "Checking for files to translate..."
 
-    # Collect files that need translation
-    declare -A files_to_translate=()
+    local -A translation_cache=()
+    load_translation_cache translation_cache
 
-    # Include files that changed in Git
-    mapfile -t changed_git_files < <(
-        {
-            git diff --name-only HEAD -- 'content/**/*.md'
-            git ls-files --others --exclude-standard -- 'content/**/*.md'
-        } | sed '/^$/d' | sort -u
-    )
-
-    for file in "${changed_git_files[@]}"; do
-        files_to_translate["$file"]=1
+    local cached_file
+    for cached_file in "${!translation_cache[@]}"; do
+        if [[ ! -f "$cached_file" ]]; then
+            unset 'translation_cache[$cached_file]'
+        fi
     done
 
-    # Also include files missing translations
-    while IFS= read -r candidate; do
-        [[ -f "$candidate" ]] || continue
+    mapfile -t candidate_files < <(find content -type f -name '*.md' | sort)
 
-        local base_name dir source_lang missing_translation
-        base_name=$(basename "$candidate" .md)
+    if [[ ${#candidate_files[@]} -eq 0 ]]; then
+        log "No markdown files found under content/"
+        return 0
+    fi
 
-        # Skip translation copies (contain dot in basename)
-        if [[ "$base_name" == *"."* ]]; then
+    local -a files_to_translate=()
+    local -A file_hash_map=()
+    local cache_dirty=0
+
+    for file in "${candidate_files[@]}"; do
+        [[ -f "$file" ]] || continue
+
+        local basename
+        basename=$(basename "$file" .md)
+        if [[ "$basename" == *"."* ]]; then
             continue
         fi
 
-        # Require lang field
-        if ! grep -q '^lang:' "$candidate" 2>/dev/null; then
+        if ! grep -q '^lang:' "$file" 2>/dev/null; then
             continue
         fi
 
-        dir=$(dirname "$candidate")
-        source_lang=$(grep '^lang:' "$candidate" | head -1 | sed 's/lang:[[:space:]]*//' | tr -d '"' | tr -d "'")
-        missing_translation=0
+        local source_lang
+        source_lang=$(grep '^lang:' "$file" | head -1 | sed 's/lang:[[:space:]]*//' | tr -d '"' | tr -d "'")
+        local missing_translation=0
 
         for lang in "${SUPPORTED_LANGUAGES[@]}"; do
             if [[ "$lang" == "$source_lang" ]]; then
                 continue
             fi
 
-            local expected="$dir/${base_name}.${lang}.md"
+            local expected
+            expected="$(dirname "$file")/${basename}.${lang}.md"
             if [[ ! -f "$expected" ]]; then
                 missing_translation=1
                 break
             fi
         done
 
+        local current_hash
+        current_hash=$(sha256sum "$file" | cut -d ' ' -f1)
+        file_hash_map["$file"]="$current_hash"
+
+        local cached_hash="${translation_cache[$file]:-}"
+        local needs_translation=0
+
         if [[ $missing_translation -eq 1 ]]; then
-            files_to_translate["$candidate"]=1
+            needs_translation=1
+        elif [[ -z "$cached_hash" || "$cached_hash" != "$current_hash" ]]; then
+            needs_translation=1
         fi
-    done < <(find content -type f -name '*.md')
 
-    mapfile -t files_to_translate_list < <(printf '%s\n' "${!files_to_translate[@]}" | sort)
+        if [[ $needs_translation -eq 1 ]]; then
+            files_to_translate+=("$file")
+        fi
+    done
 
-    if [[ ${#files_to_translate_list[@]} -eq 0 ]]; then
+    if [[ ${#files_to_translate[@]} -eq 0 ]]; then
         log "No markdown files require translation"
         return 0
     fi
@@ -222,12 +271,9 @@ translate_changed_files() {
         return 0
     fi
 
-    # Process each changed file
-    for file in "${files_to_translate_list[@]}"; do
-        # Skip if file doesn't exist
+    for file in "${files_to_translate[@]}"; do
         [[ -f "$file" ]] || continue
 
-        # Skip translation files (contains . in basename)
         local basename
         basename=$(basename "$file" .md)
         if [[ "$basename" == *"."* ]]; then
@@ -235,22 +281,26 @@ translate_changed_files() {
             continue
         fi
 
-        # Check if file has lang field
         if ! grep -q '^lang:' "$file" 2>/dev/null; then
             log "  Skipping (no lang field): $file"
             continue
         fi
 
-        # Run translation
         log "  Translating: $file (ko/en/ja/zh)"
         if "$translate_script" "$file" 2>&1 | sed 's/^/    /'; then
             log "  ✓ Translation successful"
+            translation_cache["$file"]="${file_hash_map[$file]}"
+            cache_dirty=1
         else
             log "  ✗ Translation failed (continuing anyway)"
         fi
     done
 
-    # Stage any new translation files
+    if [[ $cache_dirty -eq 1 ]]; then
+        save_translation_cache translation_cache
+        git add "$TRANSLATION_CACHE_FILE" 2>/dev/null || true
+    fi
+
     git add content 2>/dev/null || true
 
     log "Translation processing complete"
