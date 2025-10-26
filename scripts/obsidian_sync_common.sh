@@ -10,6 +10,7 @@
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
+SUPPORTED_LANGUAGES=(ko en ja zh)
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 
@@ -155,16 +156,63 @@ translate_changed_files() {
 
     log "Checking for files to translate..."
 
-    # Get list of changed markdown files in content/
-    mapfile -t changed_files < <(
+    # Collect files that need translation
+    declare -A files_to_translate=()
+
+    # Include files that changed in Git
+    mapfile -t changed_git_files < <(
         {
             git diff --name-only HEAD -- 'content/**/*.md'
             git ls-files --others --exclude-standard -- 'content/**/*.md'
         } | sed '/^$/d' | sort -u
     )
 
-    if [[ ${#changed_files[@]} -eq 0 ]]; then
-        log "No changed markdown files found"
+    for file in "${changed_git_files[@]}"; do
+        files_to_translate["$file"]=1
+    done
+
+    # Also include files missing translations
+    while IFS= read -r candidate; do
+        [[ -f "$candidate" ]] || continue
+
+        local base_name dir source_lang missing_translation
+        base_name=$(basename "$candidate" .md)
+
+        # Skip translation copies (contain dot in basename)
+        if [[ "$base_name" == *"."* ]]; then
+            continue
+        fi
+
+        # Require lang field
+        if ! grep -q '^lang:' "$candidate" 2>/dev/null; then
+            continue
+        fi
+
+        dir=$(dirname "$candidate")
+        source_lang=$(grep '^lang:' "$candidate" | head -1 | sed 's/lang:[[:space:]]*//' | tr -d '"' | tr -d "'")
+        missing_translation=0
+
+        for lang in "${SUPPORTED_LANGUAGES[@]}"; do
+            if [[ "$lang" == "$source_lang" ]]; then
+                continue
+            fi
+
+            local expected="$dir/${base_name}.${lang}.md"
+            if [[ ! -f "$expected" ]]; then
+                missing_translation=1
+                break
+            fi
+        done
+
+        if [[ $missing_translation -eq 1 ]]; then
+            files_to_translate["$candidate"]=1
+        fi
+    done < <(find content -type f -name '*.md')
+
+    mapfile -t files_to_translate_list < <(printf '%s\n' "${!files_to_translate[@]}" | sort)
+
+    if [[ ${#files_to_translate_list[@]} -eq 0 ]]; then
+        log "No markdown files require translation"
         return 0
     fi
 
@@ -175,7 +223,7 @@ translate_changed_files() {
     fi
 
     # Process each changed file
-    for file in "${changed_files[@]}"; do
+    for file in "${files_to_translate_list[@]}"; do
         # Skip if file doesn't exist
         [[ -f "$file" ]] || continue
 
@@ -203,7 +251,7 @@ translate_changed_files() {
     done
 
     # Stage any new translation files
-    git add content/*.md 2>/dev/null || true
+    git add content 2>/dev/null || true
 
     log "Translation processing complete"
 }
