@@ -3913,3 +3913,10 @@ total size is 4.51K  speedup is 22.01
 [2025-10-26T12:00:01+09:00] Checking for files to translate...
 [2025-10-26T12:00:01+09:00] No changed markdown files found
 [2025-10-26T12:00:01+09:00] Changes detected. Committing and pushing...
+[main 5d511a9] Publish update from Obsidian vault
+ 1 file changed, 33 insertions(+)
+[2025-10-26T12:00:01+09:00] Preparing to rebase and push branch: main
+[2025-10-26T12:00:01+09:00] Rebasing onto upstream before push...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+[2025-10-26T12:00:01+09:00] ERROR: Git pull --rebase failed
