@@ -4063,3 +4063,10 @@ total size is 8.59K  speedup is 41.88
 [2025-10-27T12:00:01+09:00]   ✗ Translation failed (continuing anyway)
 [2025-10-27T12:00:01+09:00] Translation processing complete
 [2025-10-27T12:00:01+09:00] Changes detected. Committing and pushing...
+[main 56a0c78] Publish update from Obsidian vault
+ 1 file changed, 45 insertions(+)
+[2025-10-27T12:00:01+09:00] Preparing to rebase and push branch: main
+[2025-10-27T12:00:01+09:00] Rebasing onto upstream before push...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+[2025-10-27T12:00:01+09:00] ERROR: Git pull --rebase failed
