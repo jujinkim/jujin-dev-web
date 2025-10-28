@@ -56,7 +56,7 @@ GitHub 저장소 설정의 "Pages" 섹션에서 GitHub Pages를 설정할 수 �
 "Source"를 "Deploy from a branch"로 설정하고, "Branch"를 `gh-pages` (또는 `main` 브랜저의 `docs` 폴더)로 선택한 후 `/(root)` 폴더를 선택한다.
 저장하면 GitHub Pages가 활성화된다. 
 
-만약 본인이 구입한 Custom domain이 있다면 같이 설정해준다.
+만약 본인이 구입한 Custom domain이 있다면 같이 [설정](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages)해준다.
 
 ## 결론
 이 시스템을 통해 사용자는 글 작성에만 집중할 수 있게 된다. Obsidian에 글을 쓰고 저장하는 것만으로 복잡한 빌드 및 배포 과정이 자동으로 처리된다.
