@@ -29,6 +29,7 @@ This document provides context for the Gemini AI assistant to understand and eff
   - Do not add a `translations` field; multilingual links are inferred from filenames
   - Translations are handled by developers using `scripts/translate_post.sh` (ko/en/ja/zh output)
   - Write only in one language; multilingual versions are created separately
+  - When translating, recognize Markdown syntax to prevent breaking the document's style.
 
 - **SSOT RULE**: The Obsidian vault is the single source of truth for all Markdown content. Never edit the `content/` directory directly inside this repository—always modify files through the vault and sync.
 - **SYNC AFTER WRITING**: After successfully writing an article, run the manual sync script to bring the content into the project:
@@ -133,3 +134,4 @@ For additional project information, development workflows, and technical details
 
 - **Tone**: Use an informative, narrative tone (e.g., "했다") rather than a formal, honorific one (e.g., "했습니다").
 - **Avoid**: Do not use overly casual styles like '음슴체' or command-like '해라체'.
+- **Translation**: When translating documents, as they are in Markdown format, ensure that the Markdown code is correctly interpreted to maintain the document's styling.
