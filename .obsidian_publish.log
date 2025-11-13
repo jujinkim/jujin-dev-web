@@ -6612,3 +6612,54 @@ total size is 9.89K  speedup is 13.47
 [2025-11-13T12:00:01+09:00]   ✗ Translation failed (continuing anyway)
 [2025-11-13T12:00:01+09:00] Translation processing complete
 [2025-11-13T12:00:01+09:00] Changes detected. Committing and pushing...
+[main 7f8da68] Publish update from Obsidian vault
+ 10 files changed, 35 insertions(+), 304 deletions(-)
+ delete mode 100644 content/index.en.md
+ delete mode 100644 content/index.ja.md
+ delete mode 100644 content/index.zh.md
+ delete mode 100644 content/it_etc/publish-obsidian-using-quartz-with-idling-pc.en.md
+ delete mode 100644 content/it_etc/publish-obsidian-using-quartz-with-idling-pc.ja.md
+ delete mode 100644 content/it_etc/publish-obsidian-using-quartz-with-idling-pc.zh.md
+ delete mode 100644 content/it_study/design_patterns/about-design-pattern.en.md
+ delete mode 100644 content/it_study/design_patterns/about-design-pattern.ja.md
+ delete mode 100644 content/it_study/design_patterns/about-design-pattern.zh.md
+[2025-11-13T12:00:01+09:00] Preparing to rebase and push branch: main
+[2025-11-13T12:00:01+09:00] Rebasing onto upstream before push...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+[2025-11-13T12:00:01+09:00] ERROR: Git pull --rebase failed
+[2025-11-13T18:00:01+09:00] === Starting Obsidian auto-sync ===
+[2025-11-13T18:00:01+09:00] Obsidian is already running. Proceeding with sync...
+[2025-11-13T18:00:01+09:00] Syncing content from vault to project...
+[2025-11-13T18:00:01+09:00]   Source: /home/jujin/Obsidian Vault/dev.jujin.kim-publish
+[2025-11-13T18:00:01+09:00]   Target: /home/jujin/workspace/projects/jujin-dev-web/content
+
+Number of files: 7 (reg: 3, dir: 4)
+Number of created files: 0
+Number of deleted files: 0
+Number of regular files transferred: 0
+Total file size: 9.89K bytes
+Total transferred file size: 0 bytes
+Literal data: 0 bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 301
+Total bytes received: 22
+
+sent 301 bytes  received 22 bytes  646.00 bytes/sec
+total size is 9.89K  speedup is 30.61
+[2025-11-13T18:00:01+09:00] Sync complete
+[2025-11-13T18:00:01+09:00] Checking for files to translate...
+[2025-11-13T18:00:01+09:00]   Translating: content/index.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-13T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-13T18:00:01+09:00]   Translating: content/it_etc/publish-obsidian-using-quartz-with-idling-pc.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-13T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-13T18:00:01+09:00]   Translating: content/it_study/design_patterns/about-design-pattern.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-13T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-13T18:00:01+09:00] Translation processing complete
+[2025-11-13T18:00:01+09:00] Changes detected. Committing and pushing...
