@@ -4,6 +4,7 @@ import ExplorerWithCounts from "./components/custom/ExplorerWithCounts"
 import CustomFooter from "./components/custom/CustomFooter"
 import LanguageSwitcher from "./components/custom/LanguageSwitcher"
 import HeadWithHreflang from "./components/custom/HeadWithHreflang"
+import LanguageRedirector from "./components/custom/LanguageRedirector"
 import TranslationNotice from "./components/custom/TranslationNotice"
 
 // components shared across all pages
@@ -38,6 +39,7 @@ export const defaultContentPageLayout: PageLayout = {
     }),
     Component.ArticleTitle(),
     LanguageSwitcher(),
+    LanguageRedirector(),
     Component.ContentMeta(),
     TranslationNotice(),
     Component.TagList(),

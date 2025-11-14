@@ -3,95 +3,53 @@ import {
   QuartzComponentConstructor,
   QuartzComponentProps,
 } from "../../quartz/components/types"
-import { resolveRelative, FullSlug } from "../../quartz/util/path"
 import style from "./LanguageSwitcher.scss"
+// @ts-ignore - bundled at build time
+import script from "./LanguageSwitcher.inline"
+import {
+  buildLanguageVariants,
+  SupportedLanguage,
+} from "./languageVariants"
 
 interface LanguageInfo {
-  code: string
+  code: SupportedLanguage
   name: string
-  slug?: FullSlug
+  href: string
+  isOriginal: boolean
 }
 
-const LANGUAGE_NAMES: Record<string, string> = {
+const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
   ko: "한국어",
   en: "English",
   ja: "日本語",
   zh: "中文",
 }
 
-const SUPPORTED_LANGUAGES = ["ko", "en", "ja", "zh"] as const
-
 export default (() => {
-  const stripLanguageSuffix = (slug: string): string => {
-    for (const lang of SUPPORTED_LANGUAGES) {
-      const suffix = `.${lang}`
-      if (slug.endsWith(suffix)) {
-        return slug.slice(0, -suffix.length)
-      }
-    }
-    return slug
-  }
-
-  const isSupportedLanguage = (lang: string): boolean => {
-    return (SUPPORTED_LANGUAGES as readonly string[]).includes(lang)
-  }
-
   const LanguageSwitcher: QuartzComponent = ({
     fileData,
     displayClass,
     allFiles,
   }: QuartzComponentProps) => {
-    const frontmatter = fileData.frontmatter
-    const currentLang = frontmatter?.lang as string | undefined
+    const variants = buildLanguageVariants(fileData, allFiles)
+    if (!variants) {
+      return null
+    }
 
-    // 현재 언어가 없으면 컴포넌트 렌더링 안 함
+    const currentLang = variants.currentLang
     if (!currentLang) {
       return null
     }
 
-    const currentSlug = fileData.slug as FullSlug
-    const baseSlug = stripLanguageSuffix(currentSlug)
+    const languages: LanguageInfo[] = variants.variants.map((variant) => ({
+      code: variant.code,
+      href: variant.href,
+      isOriginal: variant.isOriginal,
+      name: variant.isOriginal
+        ? `📝 ${LANGUAGE_NAMES[variant.code]}`
+        : `🌐 ${LANGUAGE_NAMES[variant.code]}`,
+    }))
 
-    // 모든 가능한 언어를 수집
-    const languageMap = new Map<string, FullSlug>()
-
-    for (const file of allFiles) {
-      const slug = file.slug as FullSlug | undefined
-      const lang = file.frontmatter?.lang as string | undefined
-      if (!slug || !lang || !isSupportedLanguage(lang)) {
-        continue
-      }
-
-      if (stripLanguageSuffix(slug) === baseSlug) {
-        languageMap.set(lang, slug)
-      }
-    }
-
-    if (currentLang && isSupportedLanguage(currentLang) && !languageMap.has(currentLang)) {
-      languageMap.set(currentLang, currentSlug)
-    }
-
-    // 고정된 순서로 정렬
-    const languages: LanguageInfo[] = SUPPORTED_LANGUAGES.flatMap((lang) => {
-      if (!languageMap.has(lang)) {
-        return []
-      }
-
-      const slug = languageMap.get(lang)!
-      const isOriginal = stripLanguageSuffix(slug) === slug
-
-      return [
-        {
-          code: lang,
-          name: isOriginal
-            ? `📝 ${LANGUAGE_NAMES[lang] || lang.toUpperCase()}`
-            : `🌐 ${LANGUAGE_NAMES[lang] || lang.toUpperCase()}`,
-          slug,
-        },
-      ]
-    })
-
-    // 언어가 하나뿐이면 (번역본 없음) 렌더링 안 함
     if (languages.length <= 1) {
       return null
     }
@@ -119,7 +77,6 @@ export default (() => {
         <ul class="language-switcher__list">
           {languages.map((lang) => {
             const isCurrent = lang.code === currentLang
-            const href = lang.slug ? resolveRelative(currentSlug, lang.slug) : "#"
 
             return (
               <li class="language-switcher__item">
@@ -128,7 +85,7 @@ export default (() => {
                     {lang.name}
                   </span>
                 ) : (
-                  <a href={href} class="language-switcher__link">
+                  <a href={lang.href} class="language-switcher__link" data-lang-code={lang.code}>
                     {lang.name}
                   </a>
                 )}
@@ -141,5 +98,6 @@ export default (() => {
   }
 
   LanguageSwitcher.css = style
+  LanguageSwitcher.afterDOMLoaded = script
   return LanguageSwitcher
 }) satisfies QuartzComponentConstructor

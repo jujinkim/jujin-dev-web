@@ -247,9 +247,14 @@ translate_changed_files() {
         file_hash_map["$file"]="$current_hash"
 
         local cached_hash="${translation_cache[$file]:-}"
+        local git_status_line
+        git_status_line=$(git status --porcelain -- "$file" 2>/dev/null || true)
+
         local needs_translation=0
 
         if [[ $missing_translation -eq 1 ]]; then
+            needs_translation=1
+        elif [[ -n "$git_status_line" ]]; then
             needs_translation=1
         elif [[ -z "$cached_hash" || "$cached_hash" != "$current_hash" ]]; then
             needs_translation=1
