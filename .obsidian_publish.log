@@ -6756,3 +6756,47 @@ error: Please commit or stash them.
 [2025-11-14T06:00:02+09:00] ERROR: Git pull --rebase failed
 [2025-11-14T12:00:01+09:00] === Starting Obsidian auto-sync ===
 [2025-11-14T12:00:01+09:00] ERROR: Another instance is running. Exiting.
+[2025-11-14T18:00:01+09:00] === Starting Obsidian auto-sync ===
+[2025-11-14T18:00:01+09:00] Obsidian is already running. Proceeding with sync...
+[2025-11-14T18:00:01+09:00] Syncing content from vault to project...
+[2025-11-14T18:00:01+09:00]   Source: /home/jujin/Obsidian Vault/dev.jujin.kim-publish
+[2025-11-14T18:00:01+09:00]   Target: /home/jujin/workspace/projects/jujin-dev-web/content
+
+Number of files: 10 (reg: 6, dir: 4)
+Number of created files: 4 (reg: 4)
+Number of deleted files: 5 (reg: 5)
+Number of regular files transferred: 4
+Total file size: 12.05K bytes
+Total transferred file size: 3.33K bytes
+Literal data: 3.33K bytes
+Matched data: 0 bytes
+File list size: 0
+File list generation time: 0.001 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 3.93K
+Total bytes received: 258
+
+sent 3.93K bytes  received 258 bytes  8.37K bytes/sec
+total size is 12.05K  speedup is 2.88
+[2025-11-14T18:00:01+09:00] Sync complete
+[2025-11-14T18:00:01+09:00] Checking for files to translate...
+[2025-11-14T18:00:01+09:00]   Translating: content/index.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-14T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-14T18:00:01+09:00]   Translating: content/it_etc/publish-obsidian-using-quartz-with-idling-pc.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-14T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-14T18:00:01+09:00]   Translating: content/it_study/design_patterns/about-design-pattern.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-14T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-14T18:00:01+09:00]   Translating: content/it_study/design_patterns/creational-singleton.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-14T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-14T18:00:01+09:00]   Translating: content/it_study/design_patterns/solid-principle.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-14T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-14T18:00:01+09:00]   Translating: content/it_study/design_patterns/structural-decorator.md (ko/en/ja/zh)
+    [0;31m[ERROR][0m Gemini CLI not found. Please install it first.
+[2025-11-14T18:00:01+09:00]   ✗ Translation failed (continuing anyway)
+[2025-11-14T18:00:01+09:00] Translation processing complete
+[2025-11-14T18:00:01+09:00] Changes detected. Committing and pushing...
