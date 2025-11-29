@@ -10,7 +10,7 @@
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
-SUPPORTED_LANGUAGES=(ko en ja zh)
+SUPPORTED_LANGUAGES=(ko en ja)
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 TRANSLATION_CACHE_FILE="$PROJECT_DIR/.translation_cache"

@@ -18,7 +18,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-SUPPORTED_LANGUAGES=("ko" "en" "ja" "zh")
+SUPPORTED_LANGUAGES=("ko" "en" "ja")
 generated_files=()
 
 log() {
