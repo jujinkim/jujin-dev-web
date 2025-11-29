@@ -3,7 +3,7 @@
 # translate_post.sh - Translate a blog post using Gemini CLI
 #
 # USAGE:
-#   ./scripts/translate_post.sh <source_file>
+#   ./scripts/translate_post.sh <source_file> [target_langs...]
 #
 # REQUIREMENTS:
 #   - Gemini CLI must be installed and available in PATH
@@ -211,11 +211,15 @@ translate_post() {
     if [[ -f "$output_file" ]]; then
         remove_translations_field "$output_file"
         warn "Translation already exists: $output_file"
-        read -p "Overwrite? (y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            log "Skipping $target_lang translation"
-            return
+        if [[ -t 0 ]]; then
+            read -p "Overwrite? (y/n) " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                log "Skipping $target_lang translation"
+                return
+            fi
+        else
+            log "Non-interactive mode detected. Overwriting existing translation."
         fi
     fi
 
@@ -253,22 +257,20 @@ EOF
 # Main script
 main() {
     if [[ $# -lt 1 ]]; then
-        error "Usage: $0 <source_file>"
+        error "Usage: $0 <source_file> [target_langs...]"
         exit 1
     fi
 
     check_requirements
 
     local source_file="$1"
+    shift
+
+    local user_target_langs=("$@")
 
     if [[ ! -f "$source_file" ]]; then
         error "Source file not found: $source_file"
         exit 1
-    fi
-
-    shift
-    if [[ $# -gt 0 ]]; then
-        warn "Ignoring explicit language arguments. Using supported set: ${SUPPORTED_LANGUAGES[*]}"
     fi
 
     local source_lang=$(get_source_lang "$source_file")
@@ -288,11 +290,40 @@ main() {
     remove_translations_field "$source_file"
 
     local target_langs=()
-    for lang in "${SUPPORTED_LANGUAGES[@]}"; do
-        if [[ "$lang" != "$source_lang" ]]; then
-            target_langs+=("$lang")
+    if [[ ${#user_target_langs[@]} -gt 0 ]]; then
+        # Use only user-specified target languages that are supported and not the source
+        for lang in "${user_target_langs[@]}"; do
+            if [[ "$lang" == "$source_lang" ]]; then
+                continue
+            fi
+
+            local valid=false
+            for supported in "${SUPPORTED_LANGUAGES[@]}"; do
+                if [[ "$supported" == "$lang" ]]; then
+                    valid=true
+                    break
+                fi
+            done
+
+            if [[ "$valid" == true ]]; then
+                target_langs+=("$lang")
+            else
+                warn "Skipping unsupported target language: $lang"
+            fi
+        done
+
+        if [[ ${#target_langs[@]} -eq 0 ]]; then
+            warn "No valid target languages provided; falling back to supported set: ${SUPPORTED_LANGUAGES[*]}"
         fi
-    done
+    fi
+
+    if [[ ${#target_langs[@]} -eq 0 ]]; then
+        for lang in "${SUPPORTED_LANGUAGES[@]}"; do
+            if [[ "$lang" != "$source_lang" ]]; then
+                target_langs+=("$lang")
+            fi
+        done
+    fi
 
     if [[ ${#target_langs[@]} -eq 0 ]]; then
         warn "No target languages determined for $source_file (source lang: $source_lang). Nothing to do."

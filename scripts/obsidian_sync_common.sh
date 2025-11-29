@@ -209,6 +209,8 @@ translate_changed_files() {
     fi
 
     local -a files_to_translate=()
+    local -A missing_langs_map=()
+    local -A file_changed_map=()
     local -A file_hash_map=()
     local cache_dirty=0
 
@@ -229,6 +231,8 @@ translate_changed_files() {
         source_lang=$(grep '^lang:' "$file" | head -1 | sed 's/lang:[[:space:]]*//' | tr -d '"' | tr -d "'")
         local missing_translation=0
 
+        local -a missing_langs=()
+
         for lang in "${SUPPORTED_LANGUAGES[@]}"; do
             if [[ "$lang" == "$source_lang" ]]; then
                 continue
@@ -238,7 +242,7 @@ translate_changed_files() {
             expected="$(dirname "$file")/${basename}.${lang}.md"
             if [[ ! -f "$expected" ]]; then
                 missing_translation=1
-                break
+                missing_langs+=("$lang")
             fi
         done
 
@@ -251,17 +255,24 @@ translate_changed_files() {
         git_status_line=$(git status --porcelain -- "$file" 2>/dev/null || true)
 
         local needs_translation=0
+        local file_changed=0
 
         if [[ $missing_translation -eq 1 ]]; then
             needs_translation=1
-        elif [[ -n "$git_status_line" ]]; then
+        fi
+
+        if [[ -n "$git_status_line" ]]; then
             needs_translation=1
+            file_changed=1
         elif [[ -z "$cached_hash" || "$cached_hash" != "$current_hash" ]]; then
             needs_translation=1
+            file_changed=1
         fi
 
         if [[ $needs_translation -eq 1 ]]; then
             files_to_translate+=("$file")
+            missing_langs_map["$file"]="${missing_langs[*]}"
+            file_changed_map["$file"]=$file_changed
         fi
     done
 
@@ -291,10 +302,34 @@ translate_changed_files() {
             continue
         fi
 
-        log "  Translating: $file (ko/en/ja/zh)"
-        if "$translate_script" "$file" 2>&1 | sed 's/^/    /'; then
+        local source_lang
+        source_lang=$(grep '^lang:' "$file" | head -1 | sed 's/lang:[[:space:]]*//' | tr -d '"' | tr -d "'")
+
+        IFS=' ' read -r -a missing_langs <<< "${missing_langs_map[$file]:-}"
+        local file_changed="${file_changed_map[$file]:-0}"
+
+        local -a target_langs=()
+        if [[ "$file_changed" -eq 1 ]]; then
+            for lang in "${SUPPORTED_LANGUAGES[@]}"; do
+                if [[ "$lang" != "$source_lang" ]]; then
+                    target_langs+=("$lang")
+                fi
+            done
+        else
+            target_langs=("${missing_langs[@]}")
+        fi
+
+        if [[ ${#target_langs[@]} -eq 0 ]]; then
+            log "  Skipping (no target languages needed): $file"
+            continue
+        fi
+
+        log "  Translating: $file (${target_langs[*]})"
+        if "$translate_script" "$file" "${target_langs[@]}" 2>&1 | sed 's/^/    /'; then
             log "  ✓ Translation successful"
-            translation_cache["$file"]="${file_hash_map[$file]}"
+            local updated_hash
+            updated_hash=$(sha256sum "$file" | cut -d ' ' -f1)
+            translation_cache["$file"]="$updated_hash"
             cache_dirty=1
         else
             log "  ✗ Translation failed (continuing anyway)"
