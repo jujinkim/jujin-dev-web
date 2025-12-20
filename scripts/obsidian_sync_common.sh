@@ -169,6 +169,9 @@ sync_content() {
     if ! rsync -a --delete \
         --exclude='.git' \
         --exclude='.obsidian' \
+        --exclude='*.en.md' \
+        --exclude='*.ja.md' \
+        --exclude='*.zh.md' \
         --stats \
         --partial \
         --human-readable \
