@@ -1,33 +1,36 @@
 ---
 publish: true
 lang: en
-title: "First impressions after installing Openclaw on Linux"
+title: "First Impressions of Openclaw After Installing on Linux"
 ---
-I will translate the provided markdown content into English, following the project's conventions and ensuring the tone remains informative and narrative.
-
-```markdown
----
-publish: "true"
-title: First impressions after installing Openclaw on Linux
-lang: en
----
-
-
 # Introduction
-With the emergence of Transformer & Attention-based LLM AI following ML and deep learning, the world has begun to change rapidly. While progress wasn't slow before, LLM AI feels like something that could achieve a new industrial revolution or a technological singularity.
+Following ML and deep learning, the emergence of Transformer & Attention-based LLM AI has caused the world to change rapidly. It wasn't slow before, but LLM AI feels like something that could potentially achieve a new industrial revolution or a technological singularity.
 
-Among these advancements, tools have emerged that leverage LLM AI to easily manipulate the PC itself, beyond simple chatbots. One such program is an open-source project named `Openclaw`.
+Among these, tools that leverage LLM AI to go beyond simple chatbots and easily control the PC itself have appeared, and one such program distributed as open source is called `Openclaw`.
 
-Although it was already a project of interest, its performance has improved rapidly alongside the recent explosive growth of LLM models. This tool has become highly famous, even reaching the point of viral marketing where non-experts interested in AI are often left impressed after a single use.
-```
+It was already a project garnering attention, but with the rapid advancement of LLM models recently, its performance has improved quickly, making this tool extremely famous. It has even gone viral to the point where non-experts interested in AI try it out and are impressed.
 
-I have translated the content. I will now save it to the Obsidian vault and synchronize it with the project.
+---
+# What is Openclaw?
+The name has changed twice (`Clawdbot` -> `Moltbot`), but the history isn't important for this post; in short, it is as follows:
+> A tool that allows LLM models like ChatGPT to directly control the entire computer and makes it easy to set up.
 
-# First impressions after installing Openclaw on Linux
+Actually, doing this kind of thing wasn't impossible before Openclaw. Even without chatbot clients (like `ChatGPT`), there were APIs available to use LLM models, or one could run LLMs locally (like `ollama`, `gpt-oss`), and all that was needed was to let them control the CLI or GUI. `Gemini CLI` and `Codex CLI`, which emerged following `Claude Code`, are chatbots that run directly in the terminal. While their primary purpose was as coding agents, they were effectively LLM clients that could directly execute CLI commands, allowing for limited control over the PC.
 
-# Introduction
-With the emergence of Transformer & Attention-based LLM AI following ML and deep learning, the world has begun to change rapidly. While progress wasn't slow before, LLM AI feels like something that could achieve a new industrial revolution or a technological singularity.
+However, we wanted to easily assign tasks and automate things remotely, even when not sitting in front of the computer. For this,
 
-Among these advancements, tools have emerged that leverage LLM AI to easily manipulate the PC itself, beyond simple chatbots. One such program is an open-source project named `Openclaw`.
+---
+# Selecting a PC to Run It On
 
-Although it was already a project of interest, its performance has improved rapidly alongside the recent explosive growth of LLM models. This tool has become highly famous, even reaching the point of viral marketing where non-experts interested in AI are often left impressed after a single use.
+---
+# Simple Configuration
+
+---
+# Post-Task Review
+
+---
+# Conclusion
+
+First of all, there is a lot of hype.
+But from the perspective of "convenience," I want to give it credit.
+A convenient tool created by the combination of technological advancement and laziness.

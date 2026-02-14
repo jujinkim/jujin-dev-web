@@ -65,8 +65,21 @@ get_title() {
 # Extract content (without frontmatter)
 get_content() {
     local file="$1"
-    # Skip first frontmatter block (between --- and ---) and get the rest
-    awk '/^---$/{if(++count==2) {getline; print; next}} count==2' "$file"
+    # Capture everything after the second frontmatter delimiter.
+    # Later '---' lines in the body are valid markdown separators and must be preserved.
+    awk '
+    BEGIN { delim_count=0; in_body=0 }
+    /^---$/ {
+        if (delim_count < 2) {
+            delim_count++
+            if (delim_count == 2) {
+                in_body=1
+            }
+            next
+        }
+    }
+    in_body { print }
+    ' "$file"
 }
 
 # Get frontmatter (without the --- delimiters)
@@ -129,6 +142,24 @@ remove_translations_field() {
     mv "$temp_file" "$file"
 }
 
+# Extract section content between explicit markers.
+# Example marker block:
+#   [[[TITLE]]]
+#   ...
+#   [[[/TITLE]]]
+extract_marked_section() {
+    local text="$1"
+    local section="$2"
+    local start_marker="[[[${section}]]]"
+    local end_marker="[[[/${section}]]]"
+
+    printf '%s\n' "$text" | awk -v start="$start_marker" -v end="$end_marker" '
+    $0 == start { capture=1; next }
+    $0 == end { capture=0; exit }
+    capture { print }
+    '
+}
+
 # Build frontmatter for translation with back-reference to original
 build_translation_frontmatter() {
     local source_file="$1"
@@ -176,15 +207,31 @@ build_translation_frontmatter() {
 translate_text() {
     local source_lang="$1"
     local target_lang="$2"
-    local text="$3"
+    local title="$3"
+    local body="$4"
 
-    local prompt="Translate the following markdown content from ${source_lang} to ${target_lang}.
-Keep all markdown formatting, links, and code blocks unchanged.
-Only translate the actual text content, not code, URLs, or technical terms that should remain in English.
-Do not add any explanations or notes, just output the translated markdown.
+    local prompt="Translate the following blog post from ${source_lang} to ${target_lang}.
 
-Content to translate:
-${text}"
+Rules:
+1) Keep markdown formatting, links, and code blocks unchanged.
+2) Translate only human-readable prose.
+3) Keep technical terms, commands, file paths, and URLs as-is when appropriate.
+4) Preserve heading structure. Do not remove headings even if a section is short or empty.
+5) Do not include frontmatter.
+6) Do not include any commentary or explanation.
+7) Output must be exactly in this format:
+[[[TITLE]]]
+<translated title, single line, no leading #>
+[[[/TITLE]]]
+[[[BODY]]]
+<translated markdown body only, without frontmatter and without the title heading>
+[[[/BODY]]]
+
+Source title:
+${title}
+
+Source body:
+${body}"
 
     gemini -p "$prompt"
 }
@@ -225,20 +272,47 @@ translate_post() {
 
     local title=$(get_title "$source_file")
     local content=$(get_content "$source_file")
-    local full_text="# ${title}
-
-${content}"
-
     log "Calling Gemini CLI for translation..."
-    local translated_content=$(translate_text "$source_lang" "$target_lang" "$full_text")
+    local translated_content
+    translated_content=$(translate_text "$source_lang" "$target_lang" "$title" "$content")
 
     if [[ -z "$translated_content" ]]; then
         error "Translation failed or returned empty content"
         return 1
     fi
 
-    local translated_title=$(echo "$translated_content" | grep "^#" | head -1 | sed 's/^#[[:space:]]*//')
-    local translated_body=$(echo "$translated_content" | awk '/^#/{if(++count==1) next} {print}')
+    local translated_title
+    translated_title="$(extract_marked_section "$translated_content" "TITLE" | sed '/^[[:space:]]*$/d' | head -1)"
+
+    local translated_body
+    translated_body="$(extract_marked_section "$translated_content" "BODY")"
+
+    # Fallback parser for legacy/non-structured model outputs.
+    if [[ -z "$translated_title" || -z "$translated_body" ]]; then
+        warn "Structured output parsing failed. Falling back to legacy heading parser."
+
+        local last_h1_line
+        last_h1_line="$(printf '%s\n' "$translated_content" | awk '/^# /{line=NR} END{if(line) print line}')"
+
+        if [[ -z "$last_h1_line" ]]; then
+            error "Could not parse translated output (no markers and no H1 heading found)."
+            return 1
+        fi
+
+        translated_title="$(printf '%s\n' "$translated_content" | sed -n "${last_h1_line}p" | sed 's/^#[[:space:]]*//')"
+        translated_body="$(printf '%s\n' "$translated_content" | awk -v start="$last_h1_line" 'NR > start { print }')"
+    fi
+
+    if [[ -z "$translated_title" ]]; then
+        warn "Translated title is empty. Falling back to source title."
+        translated_title="$title"
+    fi
+
+    if [[ -z "$translated_body" ]]; then
+        error "Translated body is empty after parsing."
+        return 1
+    fi
+
     local new_frontmatter=$(build_translation_frontmatter "$source_file" "$target_lang" "$translated_title")
 
     cat > "$output_file" <<EOF
@@ -347,41 +421,45 @@ main() {
     done
 
     if "$all_success"; then
-        log "All translations completed successfully. Preparing to commit changes..."
-
-        git add "$source_file" >/dev/null 2>&1 || true
-        if [[ ${#generated_files[@]} -gt 0 ]]; then
-            git add "${generated_files[@]}" >/dev/null 2>&1 || true
-        fi
-
-        if git diff --cached --quiet; then
-            log "No changes detected to commit after translation."
+        if [[ "${TRANSLATE_SKIP_GIT:-0}" == "1" ]]; then
+            log "All translations completed successfully. Skipping commit/push (TRANSLATE_SKIP_GIT=1)."
         else
-            local basename
-            basename=$(basename "$source_file")
-            local commit_message="Translate ${basename} to ${target_langs[*]}"
+            log "All translations completed successfully. Preparing to commit changes..."
 
-            if git commit -m "$commit_message"; then
-                log "Committed translation changes."
+            git add "$source_file" >/dev/null 2>&1 || true
+            if [[ ${#generated_files[@]} -gt 0 ]]; then
+                git add "${generated_files[@]}" >/dev/null 2>&1 || true
+            fi
 
-                local branch
-                branch="$(git rev-parse --abbrev-ref HEAD)"
+            if git diff --cached --quiet; then
+                log "No changes detected to commit after translation."
+            else
+                local basename
+                basename=$(basename "$source_file")
+                local commit_message="Translate ${basename} to ${target_langs[*]}"
 
-                if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
-                    if git push; then
-                        log "Pushed translation commit to remote."
+                if git commit -m "$commit_message"; then
+                    log "Committed translation changes."
+
+                    local branch
+                    branch="$(git rev-parse --abbrev-ref HEAD)"
+
+                    if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+                        if git push; then
+                            log "Pushed translation commit to remote."
+                        else
+                            warn "Git push failed. Please push manually."
+                        fi
                     else
-                        warn "Git push failed. Please push manually."
+                        if git push origin "$branch"; then
+                            log "Pushed translation commit to origin/${branch}."
+                        else
+                            warn "Git push to origin/${branch} failed. Please push manually."
+                        fi
                     fi
                 else
-                    if git push origin "$branch"; then
-                        log "Pushed translation commit to origin/${branch}."
-                    else
-                        warn "Git push to origin/${branch} failed. Please push manually."
-                    fi
+                    warn "Git commit failed. Please resolve any issues and commit manually."
                 fi
-            else
-                warn "Git commit failed. Please resolve any issues and commit manually."
             fi
         fi
     else
