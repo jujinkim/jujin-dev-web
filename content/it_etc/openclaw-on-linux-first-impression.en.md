@@ -3,7 +3,19 @@ publish: true
 lang: en
 title: "First Impressions of Openclaw After Installing on Linux"
 ---
-I will read the content of the existing post to ensure the translation is consistent with the source.
+I will start by checking the usage of `scripts/vault_io.sh` to correctly save the translated content.
+
+I will check the existing Korean file in the vault to confirm the file path and its frontmatter.
+
+I will list the root directory to see if there are any other relevant files or if I can find more information about the available tools.
+
+I will read `CLAUDE.md` to see if it contains any information about the project's development environment or tools.
+
+I will read `AGENTS.md` for further information.
+
+I will read the existing English version of the article to see if it needs to be updated.
+
+I will read `scripts/translate_post.sh` to understand how the translation process is handled and if it relies on my output.
 
 
 # Introduction
