@@ -15,6 +15,27 @@ INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 TRANSLATION_CACHE_FILE="$PROJECT_DIR/.translation_cache"
 
+# Ensure expected user-level binary paths are available in non-interactive shells (cron/nohup).
+bootstrap_runtime_path() {
+    local -a candidate_paths=(
+        "$HOME/.npm-global/bin"
+        "$HOME/.local/bin"
+        "$HOME/bin"
+        "/usr/local/bin"
+    )
+
+    local dir
+    for dir in "${candidate_paths[@]}"; do
+        [[ -d "$dir" ]] || continue
+        case ":$PATH:" in
+            *":$dir:"*) ;;
+            *) PATH="$dir:$PATH" ;;
+        esac
+    done
+
+    export PATH
+}
+
 # Logging helper
 log() {
     echo "[$(date -Iseconds)] $*"
@@ -406,6 +427,7 @@ run_sync() {
 
     trap cleanup EXIT INT TERM
 
+    bootstrap_runtime_path
     acquire_lock
     validate_requirements
     validate_paths "$source_vault"

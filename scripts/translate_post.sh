@@ -20,6 +20,7 @@ NC='\033[0m' # No Color
 
 SUPPORTED_LANGUAGES=("ko" "en" "ja")
 generated_files=()
+GEMINI_BIN="${GEMINI_BIN:-}"
 
 log() {
     echo -e "${GREEN}[$(date +%H:%M:%S)]${NC} $*"
@@ -33,9 +34,57 @@ warn() {
     echo -e "${YELLOW}[WARN]${NC} $*"
 }
 
+# Ensure expected user-level binary paths are available in non-interactive shells (cron/nohup).
+bootstrap_runtime_path() {
+    local -a candidate_paths=(
+        "$HOME/.npm-global/bin"
+        "$HOME/.local/bin"
+        "$HOME/bin"
+        "/usr/local/bin"
+    )
+
+    local dir
+    for dir in "${candidate_paths[@]}"; do
+        [[ -d "$dir" ]] || continue
+        case ":$PATH:" in
+            *":$dir:"*) ;;
+            *) PATH="$dir:$PATH" ;;
+        esac
+    done
+
+    export PATH
+}
+
+resolve_gemini_bin() {
+    if [[ -n "$GEMINI_BIN" && -x "$GEMINI_BIN" ]]; then
+        return 0
+    fi
+
+    if GEMINI_BIN="$(command -v gemini 2>/dev/null)"; then
+        return 0
+    fi
+
+    local -a candidate_bins=(
+        "$HOME/.npm-global/bin/gemini"
+        "$HOME/.local/bin/gemini"
+        "$HOME/bin/gemini"
+    )
+
+    local bin
+    for bin in "${candidate_bins[@]}"; do
+        if [[ -x "$bin" ]]; then
+            GEMINI_BIN="$bin"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 # Check requirements
 check_requirements() {
-    if ! command -v gemini &> /dev/null; then
+    bootstrap_runtime_path
+    if ! resolve_gemini_bin; then
         error "Gemini CLI not found. Please install it first."
         exit 1
     fi
@@ -233,7 +282,7 @@ ${title}
 Source body:
 ${body}"
 
-    gemini -p "$prompt"
+    "$GEMINI_BIN" -p "$prompt"
 }
 
 # Main translation logic
