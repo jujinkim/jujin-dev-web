@@ -307,16 +307,7 @@ translate_post() {
     if [[ -f "$output_file" ]]; then
         remove_translations_field "$output_file"
         warn "Translation already exists: $output_file"
-        if [[ -t 0 ]]; then
-            read -p "Overwrite? (y/n) " -n 1 -r
-            echo
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                log "Skipping $target_lang translation"
-                return
-            fi
-        else
-            log "Non-interactive mode detected. Overwriting existing translation."
-        fi
+        log "Overwriting existing translation."
     fi
 
     local title=$(get_title "$source_file")
