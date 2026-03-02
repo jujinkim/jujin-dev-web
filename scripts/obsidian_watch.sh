@@ -27,7 +27,8 @@ source "$SCRIPTS_DIR/obsidian_sync_common.sh"
 
 # Configuration
 SOURCE_VAULT="${1:-$DEFAULT_SOURCE_VAULT}"
-DEBOUNCE_SECONDS=60
+DEBOUNCE_DEFAULT=120
+DEBOUNCE_PUBLISH=60
 WATCH_LOG="$PROJECT_DIR/.obsidian_watch.log"
 SYNC_SCRIPT="$SCRIPTS_DIR/obsidian_manual_sync.sh"
 
@@ -50,7 +51,7 @@ fi
 
 watch_log "=== Starting Obsidian file watcher ==="
 watch_log "Watching: $SOURCE_VAULT"
-watch_log "Debounce: ${DEBOUNCE_SECONDS}s"
+watch_log "Debounce Default: ${DEBOUNCE_DEFAULT}s, Publish: ${DEBOUNCE_PUBLISH}s"
 watch_log "Sync script: $SYNC_SCRIPT"
 
 # Track last change time
@@ -59,7 +60,7 @@ sync_scheduled=0
 
 # Trigger sync after debounce period
 trigger_sync() {
-    watch_log "No changes for ${DEBOUNCE_SECONDS}s. Triggering sync..."
+    watch_log "Triggering sync..."
 
     if "$SYNC_SCRIPT" "$SOURCE_VAULT" >> "$WATCH_LOG" 2>&1; then
         watch_log "Sync completed successfully"
@@ -81,11 +82,17 @@ inotifywait -m -r \
     # Extract relative path for cleaner logging
     relative_path="${filepath#$SOURCE_VAULT/}"
 
+    # Determine publish status of current file
+    current_debounce=$DEBOUNCE_DEFAULT
+    if [[ -f "$filepath" ]] && grep -qEi '^publish:[[:space:]]*["'"'"']?true["'"'"']?' "$filepath" 2>/dev/null; then
+        current_debounce=$DEBOUNCE_PUBLISH
+    fi
+
     watch_log "Change detected: $event $relative_path"
 
     # Cancel any pending sync
     if [[ $sync_scheduled -eq 1 ]]; then
-        watch_log "Debounce timer reset (${DEBOUNCE_SECONDS}s)"
+        watch_log "Debounce timer reset (${current_debounce}s)"
         # Kill the background sleep if it exists
         if [[ -n "${sync_pid:-}" ]] && kill -0 "$sync_pid" 2>/dev/null; then
             kill "$sync_pid" 2>/dev/null || true
@@ -95,7 +102,7 @@ inotifywait -m -r \
     # Schedule new sync
     sync_scheduled=1
     (
-        sleep "$DEBOUNCE_SECONDS"
+        sleep "$current_debounce"
         # Only trigger if still the latest schedule
         if [[ $sync_scheduled -eq 1 ]]; then
             trigger_sync

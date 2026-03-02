@@ -79,11 +79,12 @@ show_status() {
     echo ""
 
     # Obsidian status
-    echo -n "Obsidian: "
-    if is_obsidian_running; then
+    echo -n "Obsidian PM2 Process: "
+    if check_pm2_status; then
         echo -e "${GREEN}Running${NC}"
+        pm2 jlist | grep -A 1 '"name":"obsidian-sync"' | grep '"pm2_env"' -A 5 | grep '"status":"online"' >/dev/null 2>&1 && echo "Status: Online" || echo "Status: Stopped/Errored"
     else
-        echo -e "${YELLOW}Not running${NC}"
+        echo -e "${YELLOW}Not running (Not in PM2)${NC}"
     fi
     echo ""
 
@@ -188,6 +189,11 @@ show_menu() {
 # Check if watcher is running
 is_watcher_running() {
     pgrep -f "obsidian_watch.sh" >/dev/null 2>&1
+}
+
+# Check if obsidian pm2 is running
+check_pm2_status() {
+    pm2 jlist | grep -q '"name":"obsidian-sync"' >/dev/null 2>&1
 }
 
 # Start file watcher

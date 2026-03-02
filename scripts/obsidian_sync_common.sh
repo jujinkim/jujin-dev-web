@@ -9,7 +9,7 @@
 # Configuration - auto-detect project directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
-DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
+DEFAULT_SOURCE_VAULT="$HOME/obsidian-vault/dev.jujin.kim-publish"
 SUPPORTED_LANGUAGES=(ko en ja)
 INIT_WAIT_SECONDS=30
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
@@ -95,18 +95,12 @@ acquire_lock() {
 
 # Validate required commands
 validate_requirements() {
-    for cmd in xvfb-run git rsync; do
+    for cmd in git rsync ob; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
             log "ERROR: Required command '$cmd' not found. Install it first."
             exit 1
         fi
     done
-
-    OBSIDIAN_BIN="$(which obsidian 2>/dev/null || echo "/usr/bin/obsidian")"
-    if [[ ! -x "$OBSIDIAN_BIN" ]]; then
-        log "ERROR: Obsidian binary not found at $OBSIDIAN_BIN"
-        exit 1
-    fi
 }
 
 # Validate paths
@@ -127,55 +121,7 @@ validate_paths() {
 
 # Check if Obsidian is running
 is_obsidian_running() {
-    pgrep -x "obsidian" >/dev/null 2>&1 || pidof obsidian >/dev/null 2>&1
-}
-
-# Start Obsidian headlessly
-start_obsidian() {
-    log "Obsidian not running. Starting headlessly..."
-
-    xvfb-run -a --server-args='-screen 0 1920x1080x24' "$OBSIDIAN_BIN" --disable-gpu >/dev/null 2>&1 &
-    local pid=$!
-
-    log "Started Obsidian with PID $pid. Waiting ${INIT_WAIT_SECONDS}s for initialization..."
-    sleep "$INIT_WAIT_SECONDS"
-
-    # Verify process is still alive
-    if ! kill -0 "$pid" 2>/dev/null; then
-        log "ERROR: Obsidian process died during initialization"
-        exit 1
-    fi
-
-    log "Obsidian initialized successfully"
-    echo "$pid"
-}
-
-# Shutdown Obsidian
-shutdown_obsidian() {
-    local pid="$1"
-
-    if [[ -z "$pid" ]]; then
-        return
-    fi
-
-    log "Shutting down Obsidian (PID $pid)..."
-
-    if kill "$pid" 2>/dev/null; then
-        # Wait up to 5 seconds for graceful shutdown
-        for i in {1..5}; do
-            if ! kill -0 "$pid" 2>/dev/null; then
-                log "Obsidian shut down gracefully"
-                return
-            fi
-            sleep 1
-        done
-
-        # Force kill if still alive
-        if kill -0 "$pid" 2>/dev/null; then
-            log "Force killing Obsidian..."
-            kill -9 "$pid" 2>/dev/null || true
-        fi
-    fi
+    pm2 jlist | grep -q '"name":"obsidian-sync"' >/dev/null 2>&1
 }
 
 # Sync vault content
@@ -251,6 +197,10 @@ translate_changed_files() {
             continue
         fi
 
+        if ! grep -qEi '^publish:[[:space:]]*["'"'"']?true["'"'"']?' "$file" 2>/dev/null; then
+            continue
+        fi
+
         local source_lang
         source_lang=$(grep '^lang:' "$file" | head -1 | sed 's/lang:[[:space:]]*//' | tr -d '"' | tr -d "'")
         local missing_translation=0
@@ -323,6 +273,11 @@ translate_changed_files() {
 
         if ! grep -q '^lang:' "$file" 2>/dev/null; then
             log "  Skipping (no lang field): $file"
+            continue
+        fi
+
+        if ! grep -qEi '^publish:[[:space:]]*["'"'"']?true["'"'"']?' "$file" 2>/dev/null; then
+            log "  Skipping (publish is not true): $file"
             continue
         fi
 
@@ -432,21 +387,15 @@ run_sync() {
     validate_requirements
     validate_paths "$source_vault"
 
-    local started_by_script=0
-    local obs_pid=""
-
     if is_obsidian_running; then
-        log "Obsidian is already running. Proceeding with sync..."
+        log "Obsidian is running via pm2. Proceeding with sync..."
     else
-        started_by_script=1
-        obs_pid=$(start_obsidian)
+        log "ERROR: 'obsidian-sync' process is not running in PM2."
+        log "Please run: pm2 start ob --name \"obsidian-sync\" -- sync --continuous"
+        exit 1
     fi
 
     sync_content "$source_vault"
     translate_changed_files "$PROJECT_DIR"
     commit_and_push "$commit_message"
-
-    if [[ $started_by_script -eq 1 && -n "$obs_pid" ]]; then
-        shutdown_obsidian "$obs_pid"
-    fi
 }
