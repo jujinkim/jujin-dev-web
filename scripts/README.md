@@ -23,18 +23,19 @@ sudo apt install inotify-tools
 2. Enable 6-hourly cron: `./scripts/obsidian_manage.sh` → option 2
 
 This gives you:
-- ⚡ Instant sync on file changes (60s debounce)
+
+- ⚡ Sync on file changes (120s debounce; 60s for `publish: true`)
 - 🛡️ 6-hourly backup sync (safety net)
 
 ## Scripts
 
-| Script | Purpose |
-|--------|---------|
-| **obsidian_manage.sh** | Interactive management tool (⭐ start here) |
-| **obsidian_watch.sh** | File watcher with 60s debouncing (auto-sync on changes) |
-| **obsidian_manual_sync.sh** | One-time manual sync |
-| **obsidian_cron.sh** | 6-hourly backup sync (managed by obsidian_manage.sh) |
-| **obsidian_sync_common.sh** | Shared functions (don't run directly) |
+| Script                      | Purpose                                                      |
+| --------------------------- | ------------------------------------------------------------ |
+| **obsidian_manage.sh**      | Interactive management tool (⭐ start here)                  |
+| **obsidian_watch.sh**       | File watcher with adaptive debouncing (auto-sync on changes) |
+| **obsidian_manual_sync.sh** | One-time manual sync                                         |
+| **obsidian_cron.sh**        | 6-hourly backup sync (managed by obsidian_manage.sh)         |
+| **obsidian_sync_common.sh** | Shared functions (don't run directly)                        |
 
 ## Using the Manager
 
@@ -45,6 +46,7 @@ This gives you:
 ```
 
 Options:
+
 1. **Check status** - View watcher, cron, Obsidian status
 2. **Enable cron** - 6-hourly backup sync
 3. **Disable cron** - Stop 6-hourly backup
@@ -77,105 +79,117 @@ Options:
 
 ## Configuration
 
-### Default Vault Path
-`$HOME/Obsidian Vault/dev.jujin.kim-publish`
+### Vault Paths
 
-Change in `obsidian_sync_common.sh:12`:
+- Obsidian Sync root: `$HOME/obsidian-vault`
+- Published content source: `$HOME/obsidian-vault/dev.jujin.kim-publish`
+
+Set `OBSIDIAN_SYNC_ROOT` to use another configured Obsidian vault:
+
 ```bash
-DEFAULT_SOURCE_VAULT="$HOME/Obsidian Vault/dev.jujin.kim-publish"
+OBSIDIAN_SYNC_ROOT="$HOME/my-obsidian-vault" ./scripts/obsidian_manual_sync.sh
 ```
 
 ### Cron Schedule
+
 Default: Every 6 hours (`0 */6 * * *`) - backup only
 
 Change in `obsidian_manage.sh:23`:
+
 ```bash
 CRON_SCHEDULE="0 */6 * * *"
 ```
 
 ### File Watcher Debounce
-Default: 60 seconds (wait after last change)
+
+Default: 120 seconds. Files with `publish: true` use 60 seconds.
 
 Change in `obsidian_watch.sh:27`:
+
 ```bash
-DEBOUNCE_SECONDS=60
+DEBOUNCE_PUBLISH=60
 ```
 
-### Obsidian Startup Wait
-Default: 30 seconds (when starting Obsidian)
+### Translation Model
 
-Change in `obsidian_sync_common.sh:13`:
+Translations call Antigravity in non-interactive plan mode. Leave `AGY_MODEL` unset to use Antigravity's configured default, or choose a model for one run:
+
 ```bash
-INIT_WAIT_SECONDS=30
+AGY_MODEL=gpt-oss-120b-medium ./scripts/translate_post.sh content/post.md en
 ```
 
 ## How It Works
 
 ### File Watcher Mode (Recommended)
+
 1. **Monitor** - inotifywait watches vault for file changes
-2. **Debounce** - Wait 60s after last change (resets on new changes)
+2. **Debounce** - Wait 120s after last change (60s for `publish: true`)
 3. **Trigger** - Calls manual sync script
 4. **Sync** - Same process as manual sync below
 
 ### Manual/Cron Sync Process
+
 1. **Lock check** - Prevents concurrent runs
-2. **Start Obsidian** - Launches headlessly if needed (Xvfb)
-3. **Wait** - 30s initialization (only if script started Obsidian)
-4. **Sync** - `rsync --delete` from vault → `content/`
-5. **Git push** - Commit and push if changes exist
-6. **Cleanup** - Shutdown Obsidian if script started it
+2. **Obsidian Sync** - `ob sync --path ~/obsidian-vault` pulls remote changes
+3. **Publish filter** - `rsync --delete` copies vault content, then removes Markdown without `publish: true`
+4. **Translation** - Antigravity generates missing or stale translations for published posts
+5. **Git push** - One commit and push for `content/` and `.translation_cache` only
 
 ## Requirements
 
 ```bash
 # Check dependencies
 command -v inotifywait  # File system monitoring (for watcher)
-command -v xvfb-run     # Virtual display for headless Obsidian
 command -v git          # Version control
 command -v rsync        # File sync
-command -v obsidian     # Obsidian app
+command -v ob           # Obsidian Sync CLI
+command -v agy          # Antigravity CLI for translations
 ```
 
 Install missing:
+
 ```bash
 # Ubuntu/Debian
-sudo apt install inotify-tools xvfb rsync git
+sudo apt install inotify-tools rsync git
 ```
 
 ## Troubleshooting
 
 ### Script won't run
+
 ```bash
 chmod +x scripts/*.sh
 ```
 
 ### Lock file stuck
+
 ```bash
 rm scripts/obsidian_publish.lock
 # Or use: ./scripts/obsidian_manage.sh → option 6
 ```
 
 ### View logs
+
 ```bash
 tail -f .obsidian_publish.log
 ```
 
-### Obsidian won't start
-```bash
-# Test Xvfb
-xvfb-run --auto-servernum echo "test"
+### Obsidian Sync is not configured
 
-# Check Obsidian path
-which obsidian
+```bash
+ob sync-list-local
+ob sync-setup --path "$HOME/obsidian-vault"
 ```
 
 ### Git push fails
+
 ```bash
 git remote -v              # Check remote
 ssh -T git@github.com      # Test SSH
 ```
 
 ### Check cron jobs
+
 ```bash
 crontab -l                 # List all jobs
 crontab -e                 # Edit jobs
@@ -186,6 +200,8 @@ crontab -e                 # Edit jobs
 **Uses `rsync --delete`** - Files in `content/` not in vault will be deleted!
 
 The Obsidian vault is the source of truth. Don't edit content files directly in this repository.
+
+Uncommitted changes outside `content/` and `.translation_cache` block automated publishing. Commit or stash code changes first.
 
 ## Files
 
@@ -199,6 +215,7 @@ The Obsidian vault is the source of truth. Don't edit content files directly in 
 Alternative to cron (optional):
 
 `~/.config/systemd/user/obsidian-publish.service`:
+
 ```ini
 [Unit]
 Description=Obsidian Publish Sync
@@ -210,6 +227,7 @@ ExecStart=/home/jujin/workspace/projects/jujin-dev-web/scripts/obsidian_cron.sh
 ```
 
 `~/.config/systemd/user/obsidian-publish.timer`:
+
 ```ini
 [Unit]
 Description=Run Obsidian Publish Sync every 6 hours
@@ -225,6 +243,7 @@ WantedBy=timers.target
 For file watcher as systemd service:
 
 `~/.config/systemd/user/obsidian-watcher.service`:
+
 ```ini
 [Unit]
 Description=Obsidian File Watcher
@@ -242,6 +261,7 @@ WantedBy=default.target
 ```
 
 Enable:
+
 ```bash
 # For timer (6-hourly backup)
 systemctl --user daemon-reload

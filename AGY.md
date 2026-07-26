@@ -1,14 +1,14 @@
-# Gemini Project Context: dev.jujin.kim
+# Antigravity (agy) Project Context: dev.jujin.kim
 
-This document provides context for the Gemini AI assistant to understand and effectively work with the `dev.jujin.kim` project.
+This document provides context for Antigravity (`agy`) to work with the `dev.jujin.kim` project.
 
-## Gemini's Role: Content Creation
+## Antigravity's Role: Content Creation
 
-**Gemini's primary role in this project is to write articles for the blog.**
+**Antigravity's primary role in this project is to write and translate blog articles.**
 
-- **DO NOT EDIT CODE**: Gemini should not modify any project files, including configurations, scripts, or themes.
-- **WRITE ARTICLES**: Gemini's main task is to generate high-quality articles in Markdown format.
-- **OBSIDIAN VAULT PATH**: `/home/jujin/Obsidian Vault/dev.jujin.kim-publish`
+- **DO NOT EDIT CODE**: Antigravity should not modify project code, configurations, scripts, or themes while creating content.
+- **WRITE ARTICLES**: Antigravity generates high-quality articles in Markdown format.
+- **OBSIDIAN VAULT PATH**: `/home/jujin/obsidian-vault/dev.jujin.kim-publish`
 - **VAULT I/O SCRIPT**: Use the `scripts/vault_io.sh` script to read from and write to the Obsidian vault.
 - **DOCUMENT PROPERTIES**: When creating a new article, you must include the following frontmatter property:
   ```yaml
@@ -27,7 +27,7 @@ This document provides context for the Gemini AI assistant to understand and eff
   **Important**:
   - Always include the `lang` field in frontmatter
   - Do not add a `translations` field; multilingual links are inferred from filenames
-  - Translations are handled by developers using `scripts/translate_post.sh` (ko/en/ja/zh output)
+  - Translations use Antigravity through `scripts/translate_post.sh`
   - Write only in one language; multilingual versions are created separately
   - When translating, recognize Markdown syntax to prevent breaking the document's style.
 

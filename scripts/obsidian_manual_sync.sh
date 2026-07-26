@@ -7,14 +7,14 @@
 #
 # ARGUMENTS:
 #   vault_dir     - Path to Obsidian vault publish directory
-#                   Default: "$HOME/Obsidian Vault/dev.jujin.kim-publish"
+#                   Default: "$HOME/obsidian-vault/dev.jujin.kim-publish"
 #
 # EXAMPLES:
 #   # Use default vault path
 #   ./scripts/obsidian_manual_sync.sh
 #
 #   # Custom vault path
-#   ./scripts/obsidian_manual_sync.sh "$HOME/Obsidian Vault/dev.jujin.kim-publish"
+#   ./scripts/obsidian_manual_sync.sh "$HOME/obsidian-vault/dev.jujin.kim-publish"
 ################################################################################
 
 set -euo pipefail

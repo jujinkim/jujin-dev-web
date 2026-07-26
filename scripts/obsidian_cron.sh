@@ -10,11 +10,9 @@
 #
 # BEHAVIOR:
 #   1. Acquires exclusive lock to prevent concurrent runs
-#   2. Checks if Obsidian is running; starts headlessly if not
-#   3. Waits for initialization (30s) only if starting Obsidian
-#   4. Syncs vault content to project using rsync --delete
-#   5. Commits and pushes changes to git if any exist
-#   6. Shuts down Obsidian if script started it
+#   2. Pulls remote vault changes using ob CLI
+#   3. Syncs published vault content to project using rsync --delete
+#   4. Commits and pushes changes to git if any exist
 #
 # NOTE:
 #   Use obsidian_manage.sh to enable/disable this cron job.

@@ -9,9 +9,10 @@
 # Configuration - auto-detect project directory
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
-DEFAULT_SOURCE_VAULT="$HOME/obsidian-vault/dev.jujin.kim-publish"
+OBSIDIAN_SYNC_ROOT="${OBSIDIAN_SYNC_ROOT:-$HOME/obsidian-vault}"
+DEFAULT_SOURCE_VAULT="${DEFAULT_SOURCE_VAULT:-$OBSIDIAN_SYNC_ROOT/dev.jujin.kim-publish}"
 SUPPORTED_LANGUAGES=(ko en ja)
-INIT_WAIT_SECONDS=30
+TRANSLATION_FILE_LANGUAGES=(ko en ja zh)
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
 TRANSLATION_CACHE_FILE="$PROJECT_DIR/.translation_cache"
 
@@ -119,9 +120,30 @@ validate_paths() {
     fi
 }
 
-# Check if Obsidian is running
-is_obsidian_running() {
-    pm2 jlist | grep -q '"name":"obsidian-sync"' >/dev/null 2>&1
+# Verify Obsidian Sync configuration for this machine.
+is_obsidian_sync_configured() {
+    local vault_root="${1:-$OBSIDIAN_SYNC_ROOT}"
+    ob sync-status --path "$vault_root" >/dev/null 2>&1
+}
+
+# Pull remote Obsidian changes before copying published content into this repository.
+sync_obsidian_vault() {
+    local vault_root="${1:-$OBSIDIAN_SYNC_ROOT}"
+
+    if ! is_obsidian_sync_configured "$vault_root"; then
+        log "ERROR: Obsidian Sync is not configured for: $vault_root"
+        log "Run: ob sync-setup --path \"$vault_root\""
+        exit 1
+    fi
+
+    log "Syncing Obsidian vault with ob CLI..."
+    log "  Vault root: $vault_root"
+    if ! ob sync --path "$vault_root"; then
+        log "ERROR: ob sync failed"
+        exit 1
+    fi
+
+    log "Obsidian Sync completed"
 }
 
 # Sync vault content
@@ -150,7 +172,68 @@ sync_content() {
         exit 1
     fi
 
+    filter_publishable_content "$target_dir"
     log "Sync complete"
+}
+
+# Quartz only emits files with publish: true. Keep generated content aligned with that rule.
+is_publishable_markdown() {
+    local file="$1"
+    grep -qEi "^publish:[[:space:]]*[\"']?true[\"']?" "$file"
+}
+
+remove_translation_variants() {
+    local source_file="$1"
+    local lang
+
+    for lang in "${TRANSLATION_FILE_LANGUAGES[@]}"; do
+        local variant="${source_file%.md}.${lang}.md"
+        [[ -f "$variant" ]] || continue
+        rm -f -- "$variant"
+    done
+}
+
+# rsync cannot filter Markdown by frontmatter. Remove unpublished originals and
+# generated translations after copying, while preserving non-Markdown assets.
+filter_publishable_content() {
+    local target_dir="${1:-$PROJECT_DIR}"
+    local content_dir="$target_dir/content"
+    local removed_count=0
+    local file filename lang original
+
+    while IFS= read -r -d '' file; do
+        filename="$(basename "$file")"
+        if [[ "$filename" =~ \.(ko|en|ja|zh)\.md$ ]]; then
+            continue
+        fi
+
+        if ! is_publishable_markdown "$file"; then
+            log "  Removing unpublished Markdown: ${file#$content_dir/}"
+            rm -f -- "$file"
+            remove_translation_variants "$file"
+            ((removed_count += 1))
+        fi
+    done < <(find "$content_dir" -type f -name '*.md' -print0)
+
+    # Translation files are excluded from rsync, so remove variants whose source
+    # was deleted from the vault or is no longer publishable.
+    while IFS= read -r -d '' file; do
+        filename="$(basename "$file")"
+        for lang in "${TRANSLATION_FILE_LANGUAGES[@]}"; do
+            [[ "$filename" == *."$lang".md ]] || continue
+            original="${file%."$lang".md}.md"
+            if [[ ! -f "$original" ]] || ! is_publishable_markdown "$original"; then
+                log "  Removing orphaned translation: ${file#$content_dir/}"
+                rm -f -- "$file"
+                ((removed_count += 1))
+            fi
+            break
+        done
+    done < <(find "$content_dir" -type f -name '*.md' -print0)
+
+    if [[ $removed_count -gt 0 ]]; then
+        log "Removed $removed_count unpublished or orphaned Markdown file(s)"
+    fi
 }
 
 # Translate changed files
@@ -304,7 +387,7 @@ translate_changed_files() {
         fi
 
         log "  Translating: $file (${target_langs[*]})"
-        if "$translate_script" "$file" "${target_langs[@]}" 2>&1 | sed 's/^/    /'; then
+        if TRANSLATE_SKIP_GIT=1 "$translate_script" "$file" "${target_langs[@]}" 2>&1 | sed 's/^/    /'; then
             log "  ✓ Translation successful"
             local updated_hash
             updated_hash=$(sha256sum "$file" | cut -d ' ' -f1)
@@ -317,12 +400,22 @@ translate_changed_files() {
 
     if [[ $cache_dirty -eq 1 ]]; then
         save_translation_cache translation_cache
-        git add "$TRANSLATION_CACHE_FILE" 2>/dev/null || true
     fi
 
-    git add content 2>/dev/null || true
-
     log "Translation processing complete"
+}
+
+ensure_publish_worktree_is_clean() {
+    local status
+    status="$(git status --porcelain -- . ':(exclude)content' ':(exclude).translation_cache')"
+
+    if [[ -z "$status" ]]; then
+        return 0
+    fi
+
+    log "ERROR: Unrelated worktree changes block automatic publish:"
+    printf '%s\n' "$status" | sed 's/^/  /'
+    return 1
 }
 
 # Commit and push changes
@@ -332,16 +425,25 @@ commit_and_push() {
 
     cd "$target_dir"
 
-    if [[ -z "$(git status --porcelain)" ]]; then
-        log "No changes to publish"
+    if ! ensure_publish_worktree_is_clean; then
         return 1
+    fi
+
+    local -a publish_paths=(content)
+    if [[ -e "$TRANSLATION_CACHE_FILE" ]] || git ls-files --error-unmatch "$TRANSLATION_CACHE_FILE" >/dev/null 2>&1; then
+        publish_paths+=("$TRANSLATION_CACHE_FILE")
+    fi
+
+    git add -A -- "${publish_paths[@]}"
+
+    if git diff --cached --quiet -- "${publish_paths[@]}"; then
+        log "No changes to publish"
+        return 0
     fi
 
     log "Changes detected. Committing and pushing..."
 
-    git add -A
-
-    if ! git commit -m "$commit_message"; then
+    if ! git commit --only -m "$commit_message" -- "${publish_paths[@]}"; then
         log "ERROR: Git commit failed"
         exit 1
     fi
@@ -387,14 +489,7 @@ run_sync() {
     validate_requirements
     validate_paths "$source_vault"
 
-    if is_obsidian_running; then
-        log "Obsidian is running via pm2. Proceeding with sync..."
-    else
-        log "ERROR: 'obsidian-sync' process is not running in PM2."
-        log "Please run: pm2 start ob --name \"obsidian-sync\" -- sync --continuous"
-        exit 1
-    fi
-
+    sync_obsidian_vault "$OBSIDIAN_SYNC_ROOT"
     sync_content "$source_vault"
     translate_changed_files "$PROJECT_DIR"
     commit_and_push "$commit_message"

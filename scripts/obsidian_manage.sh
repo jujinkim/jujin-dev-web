@@ -71,20 +71,21 @@ show_status() {
     echo -n "File Watcher: "
     if is_watcher_running; then
         echo -e "${GREEN}Running${NC}"
-        echo "Debounce: 60 seconds"
+        echo "Debounce: 120 seconds (60 seconds for publish: true)"
         echo "Logs: $WATCH_LOG"
     else
         echo -e "${YELLOW}Not running${NC}"
     fi
     echo ""
 
-    # Obsidian status
-    echo -n "Obsidian PM2 Process: "
-    if check_pm2_status; then
-        echo -e "${GREEN}Running${NC}"
-        pm2 jlist | grep -A 1 '"name":"obsidian-sync"' | grep '"pm2_env"' -A 5 | grep '"status":"online"' >/dev/null 2>&1 && echo "Status: Online" || echo "Status: Stopped/Errored"
+    # Obsidian Sync CLI status
+    echo -n "Obsidian Sync CLI: "
+    if is_obsidian_sync_configured "$OBSIDIAN_SYNC_ROOT"; then
+        echo -e "${GREEN}Configured${NC}"
+        echo "Vault root: $OBSIDIAN_SYNC_ROOT"
     else
-        echo -e "${YELLOW}Not running (Not in PM2)${NC}"
+        echo -e "${YELLOW}Not configured${NC}"
+        echo "Run: ob sync-setup --path \"$OBSIDIAN_SYNC_ROOT\""
     fi
     echo ""
 
@@ -191,11 +192,6 @@ is_watcher_running() {
     pgrep -f "obsidian_watch.sh" >/dev/null 2>&1
 }
 
-# Check if obsidian pm2 is running
-check_pm2_status() {
-    pm2 jlist | grep -q '"name":"obsidian-sync"' >/dev/null 2>&1
-}
-
 # Start file watcher
 start_watcher() {
     if is_watcher_running; then
@@ -209,7 +205,7 @@ start_watcher() {
 
     if is_watcher_running; then
         echo -e "${GREEN}✓ File watcher started successfully${NC}"
-        echo "Debounce: 60 seconds"
+        echo "Debounce: 120 seconds (60 seconds for publish: true)"
         echo "Logs: $WATCH_LOG"
     else
         echo -e "${RED}✗ Failed to start file watcher${NC}"

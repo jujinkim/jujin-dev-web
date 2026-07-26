@@ -73,7 +73,7 @@ lang: en
 
 - Language switcher UI component (한국어, English, 日本語, 中文)
 - hreflang SEO tags (x-default points to original language)
-- Automatic translation via Gemini CLI
+- Automatic translation via Antigravity CLI (`agy`)
 - Fixed language set: ko / en / ja / zh
 - Translation links resolved automatically from filenames (no frontmatter bookkeeping)
 
@@ -85,7 +85,7 @@ lang: en
 ./scripts/translate_post.sh content/post.md
 
 # Script automatically:
-# - Translates content via Gemini CLI
+# - Translates content via Antigravity CLI (`agy`)
 # - Generates ko/en/ja/zh variants (skipping the source language)
 # - Cleans up any legacy translations frontmatter
 # - Prevents duplicate entries by prompting before overwriting
@@ -169,7 +169,7 @@ export const defaultContentPageLayout: PageLayout = {
 - Build and deployment fixes
 - Testing and validation
 
-### Gemini
+### Antigravity (`agy`)
 
 **Role**: Content Creation Only
 
@@ -177,7 +177,7 @@ export const defaultContentPageLayout: PageLayout = {
 - Must include `publish: "true"` in frontmatter
 - Must NOT modify code, configs, or scripts
 - Run `./scripts/obsidian_manual_sync.sh` after writing
-- See `GEMINI.md` for detailed instructions
+- See `AGY.md` for detailed instructions
 
 ## Key Notes
 

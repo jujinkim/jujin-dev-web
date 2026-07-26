@@ -1,12 +1,12 @@
 #!/bin/bash
 ################################################################################
-# translate_post.sh - Translate a blog post using Gemini CLI
+# translate_post.sh - Translate a blog post using Antigravity CLI
 #
 # USAGE:
 #   ./scripts/translate_post.sh <source_file> [target_langs...]
 #
 # REQUIREMENTS:
-#   - Gemini CLI must be installed and available in PATH
+#   - Antigravity CLI (`agy`) must be installed and available in PATH
 #   - Source file must have 'lang' field in frontmatter
 ################################################################################
 
@@ -20,7 +20,8 @@ NC='\033[0m' # No Color
 
 SUPPORTED_LANGUAGES=("ko" "en" "ja")
 generated_files=()
-GEMINI_BIN="${GEMINI_BIN:-}"
+AGY_BIN="${AGY_BIN:-}"
+AGY_MODEL="${AGY_MODEL:-}"
 
 log() {
     echo -e "${GREEN}[$(date +%H:%M:%S)]${NC} $*"
@@ -55,25 +56,25 @@ bootstrap_runtime_path() {
     export PATH
 }
 
-resolve_gemini_bin() {
-    if [[ -n "$GEMINI_BIN" && -x "$GEMINI_BIN" ]]; then
+resolve_agy_bin() {
+    if [[ -n "$AGY_BIN" && -x "$AGY_BIN" ]]; then
         return 0
     fi
 
-    if GEMINI_BIN="$(command -v gemini 2>/dev/null)"; then
+    if AGY_BIN="$(command -v agy 2>/dev/null)"; then
         return 0
     fi
 
     local -a candidate_bins=(
-        "$HOME/.npm-global/bin/gemini"
-        "$HOME/.local/bin/gemini"
-        "$HOME/bin/gemini"
+        "$HOME/.local/bin/agy"
+        "$HOME/.npm-global/bin/agy"
+        "$HOME/bin/agy"
     )
 
     local bin
     for bin in "${candidate_bins[@]}"; do
         if [[ -x "$bin" ]]; then
-            GEMINI_BIN="$bin"
+            AGY_BIN="$bin"
             return 0
         fi
     done
@@ -84,8 +85,8 @@ resolve_gemini_bin() {
 # Check requirements
 check_requirements() {
     bootstrap_runtime_path
-    if ! resolve_gemini_bin; then
-        error "Gemini CLI not found. Please install it first."
+    if ! resolve_agy_bin; then
+        error "Antigravity CLI ('agy') not found. Please install it first."
         exit 1
     fi
 }
@@ -252,7 +253,7 @@ build_translation_frontmatter() {
     echo "$new_frontmatter"
 }
 
-# Translate using Gemini CLI
+# Translate using Antigravity CLI. Print mode returns translation without file edits.
 translate_text() {
     local source_lang="$1"
     local target_lang="$2"
@@ -268,7 +269,8 @@ Rules:
 4) Preserve heading structure. Do not remove headings even if a section is short or empty.
 5) Do not include frontmatter.
 6) Do not include any commentary or explanation.
-7) Output must be exactly in this format:
+7) Do not use tools, commands, file operations, or workspace inspection.
+8) Output must be exactly in this format:
 [[[TITLE]]]
 <translated title, single line, no leading #>
 [[[/TITLE]]]
@@ -282,7 +284,13 @@ ${title}
 Source body:
 ${body}"
 
-    "$GEMINI_BIN" -p "$prompt"
+    local -a agy_args=(--mode plan)
+    if [[ -n "$AGY_MODEL" ]]; then
+        agy_args+=(--model "$AGY_MODEL")
+    fi
+    agy_args+=(--print "$prompt")
+
+    "$AGY_BIN" "${agy_args[@]}"
 }
 
 # Main translation logic
@@ -312,7 +320,7 @@ translate_post() {
 
     local title=$(get_title "$source_file")
     local content=$(get_content "$source_file")
-    log "Calling Gemini CLI for translation..."
+    log "Calling Antigravity CLI for translation..."
     local translated_content
     translated_content=$(translate_text "$source_lang" "$target_lang" "$title" "$content")
 

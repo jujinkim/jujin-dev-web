@@ -15,7 +15,7 @@ Personal development blog powered by [Quartz v4](https://quartz.jzhao.xyz/).
 npm install
 
 # Sync content from Obsidian
-./sync-content.sh
+./scripts/obsidian_manual_sync.sh
 
 # Build and serve locally
 npx quartz build --serve
@@ -24,8 +24,10 @@ npx quartz build --serve
 ## 📝 Content Management
 
 Content is managed in Obsidian and synced to this repository:
-- Obsidian vault: `~/Obsidian Vault/dev.jujin.kim-publish`
-- Run `./sync-content.sh` to sync content
+
+- Obsidian Sync root: `~/obsidian-vault`
+- Published content: `~/obsidian-vault/dev.jujin.kim-publish`
+- Run `./scripts/obsidian_manual_sync.sh` to pull with `ob`, then sync content
 
 ## 🛠️ Tech Stack
 

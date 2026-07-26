@@ -7,8 +7,8 @@
 #
 # BEHAVIOR:
 #   1. Monitors Obsidian vault for file changes using inotifywait
-#   2. Debounces changes with 60 second delay
-#   3. Runs sync only after no changes for 60 seconds
+#   2. Debounces changes: 120 seconds by default, 60 for publishable files
+#   3. Runs sync after debounce period without further changes
 #   4. Logs all activity to .obsidian_watch.log
 #
 # REQUIREMENTS:
