@@ -130,10 +130,12 @@ AGY_MODEL=gpt-oss-120b-medium ./scripts/translate_post.sh content/post.md en
 ### Manual/Cron Sync Process
 
 1. **Lock check** - Prevents concurrent runs
-2. **Obsidian Sync** - `ob sync --path ~/obsidian-vault` pulls remote changes
+2. **Obsidian Sync** - `cd ~/obsidian-vault && ob sync` pulls remote changes
 3. **Publish filter** - `rsync --delete` copies vault content, then removes Markdown without `publish: true`
 4. **Translation** - Antigravity generates missing or stale translations for published posts
 5. **Git push** - One commit and push for `content/` and `.translation_cache` only
+
+If another Obsidian Sync run owns its short-lived vault lease, scripts wait five seconds and retry up to three times. Empty inactive leases are removed because the `ob` CLI can fail to reclaim them on filesystems with sub-millisecond timestamp rounding. Configure retries with `OBSIDIAN_SYNC_LOCK_RETRIES` and `OBSIDIAN_SYNC_LOCK_RETRY_DELAY`.
 
 ## Requirements
 

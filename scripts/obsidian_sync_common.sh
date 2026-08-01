@@ -11,6 +11,8 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 OBSIDIAN_SYNC_ROOT="${OBSIDIAN_SYNC_ROOT:-$HOME/obsidian-vault}"
 DEFAULT_SOURCE_VAULT="${DEFAULT_SOURCE_VAULT:-$OBSIDIAN_SYNC_ROOT/dev.jujin.kim-publish}"
+OBSIDIAN_SYNC_LOCK_RETRIES="${OBSIDIAN_SYNC_LOCK_RETRIES:-3}"
+OBSIDIAN_SYNC_LOCK_RETRY_DELAY="${OBSIDIAN_SYNC_LOCK_RETRY_DELAY:-5}"
 SUPPORTED_LANGUAGES=(ko en ja)
 TRANSLATION_FILE_LANGUAGES=(ko en ja zh)
 LOCKFILE="${SCRIPTS_DIR}/obsidian_publish.lock"
@@ -123,12 +125,52 @@ validate_paths() {
 # Verify Obsidian Sync configuration for this machine.
 is_obsidian_sync_configured() {
     local vault_root="${1:-$OBSIDIAN_SYNC_ROOT}"
-    ob sync-status --path "$vault_root" >/dev/null 2>&1
+
+    [[ -d "$vault_root" ]] || return 1
+    (
+        cd "$vault_root"
+        ob sync-status >/dev/null 2>&1
+    )
+}
+
+# The ob CLI uses this directory as a lease, refreshing its modification time
+# every second while a sync is active. A lock younger than five seconds is an
+# active competing sync; an older one is safely reclaimed by ob itself.
+is_obsidian_sync_lock_active() {
+    local vault_root="${1:-$OBSIDIAN_SYNC_ROOT}"
+    local lock_dir="$vault_root/.obsidian/.sync.lock"
+    local modified_at now
+
+    [[ -d "$lock_dir" ]] || return 1
+    modified_at=$(stat -c '%Y' "$lock_dir" 2>/dev/null) || return 1
+    now=$(date +%s)
+
+    (( now - modified_at < 5 ))
+}
+
+# ob should reclaim an old lease itself, but its timestamp verification can fail
+# on filesystems with sub-millisecond timestamp rounding. Remove only an empty,
+# inactive lease; an active ob process refreshes its timestamp every second.
+clear_stale_obsidian_sync_lock() {
+    local vault_root="${1:-$OBSIDIAN_SYNC_ROOT}"
+    local lock_dir="$vault_root/.obsidian/.sync.lock"
+
+    [[ -d "$lock_dir" ]] || return 0
+    is_obsidian_sync_lock_active "$vault_root" && return 0
+
+    if rmdir -- "$lock_dir"; then
+        log "Removed stale Obsidian Sync lease: $lock_dir"
+        return 0
+    fi
+
+    log "ERROR: Could not remove stale Obsidian Sync lease: $lock_dir"
+    return 1
 }
 
 # Pull remote Obsidian changes before copying published content into this repository.
 sync_obsidian_vault() {
     local vault_root="${1:-$OBSIDIAN_SYNC_ROOT}"
+    local attempt=1
 
     if ! is_obsidian_sync_configured "$vault_root"; then
         log "ERROR: Obsidian Sync is not configured for: $vault_root"
@@ -138,12 +180,40 @@ sync_obsidian_vault() {
 
     log "Syncing Obsidian vault with ob CLI..."
     log "  Vault root: $vault_root"
-    if ! ob sync --path "$vault_root"; then
-        log "ERROR: ob sync failed"
-        exit 1
-    fi
 
-    log "Obsidian Sync completed"
+    while (( attempt <= OBSIDIAN_SYNC_LOCK_RETRIES )); do
+        if is_obsidian_sync_lock_active "$vault_root"; then
+            if (( attempt >= OBSIDIAN_SYNC_LOCK_RETRIES )); then
+                log "ERROR: Obsidian Sync remained active after ${OBSIDIAN_SYNC_LOCK_RETRIES} attempts"
+                exit 1
+            fi
+
+            log "Obsidian Sync already active; retrying in ${OBSIDIAN_SYNC_LOCK_RETRY_DELAY}s (${attempt}/${OBSIDIAN_SYNC_LOCK_RETRIES})"
+            ((attempt += 1))
+            sleep "$OBSIDIAN_SYNC_LOCK_RETRY_DELAY"
+            continue
+        fi
+
+        if ! clear_stale_obsidian_sync_lock "$vault_root"; then
+            exit 1
+        fi
+
+        if (
+            cd "$vault_root"
+            ob sync
+        ); then
+            log "Obsidian Sync completed"
+            return 0
+        fi
+
+        if ! is_obsidian_sync_lock_active "$vault_root"; then
+            log "ERROR: ob sync failed"
+            exit 1
+        fi
+    done
+
+    log "ERROR: ob sync failed"
+    exit 1
 }
 
 # Sync vault content

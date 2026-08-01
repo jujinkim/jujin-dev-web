@@ -4,11 +4,11 @@ lang: en
 title: "Getting Angry a Lot Lately"
 ---
 I've just been getting angry a lot.  
-I don't know why... No, actually I do know, but even over trivial things, I get annoyed and really angry.
-Even small jokes put me on edge.
-I just hate everything—relationships and all that.
+I don't know why... well, actually I guess I do, but even over nothing, I get annoyed and really angry.
+Even small jokes set me on edge. So I feel like I keep hurting the people around me.
+I hate everything—relationships or whatever.
 
-It feels like peace of mind has almost disappeared.
-Will it get a bit better if I stay busy?
+It feels like peace of mind has almost completely disappeared.
+Would keeping busy make things any better?
 
-Namu Amitabha
+Namu Amitabha Buddha
