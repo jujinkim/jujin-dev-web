@@ -3,13 +3,11 @@ publish: true
 lang: ko
 title: 디자인 패턴에 대해
 ---
-
 디자인 패턴은 중요하다.
 공부를 아무리 해도 가끔은 패턴을 위배하거나 잘못 섞어써서 비효율적인 코드 구조를 만들기 마련이다. 그래서 계속 봐주고 계속 고민해줘야한다.
 
 만들다 보면 나도 모르게 이미 어떤 디자인패턴을 적용할 때가 많다.
 하지만 공부를 해야하는 이유는, 내 멋대로 만든건 보통 어딘가 구멍이 있거나 비효율적일 확률이 높다. 디자인 패턴은 수많은 개발자들이 긴 시간동안 다같이 다듬어서 만든 패턴이기 때문에, 다음과 같은 이점이 있다.
-
 1. 어떤 패턴인지만 알고 있어도 어느정도 구현 모양을 알 수 있다. -> 개발자들끼리 커뮤니케이션 편함. 여기서 개발자들이란 "과거의 나"도 포함.
 2. 효율적이다. 몇시간 잠깐 생각해서 만든 구조가 아닌 역사적으로 오랫동안 다듬어진 구조이기 때문에, 문제가 적다.
 
@@ -22,39 +20,38 @@ title: 디자인 패턴에 대해
 
 1. [[solid-principle|SOLID]]
 2. 생성(Creational) 디자인패턴
-   1. Singleton
-   2. Factory
-   3. Abstract Factory
-   4. Builder
-   5. Prototype
+	1. Singleton
+	2. Factory
+	3. Abstract Factory
+	4. Builder
+	5. Prototype
 3. 구조(Structural) 디자인패턴
-   1. Adapter
-   2. Bridge
-   3. Composite
-   4. Decorator
-   5. Facade
-   6. Flyweight
-   7. Proxy
+	1. Adapter
+	2. Bridge
+	3. Composite
+	4. Decorator
+	5. Facade
+	6. Flyweight
+	7. Proxy
 4. 행위(Behavioral) 디자인패턴
-   1. Chain of Responsibility
-   2. Command
-   3. Interpreter
-   4. Iterator
-   5. Mediator
-   6. Memento
-   7. Observer
-   8. State
-   9. Strategy
-   10. Template
-   11. Visitor
+	1. Chain of Responsibility
+	2. Command
+	3. Interpreter
+	4. Iterator
+	5. Mediator
+	6. Memento
+	7. Observer
+	8. State
+	9. Strategy
+	10. Template
+	11. Visitor
 5. 아키텍처 패턴
-   1. MVC
-   2. MVP
-   3. MVVM
-   4. MVI
+	1. MVC
+	2. MVP
+	3. MVVM
+	4. MVI
 
 그래서 다음 글은 `SOLID` 원칙에 대해 하나하나 까보도록 하겠다.
 
 추천 싸이트
-
 - [Refactoring Guru - Design patterns](https://refactoring.guru/design-patterns)
