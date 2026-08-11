@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2026-02-14T13:04:37+09:00
 lang: ko
 title: 오픈클로(Openclaw) 리눅스 설치 후 첫인상
 ---

@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2025-10-22T22:18:36+09:00
 lang: ko
 title: 놀고 있는 PC로 Obsidian과 Quartz를 이용해 블로그 운영하기
 ---

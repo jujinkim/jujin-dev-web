@@ -118,6 +118,18 @@ Translations call Antigravity in non-interactive plan mode. Leave `AGY_MODEL` un
 AGY_MODEL=gpt-oss-120b-medium ./scripts/translate_post.sh content/post.md en
 ```
 
+### Post Date Metadata
+
+Add dates only to original posts, never to `.en.md`, `.ja.md`, `.zh.md`, or `.ko.md` translation variants:
+
+```yaml
+created: 2026-08-12T09:30:00+09:00 # required
+published: 2026-08-12T10:00:00+09:00 # optional; falls back to created
+modified: 2026-08-13T14:20:00+09:00 # optional; falls back to created
+```
+
+The site resolves every translation's dates from its original post. If `created` is absent, it uses Git's latest file timestamp, then filesystem mtime. Such fallback dates render dimmed and struck through.
+
 ## How It Works
 
 ### File Watcher Mode (Recommended)

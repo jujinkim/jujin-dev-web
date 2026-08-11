@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2025-10-15T03:57:06+09:00
 title: blog.jujin.kim에 오신 것을 환영합니다
 lang: ko
 ---

@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2025-11-14T18:00:01+09:00
 lang: ko
 title: 객체지향의 SOLID 원칙
 ---

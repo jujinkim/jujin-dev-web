@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2025-11-14T12:03:51+09:00
 lang: ko
 title: 디자인 패턴에 대해
 ---

@@ -222,6 +222,7 @@ build_translation_frontmatter() {
     local new_frontmatter=$(echo "$original_frontmatter" | awk -v title="$translated_title" -v lang="$target_lang" '
     BEGIN { in_trans=0; title_set=0; lang_set=0 }
     /^translations:/ { in_trans=1; next }
+    /^(created|modified|published):/ { next }
     in_trans && /^[[:space:]]+/ { next }
     in_trans && /^[[:space:]]*$/ { next }
     {

@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2026-07-28T18:00:27+09:00
 lang: ko
 title: 요즘 화가 많아짐
 ---
