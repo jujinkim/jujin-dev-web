@@ -1,17 +1,29 @@
-# Quartz v5
+# blog.jujin.kim
 
-> “[One] who works with the door open gets all kinds of interruptions, but [they] also occasionally gets clues as to what the world is and what might be important.” — Richard Hamming
+Quartz 5 source for [blog.jujin.kim](https://blog.jujin.kim).
 
-Quartz is a set of tools that helps you publish your [digital garden](https://jzhao.xyz/posts/networked-thought) and notes as a website for free.
+Production serves only content with `publish: true`; `draft: true` remains excluded. The
+previous Quartz 4 production state is retained on `legacy/quartz4` for rollback. This site
+does not redirect `dev.jujin.kim` or `jujin.dev`.
 
-🔗 Read the documentation and get started: https://quartz.jzhao.xyz/
+## Local validation
 
-[Join the Discord Community](https://discord.gg/cRFFHYye7t)
+```bash
+npm ci
+npm run install-plugins
+npm run check
+npm test
+npx quartz build
+```
 
-## Sponsors
+Local Quartz plugins live under `plugins/*`. Build them before rebuilding Quartz so
+`.quartz/plugins/index.ts` sees their generated declarations.
 
-<p align="center">
-  <a href="https://github.com/sponsors/jackyzha0">
-    <img src="https://cdn.jsdelivr.net/gh/jackyzha0/jackyzha0/sponsorkit/sponsors.svg" />
-  </a>
-</p>
+## Obsidian publishing
+
+Run scripts from this repository. They run `ob sync` from `/home/jujin/obsidian-vault`, copy
+only `publish: true` notes, generate missing translations with `agy`, then commit only
+`content/` and `.translation_cache`.
+
+`/home/jujin/obsidian-vault/dev.jujin.kim-publish` remains legacy vault directory name; it is
+content source, not production domain. See [scripts/README.md](scripts/README.md).

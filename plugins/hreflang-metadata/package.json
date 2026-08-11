@@ -1,0 +1,32 @@
+{
+  "name": "@jujinkim/quartz-hreflang-metadata",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup src/index.tsx --tsconfig tsconfig.json --format esm --dts --clean --external preact --external @quartz-community/types"
+  },
+  "peerDependencies": {
+    "@quartz-community/types": "^0.3.0",
+    "preact": "^10.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3"
+  },
+  "quartz": {
+    "name": "hreflang-metadata",
+    "displayName": "Hreflang Metadata",
+    "description": "Adds canonical, hreflang, and x-default metadata for language variants.",
+    "category": "transformer",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0"
+  }
+}

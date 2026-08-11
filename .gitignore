@@ -12,3 +12,12 @@ replit.nix
 .quartz/
 quartz/cli/tui/dist/
 .turbo/
+
+# Obsidian publish automation
+.npm-cache/
+.obsidian_publish.log
+.obsidian_watch.log
+scripts/obsidian_publish.lock
+
+# Local Quartz plugin build output
+plugins/*/dist/
