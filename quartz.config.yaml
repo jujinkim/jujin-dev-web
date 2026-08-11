@@ -218,7 +218,7 @@ plugins:
   - source: "@quartz-community/footer"
     enabled: false
   - source: "@quartz-community/recent-notes"
-    enabled: true
+    enabled: false
     options:
       title: Recent Notes
       limit: 5
@@ -275,6 +275,16 @@ plugins:
     layout:
       position: left
       priority: 50
+  - source: "./plugins/localized-recent-notes"
+    enabled: true
+    options:
+      title: Recent Notes
+      limit: 5
+      linkToMore: false
+      showTags: true
+    layout:
+      position: left
+      priority: 25
   - source: "./plugins/language-selector"
     enabled: true
     layout:
