@@ -1,5 +1,6 @@
 ---
 publish: true
+created: 2026-07-27T01:57:12+09:00
 lang: ko
 title: 아 하기싫어
 ---

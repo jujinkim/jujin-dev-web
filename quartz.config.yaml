@@ -45,12 +45,18 @@ plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
     options:
-      defaultDateType: modified
+      defaultDateType: published
       priority:
         - frontmatter
         - git
         - filesystem
     order: 10
+  - source: "./plugins/date-metadata"
+    enabled: true
+    order: 15
+    layout:
+      position: beforeBody
+      priority: 30
   - source: "@quartz-community/syntax-highlighting"
     enabled: true
     options:
@@ -164,10 +170,7 @@ plugins:
       position: beforeBody
       priority: 10
   - source: "@quartz-community/content-meta"
-    enabled: true
-    layout:
-      position: beforeBody
-      priority: 30
+    enabled: false
   - source: "@quartz-community/tag-list"
     enabled: true
     layout:
