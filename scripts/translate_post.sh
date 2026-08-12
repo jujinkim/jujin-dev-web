@@ -21,7 +21,8 @@ NC='\033[0m' # No Color
 SUPPORTED_LANGUAGES=("ko" "en" "ja")
 generated_files=()
 AGY_BIN="${AGY_BIN:-}"
-AGY_MODEL="${AGY_MODEL:-}"
+# Keep unattended translations on low-cost Flash tier. Override per run with AGY_MODEL.
+AGY_MODEL="${AGY_MODEL:-gemini-3.6-flash-low}"
 
 log() {
     echo -e "${GREEN}[$(date +%H:%M:%S)]${NC} $*"
@@ -271,7 +272,10 @@ Rules:
 5) Do not include frontmatter.
 6) Do not include any commentary or explanation.
 7) Do not use tools, commands, file operations, or workspace inspection.
-8) Output must be exactly in this format:
+8) Do not add, omit, summarize, reorder, merge, or otherwise change source information or list items.
+9) Preserve Markdown syntax and non-prose markup exactly, including tables, inline HTML, Obsidian links, block references, callouts, embeds, images, link destinations, anchors, code identifiers, and placeholders.
+10) If wording of a proper noun or technical term is uncertain, keep source text unchanged.
+11) Output must be exactly in this format:
 [[[TITLE]]]
 <translated title, single line, no leading #>
 [[[/TITLE]]]

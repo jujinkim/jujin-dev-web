@@ -112,10 +112,10 @@ DEBOUNCE_PUBLISH=60
 
 ### Translation Model
 
-Translations call Antigravity in non-interactive plan mode. Leave `AGY_MODEL` unset to use Antigravity's configured default, or choose a model for one run:
+Translations call Antigravity in non-interactive plan mode with `gemini-3.6-flash-low` by default, avoiding account-default model selection. Override model for one run only when needed:
 
 ```bash
-AGY_MODEL=gpt-oss-120b-medium ./scripts/translate_post.sh content/post.md en
+AGY_MODEL=gemini-3.6-flash-medium ./scripts/translate_post.sh content/post.md en
 ```
 
 ### Post Date Metadata
