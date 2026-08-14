@@ -517,9 +517,12 @@ main() {
         fi
     else
         warn "Skipping commit/push because one or more translations failed."
+        log "=== Translation failed ==="
+        return 1
     fi
 
     log "=== Translation completed ==="
+    return 0
 }
 
 main "$@"

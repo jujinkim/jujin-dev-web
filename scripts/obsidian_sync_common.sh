@@ -336,6 +336,7 @@ translate_changed_files() {
     local -A file_changed_map=()
     local -A file_hash_map=()
     local cache_dirty=0
+    local translation_failed=0
 
     for file in "${candidate_files[@]}"; do
         [[ -f "$file" ]] || continue
@@ -465,11 +466,17 @@ translate_changed_files() {
             cache_dirty=1
         else
             log "  ✗ Translation failed (continuing anyway)"
+            translation_failed=1
         fi
     done
 
     if [[ $cache_dirty -eq 1 ]]; then
         save_translation_cache translation_cache
+    fi
+
+    if [[ $translation_failed -ne 0 ]]; then
+        log "Translation processing failed"
+        return 1
     fi
 
     log "Translation processing complete"
