@@ -288,6 +288,7 @@ plugins:
     layout:
       position: left
       priority: 25
+      display: desktop-only
   - source: "./plugins/language-selector"
     enabled: true
     layout:
