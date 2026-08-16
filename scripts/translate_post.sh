@@ -372,6 +372,7 @@ translate_post() {
 ---
 ${new_frontmatter}
 ---
+
 ${translated_body}
 EOF
 

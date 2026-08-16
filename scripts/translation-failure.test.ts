@@ -1,5 +1,5 @@
 import assert from "node:assert"
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, resolve } from "node:path"
 import { spawnSync } from "node:child_process"
@@ -25,7 +25,7 @@ publish: true
   )
 }
 
-function runBash(script: string, rootDir: string) {
+function runBash(script: string, rootDir: string, overrides: Record<string, string> = {}) {
   return spawnSync("bash", ["-c", script], {
     cwd: projectDir,
     encoding: "utf8",
@@ -34,6 +34,7 @@ function runBash(script: string, rootDir: string) {
       AGY_BIN: "/bin/false",
       TRANSLATE_SKIP_GIT: "1",
       TEST_ROOT_DIR: rootDir,
+      ...overrides,
     },
   })
 }
@@ -47,6 +48,34 @@ test("failed agy translation exits non-zero", () => {
 
     assert.strictEqual(result.status, 1)
     assert.match(result.stdout, /=== Translation failed ===/)
+  } finally {
+    rmSync(rootDir, { recursive: true, force: true })
+  }
+})
+
+test("successful translations add a blank line after frontmatter", () => {
+  const rootDir = mkdtempSync(resolve(tmpdir(), "jujin-translation-format-"))
+  writeSourcePost(rootDir)
+
+  try {
+    const agyBin = resolve(rootDir, "fake-agy")
+    writeFileSync(
+      agyBin,
+      `#!/bin/sh
+printf '%s\\n' '[[[TITLE]]]' 'Translated title' '[[[/TITLE]]]' '[[[BODY]]]' 'Translated body' '[[[/BODY]]]'
+`,
+    )
+    chmodSync(agyBin, 0o755)
+
+    const result = runBash(`"${translateScript}" "$TEST_ROOT_DIR/content/post.md" en`, rootDir, {
+      AGY_BIN: agyBin,
+    })
+
+    assert.strictEqual(result.status, 0)
+    assert.match(
+      readFileSync(resolve(rootDir, "content", "post.en.md"), "utf8"),
+      /---\n\nTranslated body\n$/,
+    )
   } finally {
     rmSync(rootDir, { recursive: true, force: true })
   }
