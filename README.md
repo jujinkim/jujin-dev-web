@@ -1,7 +1,7 @@
 # jujin.dev
 
-Personal development hub for jujin. Kickoff lives at **https://kickoff.jujin.dev**.
+Independent personal development hub for jujin. Kickoff lives at **https://kickoff.jujin.dev** and is maintained in its own [repository](https://github.com/jujinkim/kickoff-jujin-dev-web).
 
-This repository contains generated deployment output. Source and tests live in [jujinkim/kickoff-jujin-dev-web](https://github.com/jujinkim/kickoff-jujin-dev-web), under `hub/` and `scripts/build-hub.mjs`. Edit the source, run its checks/build/tests, and publish the resulting `dist-hub` here. Do not edit generated compatibility documents independently.
+Edit `index.html`, `hub.css`, and the other static assets directly in this repository. No catalog source, generated compatibility documents, Node dependency, or cross-repository build is required. Preview with any static HTTP server, verify the page on mobile and desktop, then commit and push.
 
-GitHub Pages publishes `main` at `/`; `CNAME` is `jujin.dev`. Old HTML routes contain immediate redirects. Machine-readable routes retain usable copies until Cloudflare HTTP redirects are enabled. See [migration and release instructions](https://github.com/jujinkim/kickoff-jujin-dev-web/blob/main/docs/domain-migration.md).
+GitHub Pages publishes `main` at `/` with custom domain `jujin.dev`. Old pre-release catalog URLs intentionally have no redirects or compatibility copies.
