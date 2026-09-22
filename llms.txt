@@ -1,0 +1,143 @@
+# Kickoff by jujin
+
+> A development field guide: imagine outcomes, compare options, decide, then instruct AI.
+
+Read project context first. Do not re-ask confirmed decisions. Ask about unresolved product and project-level choices unless their scope is delegated. Choose internal implementation and document formats within agreed requirements yourself. Ask when behavior, cost or operating constraints are missing or change. Cite evidence; report access failures.
+
+## Start here
+- [Latest development startup guidelines](https://kickoff.jujin.dev/ai/startup/latest.md)
+- [Guideline versions and startup prompt](https://kickoff.jujin.dev/en/start/)
+- [Behavior rules](https://kickoff.jujin.dev/ai/instructions.md)
+- [Versioned multilingual catalog and aliases](https://kickoff.jujin.dev/ai/catalog.json)
+- [Concept catalog](https://kickoff.jujin.dev/en/catalog/)
+- [Guides](https://kickoff.jujin.dev/en/guides/)
+- [Project integration guide](https://kickoff.jujin.dev/en/ai/)
+
+English originals with Korean and Japanese translations. The catalog links current project choices and guides with their available translations and stale-revision markers. HTML pages remain localized. All Markdown links point to English originals; legacy localized Markdown URLs serve the same English content. Users can write requests in their preferred language; reply in the user's language.
+
+## Planning & architecture
+- [Architecture: boundaries and responsibilities](https://kickoff.jujin.dev/en/guides/architecture.md): Agree on module roles and ownership; let AI work out the internal code.
+- [Requirements: agree on what done means](https://kickoff.jujin.dev/en/guides/srs.md): Describe the behavior; AI writes requirements and decision records.
+
+## Development platforms
+- [Astro, Hugo, Jekyll: three ways to ship HTML](https://kickoff.jujin.dev/en/guides/static-sites.md): Pick for authoring and maintenance, not a benchmark trophy.
+- [Language, library, framework, engine](https://kickoff.jujin.dev/en/guides/tools.md): Stop comparing tools that do different jobs.
+
+## Deployment platforms
+- [Delivery and operations: where it runs, how it recovers](https://kickoff.jujin.dev/en/guides/shipping.md): Choose target devices and operating constraints; AI plans the release procedure.
+
+## Design
+- [Name the layout you are pointing at](https://kickoff.jujin.dev/en/guides/layout.md): Header, sidebar, grid, dialog: give your feedback coordinates.
+- [Themes and fonts without fifty shades of almost](https://kickoff.jujin.dev/en/guides/theme.md): Use shared tokens so one decision stays one decision.
+
+## Monetization
+- [Payment channels, PG, and merchant of record](https://kickoff.jujin.dev/en/guides/payments.md): A payment button is the beginning of the paperwork.
+- [Subscription, one-time payment, or ads?](https://kickoff.jujin.dev/en/guides/revenue.md): Match the bill to the value. The pricing page cannot rescue the product.
+
+## Layout
+
+
+## Typography
+
+
+## Architecture boundaries & dependencies
+- [Clean architecture](https://kickoff.jujin.dev/en/catalog/clean-architecture.md): Point source dependencies toward policy.
+- [Hexagonal architecture](https://kickoff.jujin.dev/en/catalog/hexagonal-architecture.md): Keep application behavior behind technology-independent ports.
+- [Layered architecture](https://kickoff.jujin.dev/en/catalog/layered-architecture.md): Separate responsibilities with explicit dependency rules.
+
+## Service decomposition
+- [Microservices](https://kickoff.jujin.dev/en/catalog/microservices.md): Release capability services independently.
+- [Modular monolith](https://kickoff.jujin.dev/en/catalog/modular-monolith.md): Keep module ownership inside one release unit.
+- [Monolith](https://kickoff.jujin.dev/en/catalog/monolith.md): Release the server application as one unit.
+
+## Static site generators
+- [Astro](https://kickoff.jujin.dev/en/catalog/astro.md): Static pages with optional islands.
+- [Hugo](https://kickoff.jujin.dev/en/catalog/hugo.md): Content and templates become files.
+- [Jekyll](https://kickoff.jujin.dev/en/catalog/jekyll.md): Ruby builds; hosting serves files.
+
+## Web UI development tools
+- [React](https://kickoff.jujin.dev/en/catalog/react.md): State changes drive rendered labels.
+- [Svelte](https://kickoff.jujin.dev/en/catalog/svelte.md): Compile components; update at runtime.
+- [Vue](https://kickoff.jujin.dev/en/catalog/vue.md): Reactive state updates templates.
+
+## Game engines
+- [Godot](https://kickoff.jujin.dev/en/catalog/godot.md): Nodes compose reusable scenes.
+- [Unity](https://kickoff.jujin.dev/en/catalog/unity.md): Components supply object behavior.
+- [Unreal Engine](https://kickoff.jujin.dev/en/catalog/unreal-engine.md): Actors combine components and events.
+
+## Hosting execution models
+- [Always-on server](https://kickoff.jujin.dev/en/catalog/always-on-server.md): Process lifetime differs from data lifetime.
+- [Serverless functions](https://kickoff.jujin.dev/en/catalog/serverless-functions.md): Invocations use external durable state.
+- [Static hosting](https://kickoff.jujin.dev/en/catalog/static-hosting.md): Public files and private writes separate.
+
+## Column composition
+- [Multiple columns](https://kickoff.jujin.dev/en/catalog/multiple-columns.md): Compare the same six resources.
+- [Single column](https://kickoff.jujin.dev/en/catalog/single-column.md): Compare the same six resources.
+- [Two columns](https://kickoff.jujin.dev/en/catalog/two-columns.md): Compare the same six resources.
+
+## Content arrangement
+- [List layout](https://kickoff.jujin.dev/en/catalog/list-layout.md): Compare the same six resources.
+- [Masonry](https://kickoff.jujin.dev/en/catalog/masonry.md): Compare the same six resources.
+- [Uniform grid](https://kickoff.jujin.dev/en/catalog/uniform-grid.md): Compare the same six resources.
+
+## Styles
+- [Brutalism](https://kickoff.jujin.dev/en/catalog/brutalism.md): Explore the same project workspace.
+- [Flat design](https://kickoff.jujin.dev/en/catalog/flat-design.md): Explore the same project workspace.
+- [Glassmorphism](https://kickoff.jujin.dev/en/catalog/glassmorphism.md): Explore the same project workspace.
+- [Liquid Glass](https://kickoff.jujin.dev/en/catalog/liquid-glass.md): Explore the same project workspace.
+- [Material 3 Expressive](https://kickoff.jujin.dev/en/catalog/material-3-expressive.md): Explore the same project workspace.
+- [Minimalism](https://kickoff.jujin.dev/en/catalog/minimalism.md): Explore the same project workspace.
+- [Neobrutalism](https://kickoff.jujin.dev/en/catalog/neobrutalism.md): Explore the same project workspace.
+- [Neumorphism](https://kickoff.jujin.dev/en/catalog/neumorphism.md): Explore the same project workspace.
+- [Retro digital](https://kickoff.jujin.dev/en/catalog/retro-digital.md): Explore the same project workspace.
+- [Skeuomorphism](https://kickoff.jujin.dev/en/catalog/skeuomorphism.md): Explore the same project workspace.
+- [Tactile collage](https://kickoff.jujin.dev/en/catalog/tactile-collage.md): Explore the same project workspace.
+
+## Typeface shapes
+- [Sans serif](https://kickoff.jujin.dev/en/catalog/sans-serif.md): Compare the same text specimen.
+- [Script](https://kickoff.jujin.dev/en/catalog/script.md): Compare the same text specimen.
+- [Serif](https://kickoff.jujin.dev/en/catalog/serif.md): Compare the same text specimen.
+
+## Character width
+- [Monospace](https://kickoff.jujin.dev/en/catalog/monospace.md): Compare the same text specimen.
+- [Proportional](https://kickoff.jujin.dev/en/catalog/proportional.md): Compare the same text specimen.
+
+## Revenue sources
+- [Advertising](https://kickoff.jujin.dev/en/catalog/advertising.md): Advertisers fund placements around content.
+- [Affiliate commissions](https://kickoff.jujin.dev/en/catalog/affiliate-marketing.md): Qualifying referrals can earn a commission.
+- [Customer direct payment](https://kickoff.jujin.dev/en/catalog/direct-payment.md): Customers fund access to the product.
+- [Sponsorship](https://kickoff.jujin.dev/en/catalog/sponsorship.md): Supporters fund continued public work.
+- [Transaction fees](https://kickoff.jujin.dev/en/catalog/transaction-fees.md): A platform takes a share of a mediated sale.
+
+## Billing methods
+- [One-time payment](https://kickoff.jujin.dev/en/catalog/one-time-payment.md): One charge for a defined entitlement.
+- [Prepaid credits](https://kickoff.jujin.dev/en/catalog/prepaid-credits.md): Buy a balance before consuming units.
+- [Subscription](https://kickoff.jujin.dev/en/catalog/subscription.md): Recurring billing with explicit access policies.
+- [Usage-based billing](https://kickoff.jujin.dev/en/catalog/usage-based.md): Meter units, then calculate the charge.
+
+## Seller responsibility models
+- [Direct seller model](https://kickoff.jujin.dev/en/catalog/direct-seller.md): The product business remains the seller.
+- [Merchant of record model](https://kickoff.jujin.dev/en/catalog/merchant-of-record.md): A contracted seller handles covered transactions.
+
+## Pricing models
+- [Base fee plus overage](https://kickoff.jujin.dev/en/catalog/base-plus-overage.md): Pay a base, then only for excess usage.
+- [Feature-tiered pricing](https://kickoff.jujin.dev/en/catalog/feature-tiered-pricing.md): Packages differ by included capabilities.
+- [Flat-rate pricing](https://kickoff.jujin.dev/en/catalog/flat-rate-pricing.md): A fixed price for a defined package.
+- [Graduated pricing](https://kickoff.jujin.dev/en/catalog/graduated-pricing.md): Each slice keeps its own unit price.
+- [Per-seat pricing](https://kickoff.jujin.dev/en/catalog/per-seat-pricing.md): Charge for each licensed seat.
+- [Volume pricing](https://kickoff.jujin.dev/en/catalog/volume-pricing.md): The final quantity selects one rate for all units.
+
+## Free access strategies
+- [Free trial](https://kickoff.jujin.dev/en/catalog/free-trial.md): Evaluate paid features for a limited period.
+- [Freemium](https://kickoff.jujin.dev/en/catalog/freemium.md): A lasting free tier with optional paid features.
+
+## In-app purchase types
+- [Consumable purchase](https://kickoff.jujin.dev/en/catalog/consumable-purchase.md): Purchased units decrease when used.
+- [Non-consumable purchase](https://kickoff.jujin.dev/en/catalog/non-consumable-purchase.md): A purchased entitlement survives repeated use.
+
+## Ad formats
+- [Banner ads](https://kickoff.jujin.dev/en/catalog/banner-ads.md): A labeled ad region beside the main content.
+- [Interstitial ads](https://kickoff.jujin.dev/en/catalog/interstitial-ads.md): A full-screen ad at a natural transition.
+- [Rewarded ads](https://kickoff.jujin.dev/en/catalog/rewarded-ads.md): Optional participation with a stated completion reward.
+
+Publishing these resources does not guarantee external AI compliance. Explicitly request reading and application.
