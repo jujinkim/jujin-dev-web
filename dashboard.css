@@ -119,3 +119,13 @@ dialog p { font-size: 13px; }
   .dashboard { --up: #f59a8c; --down: #94bff5; }
   .solid-button { color: var(--bg); }
 }
+
+/* Icon-only app shortcuts stay small, including on narrow screens. */
+[data-id=apps] .widget-heading { padding-bottom: 8px; }
+.app-shortcuts { display: grid; grid-template-columns: repeat(4, 44px); gap: 8px; padding: 0 16px 14px; }
+.app-shortcut { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); }
+.app-shortcut:hover { background: var(--map); text-decoration: none; border-color: var(--green); }
+.app-shortcut:focus-visible { outline-offset: 2px; }
+.app-shortcut img { display: block; width: 32px; height: 32px; object-fit: contain; border-radius: 6px; }
+.app-emoji { font-size: 27px; line-height: 1; }
+.apps-more { color: var(--green); font-size: 11px; font-weight: 550; }

@@ -71,6 +71,55 @@ class DataTests(unittest.TestCase):
         self.assertIs(result, previous)
         self.assertEqual(len(warnings), 1)
 
+    def test_apps_keep_source_order_icons_and_first_available_primary_link(self):
+        source = [{"_comment": "Schema documentation"},
+                  {"id": "notes", "title": "Notes", "status": "published", "icon": "📝", "links": [{"type": "primary", "url": "/notes/"}]},
+                  {"id": "dagali", "title": "DaGaLi", "status": "development", "icon": "", "links": [{"type": "primary", "url": ""}, {"type": "primary", "url": "https://ddal.ggak.life"}]},
+                  {"id": "image", "title": "Image", "status": "published", "icon": "app-icons/image.png", "links": []}]
+        apps = build.normalize_apps(source)
+        self.assertEqual([app["id"] for app in apps], ["cozelsil-notes", "cozelsil-dagali", "cozelsil-image"])
+        self.assertEqual(apps[0]["emoji"], "📝")
+        self.assertEqual(apps[0]["url"], "https://cozelsil.com/notes/")
+        self.assertEqual(apps[1]["url"], "https://ddal.ggak.life")
+        self.assertEqual(apps[1]["icon"], "/assets/apps/dagali.svg")
+        self.assertEqual(apps[2]["icon"], "https://cozelsil.com/app-icons/image.png")
+        self.assertEqual(apps[2]["url"], "https://cozelsil.com/")
+
+    def test_apps_sync_additions_removals_and_metadata_changes(self):
+        def app(app_id, title):
+            return {"id": app_id, "title": title, "status": "published", "links": []}
+        initial, _ = build.collect_apps(NOW, getter=lambda url: json.dumps([app("one", "Old"), app("two", "Two")]).encode())
+        later, warnings = build.collect_apps(NOW, initial, lambda url: json.dumps([app("two", "Renamed"), app("three", "New")]).encode())
+        self.assertEqual([item["id"] for item in later["items"]], ["kickoff", "odiman", "cryptic", "cozelsil-two", "cozelsil-three"])
+        self.assertEqual(later["items"][3]["title"], "Renamed")
+        self.assertEqual(warnings, [])
+        empty, _ = build.collect_apps(NOW, later, lambda url: b"[]")
+        self.assertEqual(empty["items"], build.LOCAL_APPS)
+
+    def test_apps_failure_retains_valid_snapshot_and_its_age(self):
+        old_time = "2026-11-10T10:00:00+00:00"
+        source = [{"id": "app", "title": "App", "status": "published", "links": []}]
+        old, _ = build.collect_apps(old_time, getter=lambda url: json.dumps(source).encode())
+        for broken in [b"not json", b"{}", json.dumps(source * 2).encode(), b'[{"id":"app","title":"App","status":"published","icon":"javascript:alert(1)"}]']:
+            current, warnings = build.collect_apps(NOW, old, lambda url: broken)
+            self.assertEqual(current, old)
+            self.assertEqual(len(warnings), 1)
+            with self.assertRaises(RuntimeError):
+                build.collect_apps(NOW, None, lambda url: broken)
+        old["items"][-1]["url"] = "javascript:alert(1)"
+        with self.assertRaises(RuntimeError):
+            build.collect_apps(NOW, old, lambda url: b"broken")
+
+    def test_apps_directory_escapes_catalog_content(self):
+        source = [{"id": "app", "title": '<script>"Title"</script>', "description": "<img onerror=alert(1)>", "icon": "📝", "status": "development", "links": [{"type": "primary", "url": "https://example.com/?a=1&b=2"}]}]
+        apps, _ = build.collect_apps(NOW, getter=lambda url: json.dumps(source).encode())
+        html = build.render_apps_directory("<!-- COZELSIL_APPS -->", apps)
+        self.assertNotIn("<script>", html)
+        self.assertNotIn("<img onerror", html)
+        self.assertIn("&lt;script&gt;", html)
+        self.assertIn("?a=1&amp;b=2", html)
+        self.assertIn("In development", html)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,7 +8,7 @@ test("browser language defaults and invalid saved version recover", () => {
 });
 test("saved layout retains empty desk and removes unknown or duplicate widgets", () => {
   assert.deepEqual(normalize({ version: 1, order: [] }).order, []);
-  const result = normalize({ version: 1, language: "ko", order: ["updates", "bad", "updates", "market"], widths: { updates: "wide", market: "invalid" } });
+  const result = normalize({ version: 2, language: "ko", order: ["updates", "bad", "updates", "market"], widths: { updates: "wide", market: "invalid" } });
   assert.deepEqual(result.order, ["updates", "market"]);
   assert.equal(result.widths.updates, "wide");
   assert.equal(result.widths.market, "wide");
@@ -18,7 +18,19 @@ test("moves in either direction and bounds without mutating input", () => {
   const order = ["market", "geeknews", "updates"];
   assert.deepEqual(move(order, "market", 2), ["geeknews", "updates", "market"]);
   assert.deepEqual(move(order, "updates", -1), ["updates", "market", "geeknews"]);
-  assert.deepEqual(order, defaults().order);
+  assert.deepEqual(order, ["market", "geeknews", "updates"]);
+});
+test("Apps migration preserves custom layout and happens only once", () => {
+  const migrated = normalize({ version: 1, language: "ko", order: ["updates", "market"], widths: { market: "basic", updates: "wide" } });
+  assert.deepEqual(migrated.order, ["updates", "market", "apps"]);
+  assert.equal(migrated.version, 2);
+  assert.equal(migrated.language, "ko");
+  assert.equal(migrated.widths.market, "basic");
+  assert.equal(migrated.widths.updates, "wide");
+  assert.equal(migrated.widths.apps, "basic");
+  migrated.order = migrated.order.filter(id => id !== "apps");
+  assert.deepEqual(normalize(migrated).order, ["updates", "market"]);
+  assert.deepEqual(normalize({ version: 1, order: [] }).order, []);
 });
 test("staleness uses collection time and rejects invalid timestamps", () => {
   const now = Date.parse("2026-11-10T12:00:00Z");

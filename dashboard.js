@@ -1,17 +1,18 @@
-import { KEY, IDS, defaults, normalize, move, stale, safeURL } from "./dashboard-state.mjs";
+import { KEY, IDS, defaults, normalize, move, stale, safeURL } from "./dashboard-state.mjs?v=apps-1";
 
 const copy = {
   en: {
-    skip: "Skip to content", dashboard: "Dashboard", title: "A good place to begin.", titleStart: "A good place to ", titleAccent: "begin.", lead: "The world outside your editor. News, markets, and things I’m building.", today: "TODAY", yourDesk: "YOUR DESK", reset: "Reset layout", edit: "Edit layout", done: "Done", add: "+ Add widget", editHint: "Drag a handle or use the arrow buttons. Choose a width that works for you.", storageWarning: "Settings cannot be saved in this browser. Changes will last for this tab only.", emptyDesk: "A clean slate. Add a widget to make this desk yours.", savedHere: "Your layout stays in this browser. Make yourself at home.", footer: "A daily desk for curious developers. Made by jujin.", about: "About me ↗", catalog: "Make room for something useful.", catalogHint: "Choose what belongs on your desk.", resetQuestion: "Restore the default layout?", resetDetail: "All three widgets will return to their original positions and widths. Your language choice stays.", cancel: "Cancel", close: "Close", market: "Market at a glance", geeknews: "Latest on GeekNews", updates: "From jujin", marketDesc: "Eight indicators. A little context for the bigger picture.", geeknewsDesc: "Fresh stories from the Korean tech community.", updatesDesc: "New projects, small milestones, and notes along the way.", remove: "Remove", addOne: "Add", included: "On your desk", basic: "Standard", wide: "Wide", width: "Width", previous: "Move earlier", next: "Move later", drag: "Drag to move; use arrow buttons for keyboard movement", loading: "Gathering the latest…", error: "Couldn’t load this widget. Please try again.", retry: "Try again", delayed: "Update delayed", unavailable: "Unavailable", fetched: "Collected", quoteTime: "As of", cadence: "Snapshots · refreshed about every 30 min", latest: "Latest stories ↗", source: "Source", newsEmpty: "No stories yet.", updatesTitle: "Good things take a little time.", updatesBody: "New releases, experiments, and notes will find a home here. Stay curious.", apps: "Explore my apps ↗", writing: "Notes & writing ↗", coming: "UPDATES TO COME", moved: "Layout updated.", saved: "Settings saved.", removed: "Widget removed.", added: "Widget added.", restored: "Default layout restored.", point: "Index points", goldUnit: "Gold futures · USD / troy oz", oilUnit: "WTI futures · USD / barrel", usdUnit: "KRW / 1 USD", jpyUnit: "KRW / 100 JPY", nav: "Main navigation", marketDetails: "Details", marketDetailsHide: "Hide details", marketCompactNames: ["KOSPI", "KOSDAQ", "NASDAQ", "S&P 500", "Gold futures", "WTI futures", "USD/KRW", "100 JPY/KRW"], marketNames: ["KOSPI", "KOSDAQ", "NASDAQ Composite", "S&P 500", "Gold", "WTI crude", "USD / KRW", "JPY / KRW"]
+    skip: "Skip to content", dashboard: "Dashboard", title: "A good place to begin.", titleStart: "A good place to ", titleAccent: "begin.", lead: "The world outside your editor. News, markets, and things I’m building.", today: "TODAY", yourDesk: "YOUR DESK", reset: "Reset layout", edit: "Edit layout", done: "Done", add: "+ Add widget", editHint: "Drag a handle or use the arrow buttons. Choose a width that works for you.", storageWarning: "Settings cannot be saved in this browser. Changes will last for this tab only.", emptyDesk: "A clean slate. Add a widget to make this desk yours.", savedHere: "Your layout stays in this browser. Make yourself at home.", footer: "A daily desk for curious developers. Made by jujin.", about: "About me ↗", catalog: "Make room for something useful.", catalogHint: "Choose what belongs on your desk.", resetQuestion: "Restore the default layout?", resetDetail: "All widgets will return to their original positions and widths. Your language choice stays.", cancel: "Cancel", close: "Close", market: "Market at a glance", geeknews: "Latest on GeekNews", updates: "From jujin", marketDesc: "Eight indicators. A little context for the bigger picture.", geeknewsDesc: "Fresh stories from the Korean tech community.", updatesDesc: "New projects, small milestones, and notes along the way.", remove: "Remove", addOne: "Add", included: "On your desk", basic: "Standard", wide: "Wide", width: "Width", previous: "Move earlier", next: "Move later", drag: "Drag to move; use arrow buttons for keyboard movement", loading: "Gathering the latest…", error: "Couldn’t load this widget. Please try again.", retry: "Try again", delayed: "Update delayed", unavailable: "Unavailable", fetched: "Collected", quoteTime: "As of", cadence: "Snapshots · refreshed about every 30 min", latest: "Latest stories ↗", source: "Source", newsEmpty: "No stories yet.", updatesTitle: "Good things take a little time.", updatesBody: "New releases, experiments, and notes will find a home here. Stay curious.", exploreApps: "Explore my apps ↗", apps: "Apps", appsDesc: "Quick links to my web and Cozelsil apps.", moreApps: "More", appsNavigation: "App shortcuts", development: "In development", writing: "Notes & writing ↗", coming: "UPDATES TO COME", moved: "Layout updated.", saved: "Settings saved.", removed: "Widget removed.", added: "Widget added.", restored: "Default layout restored.", point: "Index points", goldUnit: "Gold futures · USD / troy oz", oilUnit: "WTI futures · USD / barrel", usdUnit: "KRW / 1 USD", jpyUnit: "KRW / 100 JPY", nav: "Main navigation", marketDetails: "Details", marketDetailsHide: "Hide details", marketCompactNames: ["KOSPI", "KOSDAQ", "NASDAQ", "S&P 500", "Gold futures", "WTI futures", "USD/KRW", "100 JPY/KRW"], marketNames: ["KOSPI", "KOSDAQ", "NASDAQ Composite", "S&P 500", "Gold", "WTI crude", "USD / KRW", "JPY / KRW"]
   },
   ko: {
-    skip: "본문으로 이동", dashboard: "대시보드", title: "오늘의 시작, 여기서.", titleStart: "오늘의 시작, ", titleAccent: "여기서.", lead: "에디터 바깥의 세상. 개발 소식, 시장의 흐름, 그리고 내가 만드는 것들.", today: "오늘", yourDesk: "나의 대시보드", reset: "기본 배치", edit: "배치 편집", done: "편집 완료", add: "+ 위젯 추가", editHint: "손잡이를 끌거나 화살표 버튼으로 이동하세요. 위젯의 폭도 바꿀 수 있어요.", storageWarning: "이 브라우저에 설정을 저장할 수 없어요. 변경 사항은 현재 탭에서만 유지돼요.", emptyDesk: "비어 있는 책상. 필요한 위젯으로 채워보세요.", savedHere: "배치는 이 브라우저에 저장돼요. 편한 대로 꾸며보세요.", footer: "호기심 많은 개발자를 위한 매일의 공간. Made by jujin.", about: "만든 사람 ↗", catalog: "필요한 것만, 나의 대시보드에.", catalogHint: "매일 보고 싶은 위젯을 골라보세요.", resetQuestion: "기본 배치로 돌아갈까요?", resetDetail: "위젯 3개의 위치와 폭을 처음 상태로 되돌려요. 선택한 언어는 유지돼요.", cancel: "취소", close: "닫기", market: "한눈에 보는 시장", geeknews: "GeekNews 최신글", updates: "jujin의 소식", marketDesc: "주요 지표 8개로 살펴보는 시장의 흐름.", geeknewsDesc: "개발·기술 커뮤니티에서 전하는 새로운 이야기.", updatesDesc: "새로운 프로젝트, 작은 성과, 만드는 과정의 기록.", remove: "제거", addOne: "추가", included: "추가됨", basic: "기본", wide: "넓게", width: "위젯 폭", previous: "앞으로 이동", next: "뒤로 이동", drag: "끌어서 이동. 키보드는 화살표 버튼 사용", loading: "최신 소식을 불러오는 중…", error: "위젯을 불러오지 못했어요. 다시 시도해주세요.", retry: "다시 시도", delayed: "갱신 지연", unavailable: "조회 불가", fetched: "수집", quoteTime: "기준", cadence: "시세 스냅샷 · 약 30분마다 갱신", latest: "최신글 더 보기 ↗", source: "출처", newsEmpty: "아직 게시글이 없어요.", updatesTitle: "소식을 준비하고 있어요.", updatesBody: "새로 만든 것들, 작은 실험과 기록을 이곳에서 전할게요. 곧 만나요.", apps: "내 앱 둘러보기 ↗", writing: "블로그 읽기 ↗", coming: "UPDATES TO COME", moved: "배치를 변경했어요.", saved: "설정을 저장했어요.", removed: "위젯을 제거했어요.", added: "위젯을 추가했어요.", restored: "기본 배치로 돌아왔어요.", point: "지수 · 포인트", goldUnit: "금 선물 · USD / 트로이온스", oilUnit: "WTI 선물 · USD / 배럴", usdUnit: "1달러당 원화", jpyUnit: "100엔당 원화", nav: "주 메뉴", marketDetails: "상세", marketDetailsHide: "상세 접기", marketCompactNames: ["코스피", "코스닥", "나스닥", "S&P 500", "금 선물", "WTI 선물", "달러/원", "100엔/원"], marketNames: ["코스피", "코스닥", "나스닥 종합", "S&P 500", "금", "WTI 원유", "달러 환율", "엔 환율"]
+    skip: "본문으로 이동", dashboard: "대시보드", title: "오늘의 시작, 여기서.", titleStart: "오늘의 시작, ", titleAccent: "여기서.", lead: "에디터 바깥의 세상. 개발 소식, 시장의 흐름, 그리고 내가 만드는 것들.", today: "오늘", yourDesk: "나의 대시보드", reset: "기본 배치", edit: "배치 편집", done: "편집 완료", add: "+ 위젯 추가", editHint: "손잡이를 끌거나 화살표 버튼으로 이동하세요. 위젯의 폭도 바꿀 수 있어요.", storageWarning: "이 브라우저에 설정을 저장할 수 없어요. 변경 사항은 현재 탭에서만 유지돼요.", emptyDesk: "비어 있는 책상. 필요한 위젯으로 채워보세요.", savedHere: "배치는 이 브라우저에 저장돼요. 편한 대로 꾸며보세요.", footer: "호기심 많은 개발자를 위한 매일의 공간. Made by jujin.", about: "만든 사람 ↗", catalog: "필요한 것만, 나의 대시보드에.", catalogHint: "매일 보고 싶은 위젯을 골라보세요.", resetQuestion: "기본 배치로 돌아갈까요?", resetDetail: "모든 위젯의 위치와 폭을 처음 상태로 되돌려요. 선택한 언어는 유지돼요.", cancel: "취소", close: "닫기", market: "한눈에 보는 시장", geeknews: "GeekNews 최신글", updates: "jujin의 소식", marketDesc: "주요 지표 8개로 살펴보는 시장의 흐름.", geeknewsDesc: "개발·기술 커뮤니티에서 전하는 새로운 이야기.", updatesDesc: "새로운 프로젝트, 작은 성과, 만드는 과정의 기록.", remove: "제거", addOne: "추가", included: "추가됨", basic: "기본", wide: "넓게", width: "위젯 폭", previous: "앞으로 이동", next: "뒤로 이동", drag: "끌어서 이동. 키보드는 화살표 버튼 사용", loading: "최신 소식을 불러오는 중…", error: "위젯을 불러오지 못했어요. 다시 시도해주세요.", retry: "다시 시도", delayed: "갱신 지연", unavailable: "조회 불가", fetched: "수집", quoteTime: "기준", cadence: "시세 스냅샷 · 약 30분마다 갱신", latest: "최신글 더 보기 ↗", source: "출처", newsEmpty: "아직 게시글이 없어요.", updatesTitle: "소식을 준비하고 있어요.", updatesBody: "새로 만든 것들, 작은 실험과 기록을 이곳에서 전할게요. 곧 만나요.", exploreApps: "내 앱 둘러보기 ↗", apps: "Apps", appsDesc: "웹 서비스와 Cozelsil 앱 바로가기.", moreApps: "더보기", appsNavigation: "앱 바로가기", development: "개발 중", writing: "블로그 읽기 ↗", coming: "UPDATES TO COME", moved: "배치를 변경했어요.", saved: "설정을 저장했어요.", removed: "위젯을 제거했어요.", added: "위젯을 추가했어요.", restored: "기본 배치로 돌아왔어요.", point: "지수 · 포인트", goldUnit: "금 선물 · USD / 트로이온스", oilUnit: "WTI 선물 · USD / 배럴", usdUnit: "1달러당 원화", jpyUnit: "100엔당 원화", nav: "주 메뉴", marketDetails: "상세", marketDetailsHide: "상세 접기", marketCompactNames: ["코스피", "코스닥", "나스닥", "S&P 500", "금 선물", "WTI 선물", "달러/원", "100엔/원"], marketNames: ["코스피", "코스닥", "나스닥 종합", "S&P 500", "금", "WTI 원유", "달러 환율", "엔 환율"]
   }
 };
 const registry = {
   market: { number: "01", source: "GLOBAL MARKETS", render: renderMarket },
   geeknews: { number: "02", source: "NEWS.HADA.IO", render: renderNews },
-  updates: { number: "03", source: "BY JUJIN", render: renderUpdates }
+  apps: { number: "03", source: "", render: renderApps },
+  updates: { number: "04", source: "BY JUJIN", render: renderUpdates }
 };
 const $ = selector => document.querySelector(selector);
 let state = defaults(navigator.language), storageOK = true, editing = false;
@@ -55,7 +56,7 @@ function renderWidgets(focusId, action = "drag") {
     if (editing) card.append(editControls(id));
     const heading = el("div", null, "widget-heading"), title = el("h2"); title.id = `title-${id}`;
     title.append(el("span", def.number, "widget-number"), document.createTextNode(t(id)));
-    heading.append(title, el("span", def.source, "widget-source")); card.append(heading);
+    heading.append(title); if (def.source) heading.append(el("span", def.source, "widget-source")); card.append(heading);
     const body = el("div", null, "widget-body"); card.append(body); grid.append(card);
     if (data.has(id)) def.render(body, data.get(id));
     else if (failed.has(id)) renderError(body, id);
@@ -112,14 +113,14 @@ async function load(id, force = false) {
       pending.delete(id);
       const body = document.querySelector(`[data-id="${id}"] .widget-body`);
       if (body) {
-        const previousList = body.querySelector(".news-list, .market-grid");
+        const previousList = body.querySelector(".news-list, .market-grid, .app-shortcuts");
         const scrollTop = previousList?.scrollTop || 0;
         const detailsFocused = body.contains(document.activeElement) && document.activeElement.dataset.action === "market-details";
         const focused = previousList?.contains(document.activeElement);
         const focusedHref = focused ? document.activeElement.getAttribute("href") : null;
         body.replaceChildren();
         if (data.has(id)) registry[id].render(body, data.get(id)); else renderError(body, id);
-        const nextList = body.querySelector(".news-list, .market-grid");
+        const nextList = body.querySelector(".news-list, .market-grid, .app-shortcuts");
         if (nextList) {
           nextList.scrollTop = scrollTop;
           if (focused) (Array.from(nextList.querySelectorAll("a")).find(a => a.getAttribute("href") === focusedHref) || nextList).focus({ preventScroll: true });
@@ -179,6 +180,36 @@ function renderNews(body, payload) {
   const bottom = el("div", null, "widget-bottom");
   bottom.append(el("span", `${stale(payload.collectedAt) ? t("delayed") + " · " : ""}${t("fetched")} ${timestamp(payload.collectedAt)}`, stale(payload.collectedAt) ? "stale" : ""), link(t("latest"), "https://news.hada.io/new")); body.append(bottom);
 }
+function renderApps(body, payload) {
+  const shortcuts = el("div", null, "app-shortcuts");
+  shortcuts.tabIndex = -1;
+  shortcuts.setAttribute("role", "group"); shortcuts.setAttribute("aria-label", t("appsNavigation"));
+  const heading = body.previousElementSibling;
+  heading.querySelector(".apps-status")?.remove();
+  if (stale(payload.collectedAt) || failed.has("apps")) {
+    const status = el("span", t("delayed"), "widget-source stale apps-status");
+    status.title = `${t("fetched")} ${timestamp(payload.collectedAt)}`;
+    heading.append(status);
+  }
+  // Keep two short rows; the directory contains the complete, synced catalog.
+  for (const app of payload.items.filter(app => safeURL(app.url)).slice(0, 7)) {
+    const label = app.title + (app.status === "development" ? ` · ${t("development")}` : "");
+    const anchor = link("", app.url); anchor.className = "app-shortcut";
+    anchor.title = label; anchor.setAttribute("aria-label", label);
+    const fallback = () => {
+      const icon = el("span", app.emoji || app.title.slice(0, 1), "app-emoji");
+      icon.setAttribute("aria-hidden", "true"); anchor.replaceChildren(icon);
+    };
+    if (app.icon && (safeURL(app.icon) || /^\/assets\/apps\/[a-z0-9-]+\.(svg|png)$/.test(app.icon))) {
+      const icon = el("img"); icon.src = app.icon; icon.alt = ""; icon.width = 32; icon.height = 32; icon.decoding = "async";
+      icon.addEventListener("error", fallback, { once: true }); anchor.append(icon);
+    } else fallback();
+    shortcuts.append(anchor);
+  }
+  const more = el("a", t("moreApps"), "app-shortcut apps-more");
+  more.href = "/apps/"; more.setAttribute("aria-label", t("exploreApps"));
+  shortcuts.append(more); body.append(shortcuts);
+}
 function renderUpdates(body, payload) {
   if (payload.items.length) {
     const list = el("ol", null, "news-list");
@@ -186,7 +217,7 @@ function renderUpdates(body, payload) {
   } else {
     const box = el("div", null, "updates-empty"); const mark = el("span", "j.", "empty-mark"); mark.setAttribute("aria-hidden", "true"); box.append(mark, el("h3", t("updatesTitle")), el("p", t("updatesBody"))); body.append(box);
   }
-  const links = el("div", null, "updates-links"); const apps = el("a", t("apps")); apps.href = "/apps/"; links.append(apps, link(t("writing"), "https://blog.jujin.kim")); body.append(links);
+  const links = el("div", null, "updates-links"); const apps = el("a", t("exploreApps")); apps.href = "/apps/"; links.append(apps, link(t("writing"), "https://blog.jujin.kim")); body.append(links);
 }
 function startDrag(event, id) {
   if (event.button !== 0 || drag) return;

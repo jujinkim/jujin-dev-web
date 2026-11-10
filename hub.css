@@ -383,7 +383,21 @@ footer > a:last-child {
 main:focus {
   outline: none;
 }
+.studio { margin-top: 56px; }
+.studio .section-heading { flex-wrap: wrap; gap: 14px; }
+.studio .section-heading a { font-size: 13px; color: var(--green); }
+.studio-intro { color: var(--muted); font-size: 14px; }
+.studio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.studio-app { display: flex; align-items: flex-start; gap: 16px; min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.studio-app:hover { border-color: var(--green); text-decoration: none; }
+.studio-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex-shrink: 0; font-size: 30px; }
+.studio-icon img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; }
+.studio-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 7px; }
+.studio-copy strong { font-size: 17px; font-weight: 550; }
+.studio-copy > span { color: var(--muted); font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.studio-copy .studio-status { color: var(--green); font-size: 11px; }
 @media (max-width: 800px) {
+  .studio-grid { grid-template-columns: 1fr; }
   header,
   main,
   footer {
