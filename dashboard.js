@@ -112,14 +112,12 @@ async function load(id, force = false) {
       const body = document.querySelector(`[data-id="${id}"] .widget-body`);
       if (body) {
         const previousList = body.querySelector(".news-list, .market-grid");
-        const scrollTop = previousList?.scrollTop || 0;
         const focused = previousList?.contains(document.activeElement);
         const focusedHref = focused ? document.activeElement.getAttribute("href") : null;
         body.replaceChildren();
         if (data.has(id)) registry[id].render(body, data.get(id)); else renderError(body, id);
         const nextList = body.querySelector(".news-list, .market-grid");
         if (nextList) {
-          nextList.scrollTop = scrollTop;
           if (focused) (Array.from(nextList.querySelectorAll("a")).find(a => a.getAttribute("href") === focusedHref) || nextList).focus({ preventScroll: true });
         }
       }
@@ -129,7 +127,7 @@ async function load(id, force = false) {
 }
 function renderMarket(body, payload) {
   const grid = el("div", null, "market-grid");
-  grid.tabIndex = 0; grid.setAttribute("aria-label", t("market"));
+  grid.tabIndex = -1; grid.setAttribute("aria-label", t("market"));
   const units = ["point", "point", "point", "point", "goldUnit", "oilUnit", "usdUnit", "jpyUnit"];
   const ids = ["kospi", "kosdaq", "nasdaq", "sp500", "gold", "wti", "usdkrw", "jpykrw"];
   ids.forEach((id, index) => {
@@ -148,7 +146,7 @@ function renderMarket(body, payload) {
 }
 function renderNews(body, payload) {
   const list = el("ol", null, "news-list");
-  list.tabIndex = 0; list.setAttribute("aria-label", t("geeknews"));
+  list.tabIndex = -1; list.setAttribute("aria-label", t("geeknews"));
   for (const item of payload.items.slice(0, 10)) {
     if (!safeURL(item.url)) continue;
     const row = el("li", null, "news-item"), content = el("div"); content.append(link(item.title, item.url), timeNode(item.publishedAt)); row.append(content); list.append(row);
