@@ -17,7 +17,7 @@ Preview `http://localhost:8080/` and `/apps/`. Building requires internet access
 
 ## Widgets and preferences
 
-The registry in `dashboard.js` defines market, GeekNews, and updates widgets. Add/remove/reorder and standard/wide settings persist in `jujin.dashboard.v1` localStorage with the selected language. Mobile displays one column without losing desktop widths. Drag handles, keyboard movement buttons, and reset are available in Edit layout. Removing all widgets is supported. Storage failures use in-memory settings.
+The registry in `dashboard.js` defines market, GeekNews, and updates widgets. Add/remove/reorder and standard/wide settings persist in `jujin.dashboard.v1` localStorage with the selected language. Desktop uses three columns (two on tablets); a wide widget spans two columns. Mobile displays one column without losing desktop widths. News lists and narrow market grids scroll within their compact widgets and support keyboard scrolling. Data refreshes preserve scroll position and focus. Drag handles, keyboard movement buttons, and reset are available in Edit layout. Removing all widgets is supported. Storage failures use in-memory settings.
 
 UI language initially follows the browser (Korean for `ko`, English otherwise). Feed content stays in its original language. Dates show Seoul time. The Apps showcase retains its existing English content.
 
