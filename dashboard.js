@@ -19,6 +19,14 @@ let state = defaults(navigator.language), storageOK = true, editing = false;
 try { state = normalize(JSON.parse(localStorage.getItem(KEY)), navigator.language); } catch { /* Corrupt settings recover to defaults. */ }
 try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { storageOK = false; }
 const data = new Map(), pending = new Map(), failed = new Set();
+const widgetGrid = $("#widgets");
+const widgetSizes = typeof ResizeObserver === "function" ? new ResizeObserver(entries => {
+  for (const { target, borderBoxSize } of entries) {
+    const height = borderBoxSize?.[0]?.blockSize ?? target.getBoundingClientRect().height;
+    target.style.setProperty("--widget-height", Math.ceil(height));
+  }
+  widgetGrid.classList.add("widget-grid-masonry");
+}) : null;
 let drag = null;
 let marketDetailsOpen = false;
 const t = key => copy[state.language][key];
@@ -49,7 +57,9 @@ function renderPage() {
   renderCatalog();
 }
 function renderWidgets(focusId, action = "drag") {
-  const grid = $("#widgets"); grid.replaceChildren();
+  widgetSizes?.disconnect();
+  widgetGrid.classList.remove("widget-grid-masonry");
+  widgetGrid.replaceChildren();
   for (const id of state.order) {
     const def = registry[id], card = el("section", null, "widget");
     card.dataset.id = id; card.dataset.width = state.widths[id]; card.setAttribute("aria-labelledby", `title-${id}`);
@@ -57,7 +67,8 @@ function renderWidgets(focusId, action = "drag") {
     const heading = el("div", null, "widget-heading"), title = el("h2"); title.id = `title-${id}`;
     title.append(el("span", def.number, "widget-number"), document.createTextNode(t(id)));
     heading.append(title); if (def.source) heading.append(el("span", def.source, "widget-source")); card.append(heading);
-    const body = el("div", null, "widget-body"); card.append(body); grid.append(card);
+    const body = el("div", null, "widget-body"); card.append(body); widgetGrid.append(card);
+    widgetSizes?.observe(card, { box: "border-box" });
     if (data.has(id)) def.render(body, data.get(id));
     else if (failed.has(id)) renderError(body, id);
     else { body.append(el("div", t("loading"), "loading")); load(id); }
@@ -65,8 +76,8 @@ function renderWidgets(focusId, action = "drag") {
   $("#empty-desk").hidden = state.order.length > 0;
   $("#widget-count").textContent = String(state.order.length).padStart(2, "0");
   if (focusId) {
-    const control = grid.querySelector(`[data-id="${focusId}"] [data-action="${action}"]`);
-    const fallback = grid.querySelector(`[data-id="${focusId}"] [data-action="drag"]`);
+    const control = widgetGrid.querySelector(`[data-id="${focusId}"] [data-action="${action}"]`);
+    const fallback = widgetGrid.querySelector(`[data-id="${focusId}"] [data-action="drag"]`);
     (control?.disabled ? fallback : control)?.focus({ preventScroll: true });
   }
 }

@@ -24,9 +24,14 @@ html[lang=ko] .desk-intro h1 { letter-spacing: -1.8px; }
 .solid-button { background: var(--green); border-color: var(--green); color: var(--surface); }
 .quiet-button:hover, .icon-button:hover { background: var(--map); }
 .solid-button:hover { opacity: .88; }
-.widget-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.widget-grid { --widget-gap: 16; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--widget-gap) * 1px); align-items: start; }
 .widget { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; min-width: 0; }
 .widget[data-width=wide] { grid-column: span 2; }
+@media (width > 800px) {
+  /* Each span includes the gap after its card. Trim the last gap at the bottom. */
+  .widget-grid-masonry { grid-auto-rows: 1px; row-gap: 0; margin-bottom: calc(var(--widget-gap) * -1px); }
+  .widget-grid-masonry > .widget { grid-row-end: span calc(var(--widget-height) + var(--widget-gap)); }
+}
 .widget-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 16px; }
 .widget-heading h2 { font-size: 14px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px; }
 .widget-number { font: 10px ui-monospace, monospace; color: var(--muted); }
