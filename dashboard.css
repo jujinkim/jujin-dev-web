@@ -122,7 +122,7 @@ dialog p { font-size: 13px; }
 
 /* Icon-only app shortcuts stay small, including on narrow screens. */
 [data-id=apps] .widget-heading { padding-bottom: 8px; }
-.app-shortcuts { display: grid; grid-template-columns: repeat(4, 44px); gap: 8px; padding: 0 16px 14px; }
+.app-shortcuts { display: grid; grid-template-columns: repeat(auto-fill, 44px); gap: 8px; padding: 0 16px 14px; }
 .app-shortcut { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); }
 .app-shortcut:hover { background: var(--map); text-decoration: none; border-color: var(--green); }
 .app-shortcut:focus-visible { outline-offset: 2px; }
